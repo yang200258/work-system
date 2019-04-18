@@ -5,7 +5,7 @@
 import axios from 'axios'
 import router from '../router'
 import Auth from '@/util/auth'
-
+import { Message } from 'element-ui'
 var requestList = []
 
 /**
@@ -75,6 +75,19 @@ service.interceptors.response.use(
             console.log(error)
             return Promise.reject("Ajax Abort: 该请求在axios拦截器中被中断")
         } else if (error.response) {
+            switch (error.response.status) {
+                case 401:
+                    router.push('error/401')
+                    break
+                case 403:
+                    router.push('error/403')
+                    break
+                default:
+                    Message({
+                        message: `服务器错误！错误代码：${error.response.status}`,
+                        type: 'error'
+                    })
+            }
             return Promise.reject(error.response.data)
         }
     }

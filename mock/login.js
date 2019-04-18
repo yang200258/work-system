@@ -4,7 +4,8 @@ const data = {
     'message': '这里是登录提交后错误提示信息@increment',
     'uid': '@id',
     'name': '@cname',
-    'token': '@guid'
+    'token': '@guid',
+    'error': '1'
 }
 
 export default [{

@@ -7,7 +7,14 @@ import router from './router'
 import store from './store'
 import axios from './util/ajax'
 
-
+import { Input, Form, FormItem, MessageBox, Message, Button, Checkbox } from 'element-ui'
+Vue.use(Input)
+Vue.use(Form);
+Vue.use(FormItem);
+Vue.use(Button);
+Vue.use(Checkbox);
+Vue.prototype.$msgbox = MessageBox
+Vue.prototype.$message = Message
 
 //引入lodash语法便于操作数据
 import _ from 'lodash'

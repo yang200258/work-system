@@ -1,5 +1,5 @@
 <template>
-    <div class="side-nav" :class="layout">
+    <div class="side-nav">
         <el-menu router ref="navbar" :default-active="defActive" :mode="navMode" menu-trigger="hover" @select="selectMenu" @open="openMenu" @close="closeMenu" unique-opened background-color="#545c64" text-color="#fff" active-text-color="#ffd04b">
             <nav-bar-item v-for="(item, n) in navList" :item="item" :key="n" :navIndex="String(n)"></nav-bar-item>
         </el-menu>
@@ -33,9 +33,6 @@ export default {
                 return "horizontal"
             }
         },
-        isDark(){
-            return this.$store.state.theme.indexOf("dark") >= 0 ? 'dark' : 'light'
-        }
     },
     watch: {
         // 当通过TagNav来激活页面时也执行一次selectMenu

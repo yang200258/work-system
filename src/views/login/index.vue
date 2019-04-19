@@ -55,22 +55,28 @@ export default {
         //登录封装方法(登录、获取用户详情、获取机构信息)
         authLogin: function(username,password) {
             this.login({username,password}).then(res=> {
-                console.log('登录请求成功数据',res);
-                if(res && res.code == 200) {
+                console.log('登录请求成功数据',res)
+                if(res) {
                     this.getAccountDetail().then(res=> {
-                        if(res && res.code == 200) {
+                        if(res.userId) {
                             this.logining = false
-                            this.$router.push('home')
                             this.$message.success('登录成功！')
+                            this.$router.push('home')
                         } else {
-                            this.$message.warn('获取用户详情异常1' + res.code)
+                            this.$message.error(res.msg)
+                            this.logining = false
                         }
                     }).catch(err=> {
                         console.log('获取用户详情异常2' + err);
+                        this.logining = false
                     })
+                } else {
+                     this.$message.error(res.msg)
+                     this.logining = false
                 }
             }).catch(err=> {
                 console.log('登录异常',err);
+                this.logining = false
             })
         }
     }

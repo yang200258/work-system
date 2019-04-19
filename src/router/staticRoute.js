@@ -14,11 +14,21 @@ const staticRoute = [{
         component: layout,
         children: [{
             path: '',
-            name: 'home',
+            name: 'homeed',
             component: resolve => require(['@/views/home'], resolve),
-            meta: { name: 'home' }
+            meta: { name: 'home22' }
         }]
-
+    },
+    {
+        path: '/usermanage',
+        name: 'usermanage',
+        component: layout,
+        children: [{
+            path: '',
+            name: 'usermanageex',
+            component: resolve => require(['@/views/usermanage'], resolve),
+            meta: { name: 'usermanageex' }
+        }]
     }
 ]
 

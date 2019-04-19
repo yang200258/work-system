@@ -1,6 +1,6 @@
 <template>
-    <div class="side-nav">
-        <el-menu router ref="navbar" :default-active="defActive" mode="horizontal" menu-trigger="hover" @select="selectMenu" @open="openMenu" @close="closeMenu" unique-opened background-color="#545c64" text-color="#fff" active-text-color="#ffd04b">
+    <div class="top-nav">
+        <el-menu router ref="navbar" :default-active="defActive" mode="horizontal" menu-trigger="hover" @select="selectMenu" @open="openMenu" @close="closeMenu" unique-opened background-color="#409EFF" text-color="#fff" active-text-color="#ffd04b">
             <nav-bar-item v-for="(item, n) in navList" :item="item" :key="n" :navIndex="String(n)"></nav-bar-item>
         </el-menu>
         <div v-show="navBgShow" class="full-screen-navBg" @click.self="closeAll"></div>
@@ -19,7 +19,7 @@ export default {
     },
     computed:{
         ...mapState({
-            navList: state => state.auth.navList
+            navList: state => state.auth.navlist
         }),
         defActive(){
             return this.$route.path
@@ -57,19 +57,13 @@ export default {
             openMenuList.forEach((ele) => {
                 this.$refs.navbar.closeMenu(ele)
             })
-            if(this.navMode == 'horizontal'){
-                this.navBgShow = false
-            }
+            this.navBgShow = false
         },
         openMenu(){
-            if(this.navMode == 'horizontal'){
-                this.navBgShow = true
-            }
+            this.navBgShow = true
         },
         closeMenu(){
-            if(this.navMode == 'horizontal'){
-                this.navBgShow = false
-            }
+            this.navBgShow = false
         },
         closeAll(){
             console.log("背景遮罩图")
@@ -78,11 +72,22 @@ export default {
             openMenu.forEach((ele) => {
                 this.$refs.navbar.closeMenu(ele)
             })
-            if(this.navMode == 'horizontal'){
-                this.navBgShow = false
-            }
+            this.navBgShow = false
         }
     },
     components: { NavBarItem }
 }
 </script>
+
+<style lang="scss" scoped>
+    .top-nav {
+        .full-screen-navBg {
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 5;
+        }
+    }
+</style>

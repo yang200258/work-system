@@ -4,7 +4,7 @@ import Navlist from '@/assets/js/navlist'
 const state = {
     token: '',
     identityCode: '',
-    navlist: [],
+    navlist: Navlist[0].data,
     organ: []
 }
 
@@ -41,10 +41,12 @@ const actions = {
                     ...userInfo
                 }
             }).then(res => {
-                console.log(res);
-                if (res && res.code == 200) {
-                    commit('setToken', res.token)
-                    dispatch('getNavlist')
+                console.log('获取登录数据', res.token);
+                if (res) {
+                    if (res.token) {
+                        commit('setToken', res.token)
+                        dispatch('getNavlist')
+                    }
                     resolve(res)
                 } else {
                     reject(res)
@@ -53,17 +55,14 @@ const actions = {
         })
     },
     //获取用户详情
-    getAccountDetail({ commit }, data) {
+    getAccountDetail({ commit }) {
         return new Promise((resolve, reject) => {
             axios({
                 url: '/accounts/me',
-                method: 'post',
-                data: {
-                    ...data
-                }
+                method: 'get'
             }).then(res => {
                 console.log('获取用户详情数据', res);
-                if (res && res.code == 200) {
+                if (res.userId) {
                     commit('user/setUserInfo', res, { root: true })
                     resolve(res)
                 } else {
@@ -77,10 +76,10 @@ const actions = {
         return new Promise((resolve, reject) => {
             axios({
                 url: '/organizations',
-                method: 'post',
+                method: 'get',
                 data: {
-                    id: data.id || '',
-                    level: data.level || ''
+                    id: data.id || 0,
+                    level: data.level || 0
                 }
             }).then(res => {
                 if (res && res.code == 200) {
@@ -106,6 +105,14 @@ const actions = {
         // })
         commit('setNavlist', Navlist[0].data)
     },
+    //退出登录
+    logout: function({ commit }) {
+        return new Promise((resolve) => {
+            commit('user/setUserInfo', {}, { root: true })
+            commit('setToken', '')
+            resolve()
+        })
+    }
 }
 
 

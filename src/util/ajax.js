@@ -40,7 +40,7 @@ axios.defaults.baseURL = '/'
 service.interceptors.request.use(
     config => {
         if (Auth.hasToken()) {
-            config.data.token = Auth.hasToken()
+            config.headers['x-token'] = Auth.hasToken()
         } else {
             router.push('/')
         }

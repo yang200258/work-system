@@ -5,7 +5,7 @@ var data = [{
     },
     {
         name: '用户管理',
-        path: '',
+        path: '/userManage',
         auth: '',
     },
     {

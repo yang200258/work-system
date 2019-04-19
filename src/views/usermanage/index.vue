@@ -48,7 +48,7 @@
                 </el-col>
             </el-row>
             <el-row>
-                <el-button type="primary">添加</el-button>
+                <el-button type="primary" @click="test">添加</el-button>
                 <el-button type="primary">导出</el-button>
                 <el-button type="primary">导入</el-button>
             </el-row>
@@ -66,6 +66,19 @@ export default {
             roleOptions: [{label:'正式员工',value: 'regular'},{label:'劳派员工',value: 'regular2'},{label:'外包员工',value: 'regular3'}],
             checkGroupOptions: [{label:'易建科技海口考勤组',value: 'regular'},{label:'易建科技海口考勤组',value: 'regular2'},{label:'易建科技海口考勤组',value: 'regular3'}],
             accountStatusOptions: [{label:'休假',value: 'regular'},{label:'离职',value: 'regular2'},{label:'正常',value: 'regular3'}]
+        }
+    },
+    methods: {
+        test: function(){
+            this.$axios({
+                url:'/organizations',
+                method: 'get',
+                data: {
+                    
+                }
+            }).then(res=> {
+                console.log(res);
+            })
         }
     }
 }

@@ -7,12 +7,15 @@ import router from './router'
 import store from './store'
 import axios from './util/ajax'
 
-import { Input, Form, FormItem, MessageBox, Message, Button, Checkbox } from 'element-ui'
+import { Input, Form, FormItem, MessageBox, Message, Button, Checkbox, Menu, Submenu, MenuItem } from 'element-ui'
 Vue.use(Input)
 Vue.use(Form);
 Vue.use(FormItem);
 Vue.use(Button);
 Vue.use(Checkbox);
+Vue.use(Menu);
+Vue.use(Submenu);
+Vue.use(MenuItem);
 Vue.prototype.$msgbox = MessageBox
 Vue.prototype.$message = Message
 

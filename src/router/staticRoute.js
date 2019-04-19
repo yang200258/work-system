@@ -1,3 +1,4 @@
+import layout from '@/views/layout'
 const staticRoute = [{
         path: '/',
         redirect: '/login'
@@ -10,7 +11,14 @@ const staticRoute = [{
     {
         path: '/home',
         name: 'home',
-        component: resolve => require(['@/views/home'], resolve)
+        component: layout,
+        children: [{
+            path: '',
+            name: 'home',
+            component: resolve => require(['@/views/home'], resolve),
+            meta: { name: 'home' }
+        }]
+
     }
 ]
 

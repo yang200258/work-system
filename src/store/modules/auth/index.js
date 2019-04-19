@@ -4,7 +4,8 @@ import Navlist from '@/assets/js/navlist'
 const state = {
     token: '',
     identityCode: '',
-    navlist: []
+    navlist: [],
+    organ: []
 }
 
 const mutations = {
@@ -22,6 +23,9 @@ const mutations = {
     //设置权限列表
     setNavlist: (state, data) => {
         if (data) state.navlist = data
+    },
+    setOrgan: (state, data) => {
+        state.organ = data
     }
 }
 
@@ -31,16 +35,56 @@ const actions = {
     login({ commit, dispatch }, userInfo) {
         return new Promise((resolve, reject) => {
             axios({
-                url: '/login',
+                url: '/accounts/login',
                 method: 'post',
                 data: {
                     ...userInfo
                 }
             }).then(res => {
-                if (res && res.error) {
+                console.log(res);
+                if (res && res.code == 200) {
                     commit('setToken', res.token)
-                    commit('user/setName', res.username, { root: true })
                     dispatch('getNavlist')
+                    resolve(res)
+                } else {
+                    reject(res)
+                }
+            })
+        })
+    },
+    //获取用户详情
+    getAccountDetail({ commit }, data) {
+        return new Promise((resolve, reject) => {
+            axios({
+                url: '/accounts/me',
+                method: 'post',
+                data: {
+                    ...data
+                }
+            }).then(res => {
+                console.log('获取用户详情数据', res);
+                if (res && res.code == 200) {
+                    commit('user/setUserInfo', res, { root: true })
+                    resolve(res)
+                } else {
+                    reject(res)
+                }
+            })
+        })
+    },
+    //获取机构列表
+    getOrgan({ commit }, data) {
+        return new Promise((resolve, reject) => {
+            axios({
+                url: '/organizations',
+                method: 'post',
+                data: {
+                    id: data.id || '',
+                    level: data.level || ''
+                }
+            }).then(res => {
+                if (res && res.code == 200) {
+                    commit('setOrgan')
                     resolve(res)
                 } else {
                     reject(res)

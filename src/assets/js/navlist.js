@@ -1,7 +1,7 @@
 var data = [{
         path: '/home',
         name: '首页',
-        auth: 'home'
+        auth: ''
     },
     {
         name: '用户管理',

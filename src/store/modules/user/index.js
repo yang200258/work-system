@@ -1,10 +1,10 @@
 const state = {
-    username: ''
+    user: {}
 }
 
 const mutations = {
-    setName: (state, data) => {
-        if (data) state.username = data
+    setUserInfo: (state, data) => {
+        state.user = data
     }
 }
 

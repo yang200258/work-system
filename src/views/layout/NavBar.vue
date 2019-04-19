@@ -1,9 +1,9 @@
 <template>
     <div class="side-nav">
-        <el-menu router ref="navbar" :default-active="defActive" :mode="navMode" menu-trigger="hover" @select="selectMenu" @open="openMenu" @close="closeMenu" unique-opened background-color="#545c64" text-color="#fff" active-text-color="#ffd04b">
+        <el-menu router ref="navbar" :default-active="defActive" mode="horizontal" menu-trigger="hover" @select="selectMenu" @open="openMenu" @close="closeMenu" unique-opened background-color="#545c64" text-color="#fff" active-text-color="#ffd04b">
             <nav-bar-item v-for="(item, n) in navList" :item="item" :key="n" :navIndex="String(n)"></nav-bar-item>
         </el-menu>
-        <div v-if="this.navMode == 'horizontal'" v-show="navBgShow" class="full-screen-navBg" @click.self="closeAll"></div>
+        <div v-show="navBgShow" class="full-screen-navBg" @click.self="closeAll"></div>
     </div>
 </template>
 
@@ -17,21 +17,12 @@ export default {
             navBgShow: false
         }
     },
-    props: ['layout'],
     computed:{
         ...mapState({
             navList: state => state.auth.navList
         }),
         defActive(){
             return this.$route.path
-        },
-        navMode(){
-            if(this.layout == "left"){
-                return "vertical"
-            }
-            if(this.layout == "top"){
-                return "horizontal"
-            }
         },
     },
     watch: {

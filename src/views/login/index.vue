@@ -39,7 +39,9 @@ export default {
     },
     methods: {
         ...mapActions({
-            login:'auth/login'
+            login:'auth/login',
+            getAccountDetail: 'auth/getAccountDetail',
+            getOrgan: 'auth/getOrgan',
         }),
         //登录请求
         loginRequest: function() {
@@ -50,13 +52,22 @@ export default {
                 }
             })
         },
-        //登录封装方法
+        //登录封装方法(登录、获取用户详情、获取机构信息)
         authLogin: function(username,password) {
             this.login({username,password}).then(res=> {
                 console.log('登录请求成功数据',res);
-                if(res && res.error) {
-                    this.$router.push('home')
-                    this.logining = false
+                if(res && res.code == 200) {
+                    this.getAccountDetail().then(res=> {
+                        if(res && res.code == 200) {
+                            this.logining = false
+                            this.$router.push('home')
+                            this.$message.success('登录成功！')
+                        } else {
+                            this.$message.warn('获取用户详情异常1' + res.code)
+                        }
+                    }).catch(err=> {
+                        console.log('获取用户详情异常2' + err);
+                    })
                 }
             }).catch(err=> {
                 console.log('登录异常',err);

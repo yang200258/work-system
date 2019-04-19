@@ -83,11 +83,11 @@ module.exports = {
         }
     },
     // 所有 webpack-dev-server 的选项都支持
-    // devServer: {
-    //     https: true,
-    //     disableHostCheck: true,
-    //     proxy: 'https://www.hnyskj.net/admin'
-    // },
+    devServer: {
+        https: true,
+        disableHostCheck: true,
+        proxy: '10.28.128.123:9090/user-api'
+    },
     // 可以用来传递任何第三方插件选项
     pluginOptions: {}
 }

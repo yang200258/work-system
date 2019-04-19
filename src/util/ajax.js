@@ -82,6 +82,9 @@ service.interceptors.response.use(
                 case 403:
                     router.push('error/403')
                     break
+                case 404:
+                    router.push('error/404')
+                    break
                 default:
                     Message({
                         message: `服务器错误！错误代码：${error.response.status}`,

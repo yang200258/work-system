@@ -1,15 +1,15 @@
 <template>
     <div class="wrapper">
-        <template v-if="layout == 'top'">
+        <template>
             <header-bar>
                 <template slot="topnav">
-                    <nav-bar :layout="'top'"></nav-bar>
+                    <nav-bar ></nav-bar>
                 </template>
             </header-bar>
         </template>
-        <div class="content" :class="layout">
+        <div class="content">
             <tag-nav></tag-nav>
-            <keep-alive :include="tagNavList">
+            <keep-alive>
                 <router-view></router-view>
             </keep-alive>
         </div>
@@ -23,9 +23,9 @@ import TagNav from './TagNav'
 
 export default {
     computed: {
-        tagNavList(){
-            return this.$store.state.tagNav.cachedPageName
-        }
+        // tagNavList(){
+        //     return this.$store.state.tagNav.cachedPageName
+        // }
     },
     components:{
         HeaderBar,
@@ -36,11 +36,6 @@ export default {
 </script>
 
 <style lang="scss">
-@import '@/assets/css/theme-dark.scss';
-@import '@/assets/css/theme-default.scss';
-@import '@/assets/css/theme/dark.scss';
-@import '@/assets/css/theme/default.scss';
-  @import '@/assets/css/page/login.scss';
 </style>
 
 

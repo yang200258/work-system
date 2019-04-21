@@ -8,8 +8,12 @@
                     </el-form-item>
                 </el-col>
                 <el-col :span="4">
-                    <el-form-item prop="department">
-
+                    <el-form-item prop="department" label="所属部门">
+                        <!-- <el-popover trigger="click" placement="bottom-start" width="200"> -->
+                            <!-- <el-tree :props="props" :load="loadNode" lazy show-checkbox > </el-tree>
+                            <el-select ref="select" slot="reference" v-model="queryUser.department" placeholder="所属部门" @click.native="isShowSelect = !isShowSelect"></el-select> -->
+                        <!-- </el-popover> -->
+                        <select-tree :treeData="queryUser.department" :id.sync="returnArray"></select-tree>
                     </el-form-item>
                 </el-col>
                 <el-col :span="6">
@@ -35,7 +39,7 @@
                 <el-col :span="6">
                     <el-form-item prop="checkGroup" label="考勤组">
                         <el-select v-model="queryUser.checkGroup" multiple placeholder="全部">
-                            <el-option v-for="item in checkGroupOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                            <el-option v-for="item in checkGroupOptions" :key="item.value" :label="item.label" :value="item.value" ></el-option>
                         </el-select>
                     </el-form-item>
                 </el-col>
@@ -57,6 +61,7 @@
 </template>
 
 <script>
+import SelectTree from '@/components/common/SelectTree.vue'
 export default {
     data() {
         return {
@@ -65,21 +70,32 @@ export default {
             userTypeOptions: [{label:'正式员工',value: 'regular'},{label:'劳派员工',value: 'regular2'},{label:'外包员工',value: 'regular3'}],
             roleOptions: [{label:'正式员工',value: 'regular'},{label:'劳派员工',value: 'regular2'},{label:'外包员工',value: 'regular3'}],
             checkGroupOptions: [{label:'易建科技海口考勤组',value: 'regular'},{label:'易建科技海口考勤组',value: 'regular2'},{label:'易建科技海口考勤组',value: 'regular3'}],
-            accountStatusOptions: [{label:'休假',value: 'regular'},{label:'离职',value: 'regular2'},{label:'正常',value: 'regular3'}]
+            accountStatusOptions: [{label:'休假',value: 'regular'},{label:'离职',value: 'regular2'},{label:'正常',value: 'regular3'}],
+            props: { label: 'name', children: 'zones'},
+            isShowSelect: false,
+            returnArray: []
+
         }
     },
+    components: {
+        SelectTree
+    },
+    watch: {
+
+    },
     methods: {
-        test: function(){
+        getOrganization: function(id = 0,level = 0){
             this.$axios({
                 url:'/organizations',
                 method: 'get',
                 data: {
-                    
+                    id,level
                 }
             }).then(res=> {
                 console.log(res);
             })
-        }
+        },
+        
     }
 }
 </script>
@@ -91,6 +107,9 @@ export default {
             margin-top: 30px;
             .el-form-item {
                 margin: 0;
+                .visible {
+                    display: none;
+                }
             }
             .more-condition{
                 height: 30px;

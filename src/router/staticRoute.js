@@ -16,7 +16,7 @@ const staticRoute = [{
             path: '',
             name: 'homeed',
             component: resolve => require(['@/views/home'], resolve),
-            meta: { name: 'home22' }
+            meta: { name: '首页' }
         }]
     },
     {
@@ -27,7 +27,7 @@ const staticRoute = [{
             path: '',
             name: 'usermanageex',
             component: resolve => require(['@/views/usermanage'], resolve),
-            meta: { name: 'usermanageex' }
+            meta: { name: '用户管理' }
         }]
     }
 ]

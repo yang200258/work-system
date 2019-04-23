@@ -1,5 +1,5 @@
 // 生产环境中注释掉以下语句
-import '../mock/index.js'
+// import '../mock/index.js'
 
 import Vue from 'vue'
 import App from './App.vue'
@@ -7,7 +7,7 @@ import router from './router'
 import store from './store'
 import axios from './util/ajax'
 
-import { Input, Form, FormItem, MessageBox, Message, Button, Checkbox, Menu, Submenu, MenuItem, Select, Option, Row, Col,Tree,Popover } from 'element-ui'
+import { Main, Loading, Container, Pagination, TableColumn, Table, Input, Form, FormItem, MessageBox, Message, Button, Checkbox, Menu, Submenu, MenuItem, Select, Option, Row, Col, Tree, Popover } from 'element-ui'
 Vue.use(Input)
 Vue.use(Form);
 Vue.use(FormItem);
@@ -22,6 +22,13 @@ Vue.use(Tree);
 Vue.use(Popover)
 Vue.use(Submenu);
 Vue.use(MenuItem);
+Vue.use(Table);
+Vue.use(Main);
+Vue.use(Pagination);
+Vue.use(TableColumn);
+Vue.use(Container);
+Vue.use(Loading.directive);
+Vue.prototype.$loading = Loading.service;
 Vue.prototype.$msgbox = MessageBox
 Vue.prototype.$message = Message
 

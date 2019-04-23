@@ -8,7 +8,7 @@
             </header-bar>
         </template>
         <div class="content">
-            <!-- <tag-nav></tag-nav> -->
+            <tag-nav></tag-nav>
             <keep-alive>
                 <router-view></router-view>
             </keep-alive>
@@ -19,18 +19,18 @@
 <script>
 import HeaderBar from './HeaderBar'
 import NavBar from './NavBar'
-// import TagNav from './TagNav'
+import TagNav from './TagNav'
 
 export default {
     computed: {
-        // tagNavList(){
-        //     return this.$store.state.tagNav.cachedPageName
-        // }
+        tagNavList(){
+            return this.$store.state.tagNav.cachedPageName
+        }
     },
     components:{
         HeaderBar,
         NavBar,
-        // TagNav
+        TagNav
     }
 }
 </script>

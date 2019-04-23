@@ -1,10 +1,10 @@
 <template>
-  <el-popover placement="bottom-start" width="200" @hide="popoverHide" trigger="click" v-model="isShowSelect">
+  <el-popover placement="bottom-start" width="200" @hide="popoverHide" trigger="click" v-model="isShowSelect"> 
     <el-tree
-      style="height:300px;overflow-y: scroll;"
+      style="height:300px;"
+      class="pop-tree"
       v-if="isShowSelect"
       :data="treeData"
-      :check-strictly="true"
       :node-key="nodeKey"
       :show-checkbox="multiple"
       :expand-on-click-node="multiple"
@@ -15,46 +15,75 @@
       @node-click="handleNodeClick"
       @check="getKeys"
       :props="defaultProps"
+      :load="loadNode"
       lazy
     ></el-tree>
-    <el-select slot="reference" ref="select" v-model="key" size="small" :clearable="true" :multiple="multiple" :placeholder="tipText" @click.native="isShowSelect = !isShowSelect">
-      <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
+    <el-select slot="reference" ref="select" v-model="name"  :multiple="multiple" :placeholder="tipText" @click.prevent="changeShow" :size="size">
+      <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.label"></el-option>
     </el-select>
   </el-popover>
+  
 </template>
 
 <script>
 export default {
   props: {
-    treeData: { type: Array, required: true },
+    //数据
+    treeData: { type: Array, required: false },
+    //是否默认展开所有节点
     defaultExpandAll: {
       type: Boolean,
       default: false
     },
+    //popover隐藏时触发
     popoverHide: {
       type: Function,
       default: function () { }
     },
+    //是否展示选择框、点击节点时展开
     multiple: {
       type: Boolean,
       default: true
     },
+    size:{
+      type: String,
+      default: 'mini'
+    },
+    //当有lazy加载时加载子数据的方法
+    loadNode: {
+      type: Function,
+      default: function() {}
+    },
+    // handleNodeClick:{
+    //   type: Function,
+    //   default:function() {}
+    // },
+    //父组件传递过来的数据。。   .sync双向绑定
     id: [String, Array],
+    //节点唯一标识
     nodeKey: { type: String, default: 'id' },
+    //默认文字
     tipText: { type: String, default: '请选择' }
   },
   data () {
     return {
       // 是否显示树状选择器
       isShowSelect: false,
+      //select选项
       options: [],
+      //select选择器值
       key: [],
+      name:[],
       showValueTmp: '',
+      //默认展开节点的key数组
       defaultExpandedKeys: [],
+      //默认勾选的节点的 key 的数组
       defaultCheckedKeys: [],
+      //tree空间配置选项
       defaultProps: {
         children: 'children',
-        label: 'label'
+        label: 'name',
+        isLeaf: 'leaf'
       }
     }
   },
@@ -62,11 +91,12 @@ export default {
     isShowSelect (val) {
       // 隐藏select自带的下拉框
       this.$refs.select.blur()
+      if(!this.name.length) this.key = []
       if (val) {
         // 下拉面板展开-选中节点-展开节点
         this.setTreeCheckNode(this.key)
         this.defaultCheckedKeys = this.key
-        this.defaultExpandedKeys = this.key
+        // this.defaultExpandedKeys = this.key
       }
     },
     key () {
@@ -87,11 +117,15 @@ export default {
     this.setTreeCheckNode(this.key)
   },
   methods: {
+    changeShow() {
+      // if(!this.isShowSelect)  this.isShowSelect=true
+      this.isShowSelect = !this.isShowSelect
+    },
     handleNodeClick (data) {
       if (!this.multiple) {
         let tmpMap = {}
         tmpMap.value = data.id
-        tmpMap.label = data.label
+        tmpMap.label = data.name
         this.options = []
         this.options.push(tmpMap)
         this.key = [data.id]
@@ -100,12 +134,17 @@ export default {
     },
     getKeys (data, checked) {
       let tmp = []
-      checked.checkedNodes.forEach(node => {
+      // let name = []
+      console.log(data, checked);
+      if(checked && checked.checkedNodes &&checked.checkedNodes.length) this.name = [checked.checkedNodes[0].name]
+      let checkedNodes = this._.uniqBy(checked.checkedNodes,'id')
+      checkedNodes.forEach(node => {
         let tmpMap = {}
         tmpMap.value = node.id
-        tmpMap.label = node.label
+        tmpMap.label = node.name
         tmp.push(tmpMap)
       })
+      // this.name = name
       this.options = tmp
       this.key = checked.checkedKeys
     },
@@ -118,14 +157,22 @@ export default {
     },
     // 递归查询树形节点
     findTreeNode (tree, id) {
+      if(tree && tree.length) {
         for (var i = 0; i < tree.length; i++) {
           if (tree[i].id === id) {
-            this.showValueTmp = tree[i].label
+            this.showValueTmp = tree[i].name
           } else if (tree[i].children != null && tree[i].children.length > 0) {
             this.findTreeNode(tree[i].children, id)
           }
+        }
       }
     }
   }
 }
 </script>
+
+<style lang="scss">
+.el-input--mini .el-input__inner {
+  height: 28px!important;
+}
+</style>

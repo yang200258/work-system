@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import ScrollBar from '@/components/ScrollBar'
+import ScrollBar from '@/components/common/ScrollBar'
 
 export default {
     data(){

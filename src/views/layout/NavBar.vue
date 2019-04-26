@@ -1,6 +1,6 @@
 <template>
     <div class="top-nav">
-        <el-menu router ref="navbar" :default-active="defActive" mode="horizontal" menu-trigger="hover" @select="selectMenu" @open="openMenu" @close="closeMenu" unique-opened background-color="#409EFF" text-color="#fff" active-text-color="#ffd04b">
+        <el-menu router ref="navbar" :default-active="defActive" mode="horizontal" menu-trigger="hover" @select="selectMenu" @open="openMenu" @close="closeMenu" unique-opened background-color="#384367" text-color="#fff" active-text-color="#ffd04b">
             <nav-bar-item v-for="(item, n) in navList" :item="item" :key="n" :navIndex="String(n)"></nav-bar-item>
         </el-menu>
         <div v-show="navBgShow" class="full-screen-navBg" @click.self="closeAll"></div>
@@ -27,15 +27,20 @@ export default {
     },
     watch: {
         // 当通过TagNav来激活页面时也执行一次selectMenu
-        // $route(){
-        //     let path = this.$route.path
-        //     console.log('navbarpath',this.$refs.navbar);
-        //     let indexPath = this.$refs.navbar.items[path].indexPath
-        //     this.selectMenu(path, indexPath)
-        // }
+        $route(){
+            let path = this.$route.path
+            if(path.includes('home')) {
+                this.$refs.navbar.activeIndex = ''
+                return
+            }
+            console.log(this.$refs.navbar);
+            let indexPath = this.$refs.navbar.items[path].indexPath
+            console.log('path, indexPath',path, indexPath);
+            this.selectMenu(path, indexPath)
+        }
     },
     methods: {
-        // eslint-disable-next-line
+        // 选择菜单激活
         selectMenu(index, indexPath){
             /**
              * 在选择父级菜单时自动关闭其下所有子菜单
@@ -79,8 +84,22 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
     .top-nav {
+        display: flex;
+        flex-wrap: nowrap;
+        max-height: 60px;
+        .el-menu--horizontal {
+            display: flex;
+            flex-wrap: nowrap;
+            &>.el-submenu .el-submenu__icon-arrow {
+                display: none;
+            }
+        }
+        .el-submenu .el-menu-item {
+            min-width: 0;
+        }
+        
         .full-screen-navBg {
             position: absolute;
             left: 0;

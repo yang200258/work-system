@@ -10,5 +10,5 @@ const data = {
 export default [{
     path: '/accounts/me',
     data: data,
-    method: 'post'
+    method: 'get'
 }]

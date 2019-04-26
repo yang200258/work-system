@@ -3,20 +3,19 @@
         <el-main style="padding:0">
             <el-container class="infoTable">
                 <el-main style="padding:0">
-                        <el-table  v-loading="loadingTable" element-loading-text="拼命加载中" element-loading-spinner="el-icon-loading" :default-sort="{prop:'sort', order: 'ascending'}"
-                        :data="tableData" @selection-change="handleSelectionChange" :highlight-current-row="true"  :row-key="getRowKey">
+                        <el-table  v-loading="tableLoading" element-loading-text="拼命加载中" element-loading-spinner="el-icon-loading" :default-sort="tableSort"
+                        :data="tableData" @selection-change="selectionChange" :highlight-current-row="true">
                             <el-table-column type="selection" align="center" v-if="isSelected"> </el-table-column>
-                            <el-table-column v-for="(item,index) in head" :prop="item.key" :label="item.name" :key="index" align="center" :show-overflow-tooltip="true" 
-                            :reserve-selection="true"> </el-table-column>
+                            <el-table-column v-for="(item,index) in head" :prop="item.key" :label="item.name" :key="index"
+                             align="center" :show-overflow-tooltip="true"> </el-table-column>
                             <el-table-column label="操作" align="center" v-if="isOption">
                                 <template slot-scope="scope">
-                                    <el-button  type="text" size="small" @click.prevent="editInfo(scope)" v-if="isEditTable" style="color: #199ED8">{{editTableName}}</el-button>
-                                    <el-button  type="text" size="small" @click.prevent="editAccount(scope)" v-if="isEditAccount" style="color: #199ED8">{{editAccountName}}</el-button>
-                                    <el-button  type="text" size="small" @click.prevent="deleteInfo(scope)" v-if="isDeleteTable" style="color: red">{{deleteTableName}}</el-button>
+                                    <el-button  :type="optionType.edit" :class="editStyle" size="mini" @click.prevent="editTable(scope)" v-if="isEditTable">{{editTableName}}</el-button>
+                                    <el-button  :type="optionType.delete" :class="deleteStyle" size="mini" @click.prevent="deleteTable(scope)" v-if="isDeleteTable">{{deleteTableName}}</el-button>
                                 </template>
                             </el-table-column>
                         </el-table>
-                        <el-pagination class="page" v-if="isPagination" @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage" :page-sizes="[50]" :page-size="pageSize" layout="prev, pager, next" :total="totalNumber">
+                        <el-pagination background class="page" v-if="isPagination" @size-change="sizeChange" @current-change="currentChange" :current-page="currentPage" :page-sizes="[20]" :page-size.sync="pageSize" layout="prev, pager, next" :total="totalNumber">
                         </el-pagination>
                 </el-main>
             </el-container>
@@ -26,6 +25,29 @@
 
 <script>
 export default {
+    /* eslint-disable */
+    props: {
+        // 表格区
+        tableLoading: { type: Boolean, default: false },
+        tableSort: {prop:'sort', order: 'ascending'},
+        tableData: {type: Array},
+        head: {type: Array},
+        isSelected: { type: Boolean, default: true },
+        // 操作区
+        isOption: { type: Boolean, default: true },
+        isEditTable: { type: Boolean, default: true },
+        editTableName: { type: String, default: '编辑' },
+        isDeleteTable: { type: Boolean, default: true },
+        deleteTableName: { type: String, default: ' ' },
+        optionType: {type: Object,default: function() {return {'edit':'text','delete':'text'}  } },
+        editStyle: {type: String,default:''},
+        deleteStyle:{type: String,defult: '.deleteStyle {color: red}'},
+        //分页区
+        isPagination: { type: Boolean, default: true },
+        currentPage:{ type: Number,default: 1 },
+        pageSize: { type: Number,default: 1 },
+        totalNumber:  { type: Number,default: 0 },
+    },
     data(){
         return{
             
@@ -33,42 +55,24 @@ export default {
     },
     components: {
     },
-    props: ['isEditAccount','editAccountName','loadingAddInformTable','addInformData','editType','isPagination','head','loadingTable','currentPage','pageSize','totalNumber','isEdit','isDelete','tableData',
-             'editName','deleteName','isEditTable','editTableName','isDeleteTable','deleteTableName','isSelected','isOption','optionName','isEditOption'],
     methods: {
-        handleSizeChange(val) {
-            
+        sizeChange(val) {
             console.log(`每页 ${val} 条`);
+             this.$emit('sizeChange',val)
         },
-        handleCurrentChange(val) {
+        currentChange(val) {
             // console.log(`当前页: ${val}`);
-            this.$emit('handleCurrentChange',val)
+            this.$emit('currentChange',val)
         },
-        editOption: function(){
-            this.$emit('editOption')
+        editTable: function(scope){
+            this.$emit('editTable',scope)
         },
-        deleteOption: function(){
-            this.$emit('deleteOption')
+        deleteTable: function(scope){
+            this.$emit('deleteTable',scope)
         },
-        editInfo: function(scope){
-            this.$emit('editInfo',scope)
+        selectionChange: function(val){
+            this.$emit('selectionChange',val)
         },
-        editAccount: function(scope){
-            this.$emit('editAccount',scope)
-        },
-        deleteInfo: function(scope){
-            this.$emit('deleteInfo',scope)
-        },
-        handleSelectionChange: function(val){
-            this.$emit('handleSelectionChange',val)
-        },
-        getRowKey: function(row){
-            this.$emit('getRowKey',row)
-        },
-        option: function(){
-            this.$emit('option')
-        }
-
     }
 }
 </script>

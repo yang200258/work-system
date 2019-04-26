@@ -29,6 +29,17 @@ const staticRoute = [{
             component: resolve => require(['@/views/usermanage'], resolve),
             meta: { name: '用户管理' }
         }]
+    },
+    {
+        path: '/work1',
+        name: 'work1',
+        component: layout,
+        children: [{
+            path: '',
+            name: 'work1',
+            component: resolve => require(['@/views/holiday'], resolve),
+            meta: { name: '节假日' }
+        }]
     }
 ]
 

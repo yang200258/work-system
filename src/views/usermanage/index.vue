@@ -29,9 +29,9 @@
                 </el-col>
                 <div class="query-info">
                     <div class="more-condition">
-                        <img src="@/assets/image/Double arrow up.png" alt="">
+                        <img src="@/assets/images/Double arrow up.png" alt="">
                     </div>
-                    <el-button type="primary" @click.prevent="queryUserGroup" size="mini">查询</el-button>
+                    <el-button type="primary" @click.prevent="quertUser" size="mini">查询</el-button>
                 </div>
                 
             </el-row>
@@ -39,12 +39,12 @@
                 <el-col :span="6">
                     <el-form-item prop="checkGroup" label="考勤组">
                         <!-- <select-all :data.sync="queryUser.checkGroup" :options="checkGroupOptions"></select-all> -->
-                        <el-select v-model="checkGroup" multiple placeholder="全部" collapse-tags  size="mini" ref="selectGroup">
+                        <el-select v-model="checkGroup" multiple placeholder="全部" :class="{'demo-select': true}" collapse-tags  size="mini" ref="selectGroup">
                             <el-option v-for="item in checkGroupOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
                         </el-select>
                     </el-form-item>
                 </el-col>
-                <el-col :span="4">
+                <el-col :span="5">
                     <el-form-item prop="accountStatus" label="账号状态">
                         <el-select v-model="queryUser.accountStatus" multiple placeholder="全部" collapse-tags  size="mini">
                             <el-option v-for="item in accountStatusOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
@@ -60,8 +60,9 @@
         </el-form>
         </div>
         <div class="usermanage-content">
-            <table-data :head="head" :tableData="tabledata" :loadingTable="loading" :isSelected="true" :isOption="true" :isEditTable="true"
-             :editTableName="'编辑'" :isDeleteTable="true" :deleteTableName="'停用'" :isPagination="true"  :totalNumber="total"></table-data>
+            <table-data :head="head" :tableData="tableData" :tableLoading="loading" :isSelected="true" :isOption="true" :isEditTable="true"
+             :editTableName="'编辑'" :isDeleteTable="true" :deleteTableName="'停用'" :isPagination="true"  :totalNumber="total" @currentChange="currentChange"
+             @editTable="editUser" @deleteTable="stopUse"></table-data>
         </div>
     </div>
 </template>
@@ -85,10 +86,10 @@ export default {
             rootNode:[],
             tipText:'',
             checkGroup: [],
-            head: [{key: 'name',name: '姓名'},{key: 'username',name: '账号'},{key: 'organizationId',name: '部门'},{key: 'employeeId',name: '工号'},{key: 'role',name: '角色'},
+            head: [{key: 'name',name: '姓名'},{key: 'username',name: '账号'},{key: 'organizationName',name: '部门'},{key: 'employeeId',name: '工号'},{key: 'role',name: '角色'},
                     {key: 'type',name: '员工类型'},{key: 'group',name: '考勤组'},{key: 'status',name: '账号状态'}],
             loading: false,
-            tabledata: [],
+            tableData: [],
             total: 0
         }
     },
@@ -107,10 +108,13 @@ export default {
         }
     },
     mounted() {
+        //获取最高层级机构信息
         this.getOrganization().then(res=> {
             this.rootNode = res
             this.tipText = res[0].name
         })
+        //获取用户
+        this.queryUserGroup()
     },
     methods: {
         //获取机构数据
@@ -141,24 +145,49 @@ export default {
                 })
             }
         },
-        //查询用户列表
-        queryUserGroup: function(oid=10001,page=0,size=20) {
+        //获取用户列表（页面初始数据）
+        queryUserGroup: function(oid=0,page=0,size=20) {
             this.$axios({
-                url: '/users',
+                url: `/users?oid=${oid}&page=${page}&size=${size}`,
                 method: 'get',
-                data: {oid,page,size}
             }).then(res=> {
                 console.log(res);
                 if(res && res.content &&res.content.length) {
-                    this.tabledata = res.content
+                    this.tableData = res.content
                     this.total = res.totalPages
                 }
-                
             }).catch(err=> {
                 console.log(err);
             })
+        },
+        //查询用户
+        quertUser: function(page=0 ,search={oid:'',q: ''}, size=20) {
+            this.$axios({
+                url: '/users/_search',
+                method: 'post',
+                data: {
+                    page,size,search
+                }
+            }).then(res=> {
+                if(res) {
+                    this.tableData = res.content
+                    this.total = res.totalPages
+                }
+            }).catch(err=> {
+                console.log(err);
+            })
+        },
+        //翻页
+        currentChange: function(val) {
+            this.queryUserGroup(0,val,20)
+        },
+        //编辑用户信息
+        editUser: function() {
+            this.$message.error('开发中,勿急！')
+        },
+        stopUse: function() {
+            this.$message.error('开发中,勿急！')
         }
-        
     }
 }
 </script>

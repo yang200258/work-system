@@ -7,7 +7,7 @@
                     <el-input type="text" v-model="loginForm.username" auto-complete="off" placeholder="请输入用户名"></el-input>
                 </el-form-item>
                 <el-form-item prop="password">
-                    <el-input type="password" v-model="loginForm.password" auto-complete="off" placeholder="请输入密码"></el-input>
+                    <el-input type="password" v-model="loginForm.password" auto-complete="off" placeholder="请输入密码" v-on:keyup.enter.native="loginRequest"></el-input>
                 </el-form-item>
                 <el-form-item prop="identityCode" v-if="identityCode">
                     <el-input type="text" v-model="loginForm.identityCode" auto-complete="off" placeholder="验证码"></el-input>
@@ -30,8 +30,7 @@ export default {
         return {
             loginForm: {username:'',password: '',identityCode: ''},
             loginRule: {username: [{required: true,message: '请输入用户名',trigger: 'blur'}],
-                        password: [{required: true,message: '请输入密码',trigger: 'blur'},
-                                   { min: 6, max: 10, message: '长度在 6 到 10 个字符', trigger: 'blur' }]},
+                        password: [{required: true,message: '请输入密码',trigger: 'blur'}]},
             logining: false,
             checked: false,
             identityCode: ''
@@ -96,7 +95,6 @@ export default {
             -moz-border-radius: 5px;
             background-clip: padding-box;
             margin: 0 auto;
-
             width: 25%;
             padding: 35px 35px 15px 35px;
             background: #fff;
@@ -107,11 +105,6 @@ export default {
                 text-align: center;
                 color: #505458;
             }
-        }
-        .title {
-            margin: 0px auto 40px auto;
-            text-align: center;
-            color: #505458;
         }
         .remember {
             margin: 0px 0px 35px 0px;

@@ -15,7 +15,7 @@ const mutations = {
             console.error(`${data.name} 组件出现命名重复，请检查组件中的name字段。当前组件所在的路由地址为：${data.path}`)
             return
         }
-        if (data.path.includes('home') || data.path.includes('userManage')) state.openedPageList = []
+        if (data.path.includes('home') || data.path.includes('userManage') || data.path.includes('work1')) state.openedPageList = []
         state.openedPageList.push(data)
         if (state.cachePage) {
             state.cachedPageName.push(data.name)

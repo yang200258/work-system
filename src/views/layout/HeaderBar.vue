@@ -1,7 +1,9 @@
 <template>
     <div class="sys-header">
-        <div class="logo">
-            <slot name="logo"></slot>
+        <div class="logo" @click.prevent="goHome">
+            <!-- <slot name="logo"></slot> -->
+            <img src="@/assets/images/logo.png" alt="">
+            <p>EasySite</p>
         </div>
         <slot name="topnav"></slot>
         <article class="userInfo">
@@ -34,29 +36,50 @@ export default {
                 this.$router.push('/login')
             })
         },
+        goHome: function() {
+            this.$router.push('home')
+        }
     }
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
     .sys-header {
         position: fixed;
+        // display: flex;
+        // flex-wrap: nowrap;
         width: 100%;
         height: 60px;
-        background-color: #409EFF;
+        background-color: #384367;
         z-index: 1000;
+        max-height: 60px;
         .logo {
             float: left;
+            display: flex;
             height: 60px;
             line-height: 60px;
             padding-left: 20px;
             // color: $headerColor;
             font-size: 20px;
-        }
-    }
-    @media screen and (max-width: 800px) {
-        .logo {
-            display: none;
+            margin-right: 6%;
+            &:hover {
+                cursor: pointer;
+            }
+            img {
+                display: block;
+                width: 100%;
+                height: 40px;
+                z-index: 9999;
+                margin: auto;
+                margin-right: 10px;
+            }
+            p {
+                font-size: 24px;
+                color: #FFFFFF;
+                font-family: Arial;
+                font-weight: 700;
+                z-index: 9999;
+            }
         }
     }
 </style>

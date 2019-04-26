@@ -80,6 +80,7 @@ export default {
 <style lang="scss" scoped>
     .tag-nav {
         padding-left: 20px;
+        margin-bottom: 20px;
         height: 30px;
         font-size: 14px;
         .cur {

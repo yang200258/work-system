@@ -1,17 +1,14 @@
 <template>
     <div class="tag-nav">
-        <scroll-bar ref="scrollBar">
-            <router-link ref="span" class="tag-nav-item" :class="isActive(item) ? 'cur' : ''" v-for="(item, index) in tagNavList" 
-            :to="item.path" :key="index" tag="span">
-                <span v-if="index !== 0">/</span><span>{{item.title}}</span>
-                <!-- <span class='el-icon-close' @click.prevent.stop="closeTheTag(item, index)"></span> -->
-            </router-link>
-        </scroll-bar>
+        <router-link ref="span" class="tag-nav-item" :class="isActive(item) ? 'cur' : ''" v-for="(item, index) in tagNavList" 
+        :to="item.path" :key="index" tag="span">
+            <span v-if="index !== 0">/</span><span>{{item.title}}</span>
+            <!-- <span class='el-icon-close' @click.prevent.stop="closeTheTag(item, index)"></span> -->
+        </router-link>
     </div>
 </template>
 
 <script>
-import ScrollBar from '@/components/common/ScrollBar'
 
 export default {
     data(){
@@ -31,13 +28,13 @@ export default {
     watch: {
         $route(){
             this.addTagNav()
-            this.scrollToCurTag()
+            // this.scrollToCurTag()
         }
     },
     methods: {
         addTagNav(){
             // 如果需要缓存则必须使用组件自身的name，而不是router的name
-            console.log('this.$route',this.$route);
+            console.log(this.$route,this.$router);
             this.$store.commit("tagNav/addTagNav", {
                 // name: this.$router.getMatchedComponents()[1].name,
                 path: this.$route.path,
@@ -62,7 +59,7 @@ export default {
         //         }
         //     } 
         // },
-        scrollToCurTag(){
+        // scrollToCurTag(){
             // this.$nextTick(() =>{
             //     for (let item of this.$refs.tag) {
             //         if (item.to === this.$route.path) {
@@ -71,9 +68,8 @@ export default {
             //         }
             //     }
             // })
-        }
+        // }
     },
-    components: {ScrollBar}
 }
 </script>
 

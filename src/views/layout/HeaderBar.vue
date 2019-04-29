@@ -45,14 +45,9 @@ export default {
 
 <style lang="scss">
     .sys-header {
-        position: fixed;
         display: flex;
         flex-wrap: nowrap;
-        width: 100%;
-        height: 60px;
-        background-color: #384367;
         z-index: 1000;
-        max-height: 60px;
         .logo {
             float: left;
             display: flex;

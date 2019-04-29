@@ -38,15 +38,18 @@ export default {
 <style lang="scss">
 .wrapper {
     height: 100%;
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 60px auto;
     .header-bar {
-        height: 60px;
         min-width: 560px;
         position: fixed;
+        max-height: 60px;
+        background-color: #384367;
+        width: 100%;
     }
     .content {
-        padding-top: 80px;
+        margin-top: 80px;
         height: 100%;
     }
 }

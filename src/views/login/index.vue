@@ -16,7 +16,6 @@
                 <el-checkbox v-model="checked" class="remember">记住密码</el-checkbox>
                 <el-form-item style="width:100%;">
                     <el-button type="primary" style="width:100%;" @click.native.prevent="loginRequest" :loading="logining">登录</el-button>
-                    <!-- <el-button @click.native.prevent="reset">重置</el-button> -->
                 </el-form-item>
             </el-form>
         </article>
@@ -25,6 +24,7 @@
 
 <script>
 import {mapActions} from 'vuex'
+// import MyForm from '@/components/common/MyForm'
 export default {
     data() {
         return {
@@ -36,6 +36,7 @@ export default {
             identityCode: ''
         }
     },
+    // components: {MyForm},
     methods: {
         ...mapActions({
             login:'auth/login',
@@ -84,6 +85,10 @@ export default {
 
 <style lang="scss" scoped>
     .login-container {
+        background-image: url('../../assets/images/login.jpeg');
+        background-repeat: no-repeat;
+        background-size: 100%;
+        background-attachment: fixed;
         height: 100%;
         display: flex;
         flex-direction: column;

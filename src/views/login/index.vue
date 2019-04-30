@@ -93,7 +93,6 @@ export default {
         display: flex;
         flex-direction: column;
         justify-content: center;
-        // background-color: #999;
         .login-content {
             -webkit-border-radius: 5px;
             border-radius: 5px;

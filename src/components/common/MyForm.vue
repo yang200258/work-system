@@ -8,7 +8,7 @@
                 <el-checkbox-group v-model="formData[item.prop]" v-if="item.type == 'check'" :size="size">
                     <el-checkbox v-for="(option,i) in item.options" :label="option.value" :key="i">{{option.name}}</el-checkbox>
                 </el-checkbox-group>
-                <el-input v-model="formData[item.prop]" v-if="item.type == 'input'" :placeholder="item.placeholder" clearable :type="item.text" :size="size" auto-complete="off"></el-input>
+                <el-input v-model="formData[item.prop]" v-if="item.type == 'input'" :placeholder="item.placeholder" clearable :type="item.text" :size="size" autocomplete="off"></el-input>
                 <el-select v-model="formData[item.prop]" :placeholder="item.placeholder" v-if="item.type == 'select'" :size="size" collapse-tags multiple>
                     <el-option v-for="(option,i) in item.options" :key="i" :label="option.name" :value="option.value"></el-option>
                 </el-select>

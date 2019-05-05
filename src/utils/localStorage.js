@@ -1,4 +1,4 @@
-const ss = window.sessionStorage;
+const ss = window.localStorage;
 export default {
     getItem(key) {
         try {

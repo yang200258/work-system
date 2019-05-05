@@ -40,6 +40,17 @@ const staticRoute = [{
             component: resolve => require(['@/views/holiday'], resolve),
             meta: { name: '节假日' }
         }]
+    },
+    {
+        path: '/checkgroup',
+        name: 'checkgroup',
+        component: layout,
+        children: [{
+            path: '',
+            name: 'checkgroup',
+            component: resolve => require(['@/views/checkgroup'], resolve),
+            meta: { name: '创建考勤组' }
+        }]
     }
 ]
 

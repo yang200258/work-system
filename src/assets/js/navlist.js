@@ -9,22 +9,22 @@ var data = [{
         path: '/work1',
     },
     {
-        name: '考勤异常',
+        name: '创建考勤组',
         auth: '',
-        path: '/work2',
-        child: [{
-                path: '/manager/manager',
-                name: '管理员管理',
-            },
-            {
-                path: '/manager/oganization',
-                name: '机构管理',
-            },
-            {
-                path: '/manager/signTeacher',
-                name: '报名老师管理',
-            }
-        ]
+        path: '/checkgroup',
+        // child: [{
+        //         path: '/manager/manager',
+        //         name: '管理员管理',
+        //     },
+        //     {
+        //         path: '/manager/oganization',
+        //         name: '机构管理',
+        //     },
+        //     {
+        //         path: '/manager/signTeacher',
+        //         name: '报名老师管理',
+        //     }
+        // ]
     },
     {
         name: '用户权限管理',

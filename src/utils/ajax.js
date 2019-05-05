@@ -4,7 +4,7 @@
  */
 import axios from 'axios'
 import router from '../router'
-import Auth from '@/util/auth'
+import Auth from '@/utils/auth'
 import { Message } from 'element-ui'
 var requestList = []
 

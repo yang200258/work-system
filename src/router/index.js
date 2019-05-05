@@ -3,7 +3,7 @@ import store from '../store'
 import VueRouter from 'vue-router'
 import routes from './staticRoute'
 import NProgress from 'nprogress'
-import Auth from '@/util/auth'
+import Auth from '@/utils/auth'
 import whiteList from './whiteList'
 
 Vue.use(VueRouter)

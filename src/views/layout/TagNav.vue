@@ -2,7 +2,7 @@
     <div class="tag-nav">
         <router-link ref="span" class="tag-nav-item" :class="isActive(item) ? 'cur' : ''" v-for="(item, index) in tagNavList" 
         :to="item.path" :key="index" tag="span">
-            <span v-if="index !== 0">/</span><span>{{item.title}}</span>
+            <span v-if="index !== 0"> / </span><span>{{' ' + item.title}}</span>
             <!-- <span class='el-icon-close' @click.prevent.stop="closeTheTag(item, index)"></span> -->
         </router-link>
     </div>

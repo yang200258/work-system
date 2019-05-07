@@ -26,6 +26,7 @@
 import TableData from '@/components/common/TableData'
 import MyForm from '@/components/common/MyForm'
 import MyDialog from '@/components/common/MyDialog'
+import utils from '@/utils/utils'
 export default {
     data() {
         return {
@@ -46,20 +47,38 @@ export default {
             formItem: [
                 {type:'input',size:'small',prop:'name',placeholder: '请输入名称',label: '节日名称：'},
                 {type:'year',size:'small',prop:'year',placeholder: '请选择年份',label: '所属年份：'},
-                {type:'daterange',size:'small',prop:'resttime',placeholder: '请选择年份',label: '休息日期：'},
-                {type:'daterange',size:'small',prop:'worktime',label: '补班日期：'},
+                {type:'dates',size:'small',prop:'resttime',placeholder: '选择一个或多个日期',label: '休息日期：'},
+                {type:'dates',size:'small',prop:'worktime',placeholder: '选择一个或多个日期',label: '补班日期：',options: {disabledDate: time => {
+                    let distime = this.editForm.resttime
+                    let timer = utils.filterDate(time)
+                    if(distime && distime.length && distime.includes(timer)) return true
+                }}},
                 ],
             confirmText: '',
             title: '',
         }
     },
+    created() {
+        
+    },
+    watch: {
+        'editForm.resttime': function(val) {
+            if(val) {
+                let sametime = this._.intersection(val,this.editForm.worktime)
+                let worktime = this._.pullAll(this.editForm.worktime,sametime)
+                this.editForm.worktime = worktime
+                this.$set(this.editForm,'worktime',worktime)
+                return val
+            }
+        },
+    },
+    computed: {
+        
+    },
     components: {
         TableData,
         MyDialog,
         MyForm,
-        
-    },
-    computed: {
         
     },
     mounted() {

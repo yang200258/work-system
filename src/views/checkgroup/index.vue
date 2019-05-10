@@ -45,7 +45,7 @@
                     <div class="specialday">
                         <el-form-item prop="specialday" label="特殊日期设置">
                             <special-day v-for="(item,i) in specialtime" :key="item.tipText" :tipText="item.tipText" :showLayer="item.showLayer" @choose="choose(i)" :timeData="timeData" :type="i"
-                            @confirm="saveConfirm(i)" class="special-wrapper"></special-day>
+                            @confirm="saveConfirm()" class="special-wrapper"></special-day>
                         </el-form-item>
                     </div>
                 </div>
@@ -155,6 +155,10 @@ export default {
         choose: function(i) {
             this.specialtime[i].showLayer.isShowEdit = true
         },
+        //特殊日期保存
+        saveConfirm: function(data) {
+            console.log(data);
+        },
         // ----------------编辑考勤组成员方法------------------------
         //关闭编辑考勤组成员页面
         closeEdit: function() {
@@ -183,7 +187,8 @@ export default {
         },
         //创建考勤地点
         createSite: function() {
-
+            this.addSite.isShowEdit = false
+            this.$router.replace('checksite')
         },
         //查看考勤地点
         querySite: function(scope) {

@@ -35,7 +35,8 @@ export default {
             this.showLayer.isShowEdit = false
         },
         confirm: function() {
-            this.$emit('confirm')
+            console.log(this.timeData);
+            this.$emit('confirm',this.timeData)
         },
         choose: function() {
             this.$emit('choose')

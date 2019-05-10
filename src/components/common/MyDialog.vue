@@ -59,7 +59,7 @@ export default {
                 display: flex;
                 justify-content: space-between;
                 .el-button {
-                    width: 30%;
+                    // width: 30%;
                 }
             }
         }

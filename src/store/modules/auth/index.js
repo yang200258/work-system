@@ -37,7 +37,7 @@ const actions = {
     login({ commit, dispatch }, userInfo) {
         return new Promise((resolve, reject) => {
             axios({
-                url: '/accounts/login',
+                url: '/sys/accounts/login',
                 method: 'post',
                 data: {
                     ...userInfo
@@ -53,6 +53,8 @@ const actions = {
                 } else {
                     reject(res)
                 }
+            }).catch(err => {
+                reject(err)
             })
         })
     },
@@ -60,7 +62,7 @@ const actions = {
     getAccountDetail({ commit }) {
         return new Promise((resolve, reject) => {
             axios({
-                url: '/accounts/me',
+                url: '/sys/accounts/me',
                 method: 'get'
             }).then(res => {
                 console.log('获取用户详情数据', res);
@@ -77,7 +79,7 @@ const actions = {
     getOrgan({ commit }, data) {
         return new Promise((resolve, reject) => {
             axios({
-                url: '/organizations',
+                url: '/sys/organizations',
                 method: 'get',
                 data: {
                     id: data.id || 0,

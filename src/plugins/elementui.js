@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import { CheckboxGroup, Radio, TimePicker, RadioGroup, DatePicker, Dialog, Main, Loading, Container, Pagination, TableColumn, Table, Input, Form, FormItem, MessageBox, Message, Button, Checkbox, Menu, Submenu, MenuItem, Select, Option, Row, Col, Tree, Popover } from 'element-ui'
+import { Scrollbar, Tabs, TabPane, CheckboxGroup, Radio, TimePicker, RadioGroup, DatePicker, Dialog, Main, Loading, Container, Pagination, TableColumn, Table, Input, Form, FormItem, MessageBox, Message, Button, Checkbox, Menu, Submenu, MenuItem, Select, Option, Row, Col, Tree, Popover } from 'element-ui'
 Vue.use(Input)
 Vue.use(Form);
 Vue.use(FormItem);
@@ -25,6 +25,9 @@ Vue.use(Radio);
 Vue.use(RadioGroup);
 Vue.use(TimePicker);
 Vue.use(CheckboxGroup);
+Vue.use(Tabs);
+Vue.use(TabPane);
+Vue.use(Scrollbar);
 Vue.use(Loading.directive);
 Vue.prototype.$loading = Loading.service;
 Vue.prototype.$msgbox = MessageBox

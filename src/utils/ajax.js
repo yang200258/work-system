@@ -33,7 +33,7 @@ const service = axios.create({
 });
 
 // baseURL
-axios.defaults.baseURL = '/'
+axios.defaults.baseURL = 'http://10.28.128.123:8080/'
 
 // http request 拦截器
 // 每次请求都为http头增加Authorization字段，其内容为token

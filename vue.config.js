@@ -86,7 +86,7 @@ module.exports = {
     // devServer: {
     //     https: false,
     //     disableHostCheck: true,
-    //     proxy: 'http://10.28.128.123:9090/user-api'
+    //     proxy: 'http://10.28.128.123:8080'
     // },
     // 可以用来传递任何第三方插件选项
     pluginOptions: {}

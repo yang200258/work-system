@@ -27,17 +27,18 @@ export default {
     },
     watch: {
         // 当通过TagNav来激活页面时也执行一次selectMenu
-        $route(){
-            let path = this.$route.path
-            if(path.includes('home')) {
-                this.$refs.navbar.activeIndex = ''
-                return
-            }
-            console.log(this.$refs.navbar);
-            let indexPath = this.$refs.navbar.items[path].indexPath
-            console.log('path, indexPath',path, indexPath);
-            this.selectMenu(path, indexPath)
-        }
+        // $route(){
+        //     let path = this.$route.path
+        //     if(path.includes('home')) {
+        //         this.$refs.navbar.activeIndex = ''
+        //         return
+        //     }
+        //     console.log(path);
+        //     console.log('this.$refs.navbar',this.$refs.navbar);
+        //     let indexPath = this.$refs.navbar.items[path].indexPath
+        //     console.log('path, indexPath',path, indexPath);
+        //     this.selectMenu(path, indexPath)
+        // }
     },
     methods: {
         // 选择菜单激活

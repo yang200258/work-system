@@ -5,12 +5,10 @@ const staticRoute = [{
     },
     {
         path: '/login',
-        name: 'login',
         component: resolve => require(['@/views/login'], resolve)
     },
     {
         path: '/home',
-        name: 'home',
         component: layout,
         children: [{
             path: '',
@@ -21,7 +19,6 @@ const staticRoute = [{
     },
     {
         path: '/usermanage',
-        name: 'usermanage',
         component: layout,
         children: [{
             path: '',
@@ -32,7 +29,6 @@ const staticRoute = [{
     },
     {
         path: '/work1',
-        name: 'work1',
         component: layout,
         children: [{
             path: '',
@@ -43,14 +39,19 @@ const staticRoute = [{
     },
     {
         path: '/checkgroup',
-        name: 'checkgroup',
         component: layout,
         children: [{
-            path: '',
-            name: 'checkgroup',
-            component: resolve => require(['@/views/checkgroup'], resolve),
-            meta: { name: '创建考勤组' }
-        }]
+                path: '',
+                name: 'checkgroup',
+                component: resolve => require(['@/views/checkgroup'], resolve),
+                meta: { name: '创建考勤组' }
+            },
+            {
+                path: '/checksite',
+                component: resolve => require(['@/views/checkgroup/checksite'], resolve),
+                meta: { name: '创建考勤地点' }
+            },
+        ]
     }
 ]
 

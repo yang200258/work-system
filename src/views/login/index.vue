@@ -76,6 +76,7 @@ export default {
                 }
             }).catch(err=> {
                 console.log('登录异常',err);
+                this.$message.error(err.msg)
                 this.logining = false
             })
         }

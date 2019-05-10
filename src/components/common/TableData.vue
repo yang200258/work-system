@@ -9,6 +9,7 @@
                             <el-table-column v-for="(item,index) in head" :prop="item.key" :label="item.name" :key="index"
                              align="center" :show-overflow-tooltip="true" :formatter="formatter"> </el-table-column>
                             <el-table-column label="操作" align="center" v-if="isOption">
+                                <slot name="option"></slot>
                                 <template slot-scope="scope" v-if="scope.row.status !== '离职'">
                                     <el-button :style="editStyle" :type="optionType.edit"  size="mini" @click.prevent="editTable(scope)" v-if="isEditTable" >{{editTableName}}</el-button>
                                     <el-button :style="scope.row.status == '停用'?'':delStyle" :type="optionType.delete" size="mini" @click.prevent="deleteTable(scope)" v-if="isDeleteTable">{{scope.row.status == '停用'?'启用':deleteTableName}}</el-button>

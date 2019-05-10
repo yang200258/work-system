@@ -2,7 +2,7 @@
     <div class="holiday-container">
         <header>
             <el-button type="primary" icon="el-icon-edit" size="middle" @click.prevent="addHoli">添加</el-button>
-            <el-button type="primary" icon="el-icon-delete" size="middle" @click.prevent="showDelete" v-if="delId.length">删除</el-button>
+            <el-button type="primary" icon="el-icon-delete" size="middle" @click.prevent="showDelete" v-if="delId.length > 1">删除</el-button>
         </header>
         <footer class="footer">
             <table-data :tableLoading="loadingHoliday" :tableData="holiday" :head="head" :isSelected="true" :isOption="true"
@@ -32,24 +32,24 @@ export default {
         return {
             loadingHoliday: false,
             holiday: [],
-            head: [{key: 'year',name: '年份'},{key: 'name',name: '节日名称'},{key: 'resttime',name: '休息时间'},{key: 'worktime',name: '补班时间'}],
+            head: [{key: 'year',name: '年份'},{key: 'name',name: '节日名称'},{key: 'vacationDays',name: '休息时间'},{key: 'workDays',name: '补班时间'}],
             totalNumber: 0,
             optionType:  {'edit':'primary','delete':'danger'},
             isShowEdit: false,
             isShowDelete: false,
             editRule: {name:[{required:true,type: 'string',message:'名称不能为空',trigger:'blur'}],
                         year:[{required:true,message:'年份不能为空',trigger:'blur'}],
-                        resttime:[{required:true,message:'必须选择休息日期',trigger:'blur'}]},
-            editForm: {name:'',year: '',resttime: [],worktime: []},
+                        vacationDays:[{required:true,message:'必须选择休息日期',trigger:'blur'}]},
+            editForm: {name:'',year: '',vacationDays: [],workDays: []},
             deleteName: '',
             delId: [],
             delStyle: {},
             formItem: [
                 {type:'input',size:'small',prop:'name',placeholder: '请输入名称',label: '节日名称：'},
                 {type:'year',size:'small',prop:'year',placeholder: '请选择年份',label: '所属年份：'},
-                {type:'dates',size:'small',prop:'resttime',placeholder: '选择一个或多个日期',label: '休息日期：'},
-                {type:'dates',size:'small',prop:'worktime',placeholder: '选择一个或多个日期',label: '补班日期：',options: {disabledDate: time => {
-                    let distime = this.editForm.resttime
+                {type:'dates',size:'small',prop:'vacationDays',placeholder: '选择一个或多个日期',label: '休息日期：'},
+                {type:'dates',size:'small',prop:'workDays',placeholder: '选择一个或多个日期',label: '补班日期：',options: {disabledDate: time => {
+                    let distime = this.editForm.vacationDays
                     let timer = utils.filterDate(time)
                     if(distime && distime.length && distime.includes(timer)) return true
                 }}},
@@ -62,12 +62,12 @@ export default {
         
     },
     watch: {
-        'editForm.resttime': function(val) {
+        'editForm.vacationDays': function(val) {
             if(val) {
-                let sametime = this._.intersection(val,this.editForm.worktime)
-                let worktime = this._.pullAll(this.editForm.worktime,sametime)
-                this.editForm.worktime = worktime
-                this.$set(this.editForm,'worktime',worktime)
+                let sametime = this._.intersection(val,this.editForm.workDays)
+                let workDays = this._.pullAll(this.editForm.workDays,sametime)
+                this.editForm.workDays = workDays
+                this.$set(this.editForm,'workDays',workDays)
                 return val
             }
         },
@@ -79,24 +79,26 @@ export default {
         TableData,
         MyDialog,
         MyForm,
-        
     },
     mounted() {
         this.getHoliday()
+    },
+    beforeDestroyed() {
+        console.log(22222222222);
     },
     methods: {
         //初始获取假期数据
         getHoliday: function(page=0,size=20) {
             this.loadingHoliday = false
             this.$axios({
-                url: `/holiday?page=${page}&size=${size}`,
+                url: `/sys/festival/list?page=${page}&size=${size}`,
                 method: 'get',
             }).then(res=> {
                 if(res) {
                     this.holiday = res.content
-                    this.totalNumber = res.totalNumber
+                    this.totalNumber = res.recordCount
                 } else {
-                    this.$error(res.msg)
+                    this.$message.error(res.msg)
                 }
             }).catch(err=>{
                 console.log(err);
@@ -105,23 +107,13 @@ export default {
         //翻页查询
         currentChange: function(val) {
             this.getHoliday(val,20)
-            console.log(val);
-        },
-        //显示编辑节假日
-        showEdit: function(scope) {
-            this.title = '节日修改'
-            this.confirmText = '保存'
-            Object.assign(this.editForm,scope.row)
-            this.editForm.resttime = this.editForm.resttime.split('-')
-            this.editForm.worktime = this.editForm.worktime.split('-')
-            this.isShowEdit = true
         },
         closeEdit: function(data) {
             this.isShowEdit = data
             this.$nextTick(()=> {
                 this.$refs['editForm'].$refs.formRef.resetFields();
             }) 
-            this.editForm = {name:'',year: '',resttime: [],worktime: []}
+            this.editForm = {name:'',year: '',vacationDays: [],workDays: []}
         },
         //确认按钮判断
         confirm: function() {
@@ -132,37 +124,31 @@ export default {
                 this.saveAdd()
             }
         },
-
+        //显示编辑节假日
+        showEdit: function(scope) {
+            this.title = '节日修改'
+            this.confirmText = '保存'
+            Object.assign(this.editForm,scope.row)
+            this.editForm.year = this.editForm.year.toString()
+            this.editForm.vacationDays = this.editForm.vacationDays && this.editForm.vacationDays.split(';')
+            this.editForm.workDays = this.editForm.workDays && this.editForm.workDays.split(';') || []
+            this.isShowEdit = true
+        },
         //保存编辑
         saveEdit: function() {
           this.$refs['editForm'].$refs.formRef.validate(valid=> {
                 if(valid) {
+                    this.editForm.vacationDays = this.editForm.vacationDays.join(';')
+                    this.editForm.workDays = this.editForm.workDays.join(';')
                     this.editHoliday(this.editForm).then(res=> {
                         if(res) {
-                            this.$message.success('保存成功')
+                            this.$message.success(res)
                             this.isShowEdit = false 
                             this.$nextTick(()=> {
                               this.$refs['editForm'].$refs.formRef.resetFields();
                             })
-                            this.editForm = {name:'',year: '',resttime: [],worktime: []}
-                        }
-                    }).catch(err=> {
-                        console.log(err);
-                    })
-                }
-            })
-        },
-        //保存添加
-        saveAdd: function() {
-           this.$refs['editForm'].$refs.formRef.validate(valid=> {
-                if(valid) {
-                    this.addHoliday(this.editForm).then(res=> {
-                        if(res) {
-                            this.$message.success('添加成功')
-                            this.isShowEdit = false 
-                            this.$nextTick(()=> {
-                               this.$refs['editForm'].$refs.formRef.resetFields();
-                            })
+                            this.editForm = {name:'',year: '',vacationDays: [],workDays: []}
+                            this.getHoliday()
                         }
                     }).catch(err=> {
                         console.log(err);
@@ -174,13 +160,12 @@ export default {
         editHoliday: function(data) {
             return new Promise((resolve,reject)=> {
                 this.$axios({
-                    url: '/editholiday',
+                    url: '/sys/festival/saveFestival',
                     method: 'post',
                     data: {...data}
                 }).then(res=> {
-                    if(res.code == 200) {
+                    if(res) {
                         resolve(res)
-                        
                     } else {
                         reject(res)
                     }
@@ -193,75 +178,87 @@ export default {
         addHoli: function() {
             this.title = '节日添加'
             this.confirmText = '添加'
-            this.editForm = {name:'',year: '',resttime: [],worktime: []}
+            this.editForm = {name:'',year: '',vacationDays: [],workDays: []}
             this.isShowEdit = true
+        },
+        //保存添加
+        saveAdd: function() {
+           this.$refs['editForm'].$refs.formRef.validate(valid=> {
+                if(valid) {
+                    this.editForm.vacationDays = this.editForm.vacationDays.join(';')
+                    this.editForm.workDays = this.editForm.workDays.join(';')
+                    this.addHoliday(this.editForm).then(res=> {
+                        if(res) {
+                            this.$message.success('添加成功')
+                            this.isShowEdit = false 
+                            this.$nextTick(()=> {
+                               this.$refs['editForm'].$refs.formRef.resetFields();
+                            })
+                            this.getHoliday()
+                        }
+                    }).catch(err=> {
+                        console.log(err);
+                    })
+                }
+            })
         },
         //添加节假日封装
         addHoliday: function(data) {
+            data.id = 0
             return new Promise((resolve,reject)=> {
                 this.$axios({
-                    url: '/addholiday',
+                    url: '/sys/festival/saveFestival',
                     method: 'post',
                     data: {...data}
                 }).then(res=> {
-                    if(res.code == 200) {
-                        resolve(res)
-                    } else {
-                        reject(res)
-                    }
+                    if(res)  resolve(res)
                 }).catch(err=> {
-                    console.log(err);
+                    reject(err)
                 })
             })
         },
         //显示删除节假日
         showDelete: function(scope) {
             this.deleteName = ''
-            if(scope && scope.row && scope.row.name) this.deleteName = scope.row.name
+            if(scope && scope.row && scope.row.id)  {
+                this.deleteName = scope.row.name
+                this.delId = [scope.row.id]
+            }
             this.isShowDelete = true
         },
         //单个删除节假日
         deleteHoliday: function() {
+            let id = this.delId
             this.$axios({
-                url: '/deleteholiday',
+                url: '/sys/festival/deleteFestival',
                 method: 'post',
+                data: {id}
             }).then(res=> {
-                if(res.code == 200) {
-                    this.$message.success('删除成功！')
-                } else {
-                    this.$message.error('删除失败，该节日不存在，请刷新页面！')
+                if(res) {
+                    this.$message.success(res)
+                    this.delId = []
                 }
                 this.isShowDelete = false
+                this.getHoliday()
             }).catch(err=> {
-                console.log(err);
+                console.log('删除节假日时出错',err)
             })
         },
         closeDelete: function() {
             this.isShowDelete = false
+            this.delId = []
         },
         //批量选择节假日
         selectHoliday: function(val) {
             this.delId = []
             val.forEach(item=> {
-                this.delId.push(item)
+                this.delId.push(item.id)
             })
         },
         //批量删除节假日
         delHoliday: function() {
-            this.$axios({
-                url: '/delHoli',
-                method: 'post',
-                data: {id:this.delId}
-            }).then(res=> {
-                if(res.code == 200) {
-                    this.$message.success('删除成功！')
-                } else {
-                    this.$message.error('删除失败，该节日不存在，请刷新页面！')
-                }
-                this.isShowDelete = false
-            }).catch(err=> {
-                console.log(err);
-            })
+            this.deleteHoliday()
+            this.getHoliday()
         },
         
     }

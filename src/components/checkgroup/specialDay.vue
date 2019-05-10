@@ -5,7 +5,7 @@
         <my-dialog :title="showLayer.title" :show.sync="showLayer.isShowEdit" :width="'30%'" @close="closeEdit" :center="true" :isConfirm="true" @confirm="confirm" :confirmText="showLayer.confirmText"
         :isCancel="true" :size="'mini'" @cancel="cancel">
             <my-form :formData="timeData" :formItem="formItem" slot="dialog-content" :size="'middle'" class="dateset"> </my-form>
-            <time-tag  slot="dialog-content" v-if="type === 0" :time="timeData.time"></time-tag>
+            <clock-count ></clock-count>
         </my-dialog>
     </div>
 </template>
@@ -13,7 +13,7 @@
 <script>
 import MyDialog from '@/components/common/MyDialog'
 import MyForm from '@/components/common/MyForm'
-import TimeTag from '@/components/checkgroup/timeTag'
+import ClockCount from '@/components/checkgroup/clockCount'
 export default {
     props: {
         buttonText: {type:String,default: '选择'},
@@ -24,11 +24,12 @@ export default {
     },
     data() {
         return {
-            formItem:[{prop: 'date',label: '日期',type:'date',placeholder:'请选择日期'}]
+            formItem:[{prop: 'date',label: '日期',type:'date',placeholder:'请选择日期'}],
+            clockNumItem: ['两次','四次','六次'],
         }
     },
     components: {
-        MyDialog,MyForm,TimeTag
+        MyDialog,MyForm,ClockCount
     },
     methods: {
         closeEdit: function() {

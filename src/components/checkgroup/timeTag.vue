@@ -50,13 +50,6 @@ export default {
                 margin: 0 20px;
                 width: 180px;
             }
-            /deep/ .el-icon-time {
-                // font-size: 24px;
-                // position: absolute;
-                // right: 1%;
-                // color: #9DA5A7;
-                // font-weight: 700;
-            }
             &:first-child {
                 .el-date-editor {
                     margin-left: 110px;

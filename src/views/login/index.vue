@@ -41,7 +41,7 @@ export default {
         ...mapActions({
             login:'auth/login',
             getAccountDetail: 'auth/getAccountDetail',
-            getOrgan: 'auth/getOrgan',
+            // getOrgan: 'auth/getOrgan',
         }),
         //登录请求
         loginRequest: function() {

@@ -14,7 +14,8 @@
                 </el-select>
                 <select-tree v-if="item.type == 'select-tree'" v-model="formData[item.prop]" :loadNode="loadNode" :id.sync="item.returnArray" :tipText="item.text"></select-tree>
                 <el-slider v-if="item.type == 'slider'" v-model="formData[item.prop]"  :size="size"></el-slider>
-                <el-date-picker v-if="item.type == 'date' || item.type == 'year'" v-model="formData[item.prop]" :type="item.type" :placeholder="item.placeholder" :size="size" value-format='yyyy/MM/dd'></el-date-picker>
+                <el-date-picker v-if="item.type == 'date'" v-model="formData[item.prop]" :type="item.type" :placeholder="item.placeholder" :size="size" value-format='yyyy/MM/dd'></el-date-picker>
+                <el-date-picker v-if="item.type == 'year'" v-model="formData[item.prop]" :type="item.type" :placeholder="item.placeholder" :size="size" value-format='yyyy'></el-date-picker>
                 <el-date-picker v-if="item.type == 'dates'" v-model="formData[item.prop]" :type="item.type" :placeholder="item.placeholder" :size="size" value-format='yyyy/MM/dd' format="yyyy年MM月dd日"
                 :picker-options="item.options"></el-date-picker>
                 <el-date-picker v-if="item.type == 'daterange' " v-model="formData[item.prop]" :type="item.type" :size="size" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期"

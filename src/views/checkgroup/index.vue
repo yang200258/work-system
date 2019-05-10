@@ -15,7 +15,7 @@
                 </div>
             </el-form-item>
             <el-form-item label="班次类型" prop="workType">
-                <el-radio-group v-model="groupInfo.workType">
+                <el-radio-group v-model="groupInfo.workType" class="radio-wrapper">
                     <el-radio :label="1">固定班次<span class="radioTip">每天的考勤时间一样</span></el-radio>
                     <el-radio :label="2">排班制<span class="radioTip">自定义设置考勤时间</span></el-radio>
                 </el-radio-group>
@@ -25,8 +25,8 @@
                 <div class="fix" v-if="groupInfo.workType === 1">
                     <!-- 工作时间设置 -->
                     <div class="time">
-                        <el-form-item prop="worktime" label="工作时间段">
-                            <time-tag :time="groupInfo.worktime"> </time-tag>
+                        <el-form-item prop="worktime" label="打卡次数">
+                            <clock-count :countData="groupInfo.worktime"></clock-count>
                         </el-form-item>
                     </div>
                     <!-- 工作日设置 -->
@@ -51,12 +51,12 @@
                 </div>
                 <!-- 排班制，后期增加 -->
                 <div class="scedul" v-if="groupInfo.workType === 2">
-
+                    
                 </div>
             </div>
         </el-form>
         <my-dialog :title="editUser.title" :show.sync="editUser.isShowEdit" :width="'70%'" @close="closeEdit" :center="true" @confirm="confirm" :confirmText="editUser.confirmText"
-        :isCancel="true" @cancel="cancel">
+            :isCancel="true" @cancel="cancel">
             <div class="edit-wrapper" slot="dialog-content" style="position: relative">
                 <el-row> <el-button size="mini" plain @click.prevent="isSelectPart = !isSelectPart">按部门添加</el-button> </el-row>
                 <select-tree v-if="isSelectPart" style="position: absolute ;top: 0px; left: 8%;z-index:999"></select-tree>
@@ -86,23 +86,27 @@
                 </section>
             </div>
         </my-dialog>
+        <footer>
+            <el-button type="primary" size="medium" @click="saveClockGroup">保存</el-button>
+        </footer>
     </div>
 </template>
 
 
 <script>
-import TimeTag from '@/components/checkgroup/timeTag'
 import SpecialDay from '@/components/checkgroup/specialDay'
 import SiteTag from '@/components/checkgroup/siteTag'
+import ClockCount from '@/components/checkgroup/clockCount'
 import MyDialog from '@/components/common/MyDialog'
 import TableData from '@/components/common/TableData'
 import SelectTree from '@/components/common/SelectTree'
+
 const days = ['周一','周二','周三','周四','周五','周六','周日']
 export default {
     data() {
         return {
             // 创建考勤组设置
-            groupInfo:{name: '',users: '',site: [],workType:1,worktime:[{worktime:['00:00','23:59'],quit: false,key: new Date(),here: false}],workday:[],autorest: false,specialday: {work:[],rest: []}},
+            groupInfo:{name: '',users: '',site: [],workType:1,worktime:{type: 0,time: []},workday:[],autorest: false,specialday: {work:[],rest: []}},
             // 渲染周一至周日
             days:days,
             // 全选数据
@@ -137,7 +141,7 @@ export default {
         }
     },
     components: {
-        TimeTag,SpecialDay,SiteTag,MyDialog,TableData,SelectTree
+        SpecialDay,SiteTag,MyDialog,TableData,SelectTree,ClockCount
     },
     methods: {
         //全选按钮工作日激活操作
@@ -197,6 +201,10 @@ export default {
         //选择考勤地点
         chooseSite: function(scope) {
             console.log(scope);
+        },
+        //保存提交创建考勤组信息
+        saveClockGroup: function() {
+            
         }
     }
 }
@@ -207,13 +215,6 @@ export default {
 $leftWidth:80px;
     .checkgroup-container {
         width: 70%;
-        // 班次设置tip文字样式
-        .radioTip {
-            color: #bbb;
-            font-size: 12px;
-            display: inline-block;
-            margin-left: 20px;
-        }
         .group-user {
             position: relative;
             .el-button {
@@ -223,6 +224,16 @@ $leftWidth:80px;
                 position: absolute;
                 right: -100px;
                 top: 0;
+            }
+        }
+        .radio-wrapper {
+            display: flex;
+            // 班次设置tip文字样式
+            .radioTip {
+                color: #bbb;
+                font-size: 12px;
+                display: inline-block;
+                margin-left: 20px;
             }
         }
         .worktype-container {
@@ -242,6 +253,9 @@ $leftWidth:80px;
                         }
                         .workday {
                             display: flex;
+                            .el-checkbox-group {
+                                display: flex;
+                            }
                             &>.el-checkbox {
                                 margin-left: 20px;
                             }
@@ -261,6 +275,12 @@ $leftWidth:80px;
                     }
                 }
             }
+        }
+        footer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 100px 0;
         }
         // 编辑考勤组成员中表格距离顶部样式
         .edit-wrapper {

@@ -75,6 +75,7 @@ service.interceptors.response.use(
             console.log(error)
             return Promise.reject("Ajax Abort: 该请求在axios拦截器中被中断")
         } else if (error.response) {
+            console.log('请求时错误拦截error', error);
             switch (error.response.status) {
                 case 401:
                     router.push('error/401')

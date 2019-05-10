@@ -79,12 +79,8 @@ const actions = {
     getOrgan({ commit }, data) {
         return new Promise((resolve, reject) => {
             axios({
-                url: '/sys/organizations',
+                url: `/sys/organizations?id=${data.id}&level=${data.level}`,
                 method: 'get',
-                data: {
-                    id: data.id || 0,
-                    level: data.level || 0
-                }
             }).then(res => {
                 if (res && res.code == 200) {
                     commit('setOrgan')
@@ -92,6 +88,8 @@ const actions = {
                 } else {
                     reject(res)
                 }
+            }).catch(err => {
+                reject(err)
             })
         })
     },

@@ -1,22 +1,22 @@
 <template>
     <div class="usermanage-container">
         <div class="usermanage-head">
-            <el-form :model="queryUser" ref="queryForm" label-position="right" label-width="auto">
+            <el-form :model="queryUserData" ref="queryForm" label-position="right" label-width="auto">
                 <div class="header">
                     <div class="show-info">
                         <el-form-item prop="username" label="姓名/账号" label-width="auto">
-                            <el-input style="width:200px;" type="text" v-model="queryUser.username" auto-complete="off" placeholder="请输入员工姓名/员工账号" size="mini"></el-input>
+                            <el-input style="width:200px;" type="text" v-model="queryUserData.username" auto-complete="off" placeholder="请输入员工姓名/员工账号" size="mini" clearable></el-input>
                         </el-form-item>
                         <el-form-item prop="department" label="所属部门">
-                            <select-tree :loadNode="loadNode" :id.sync="returnArray" :tipText="tipText"></select-tree>
+                            <select-tree :loadNode="loadNode" :id.sync="queryUserData.depart" :tipText="tipText"></select-tree>
                         </el-form-item>
                         <el-form-item prop="userType" label="员工类型">
-                            <el-select v-model="queryUser.userType" multiple placeholder="全部" collapse-tags size="mini">
+                            <el-select v-model="queryUserData.userType" multiple placeholder="全部" collapse-tags size="mini">
                                 <el-option v-for="item in userTypeOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
                             </el-select>
                         </el-form-item>
                         <el-form-item prop="role" label="角色">
-                            <el-select v-model="queryUser.role" multiple placeholder="全部" collapse-tags size="mini">
+                            <el-select v-model="queryUserData.role" multiple placeholder="全部" collapse-tags size="mini">
                                 <el-option v-for="item in roleOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
                             </el-select>
                         </el-form-item>
@@ -26,18 +26,18 @@
                             <img v-if="!showMore" src="@/assets/images/arrowup.png" alt="" @click.prevent="showMore = !showMore">
                             <img v-else src="@/assets/images/arrowdown.png" alt=""  @click.prevent="showMore = !showMore">
                         </div>
-                        <el-button type="primary" @click.prevent="quertUser" size="mini">查询</el-button>
+                        <el-button type="primary" @click.prevent="queryUser" size="mini">查询</el-button>
                     </div>
                 </div>
                 <transition name="more">
                     <div v-if="showMore" class="more">
                         <el-form-item prop="checkGroup" label="考勤组">
-                            <el-select v-model="checkGroup" multiple placeholder="全部" :class="{'demo-select': true}" collapse-tags  size="mini" ref="selectGroup">
+                            <el-select v-model="queryUserData.checkGroup" multiple placeholder="全部" :class="{'demo-select': true}" collapse-tags  size="mini" ref="selectGroup">
                                 <el-option v-for="item in checkGroupOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
                             </el-select>
                         </el-form-item>
                         <el-form-item prop="accountStatus" label="账号状态">
-                            <el-select v-model="queryUser.accountStatus" multiple placeholder="全部" collapse-tags  size="mini">
+                            <el-select v-model="queryUserData.accountStatus" multiple placeholder="全部" collapse-tags  size="mini">
                                 <el-option v-for="item in accountStatusOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
                             </el-select>
                         </el-form-item>
@@ -64,19 +64,20 @@ import TableData from '@/components/common/TableData'
 export default {
     data() {
         return {
-            queryUser:{username:'',department:[],userType:[],role:[],checkGroup:[],accountStatus: ''},
+            queryUserData:{username:'',depart:[],userType:[],role:[],checkGroup:[],accountStatus: ''},
             queryRule: {username: [{required: true,message: '请输入用户名',trigger: 'blur'}]},
             userTypeOptions: [{label:'正式员工',value: 'regular'},{label:'劳派员工',value: 'regular2'},{label:'外包员工',value: 'regular3'}],
             roleOptions: [{label:'正式员工',value: 'regular'},{label:'劳派员工',value: 'regular2'},{label:'外包员工',value: 'regular3'}],
             checkGroupOptions: [{label:'考勤组1',value: 'regular'},{label:'考勤组2',value: 'regular2'},{label:'考勤组3',value: 'regular3'}],
             accountStatusOptions: [{label:'休假',value: 'regular'},{label:'离职',value: 'regular2'},{label:'正常',value: 'regular3'}],
             isShowSelect: false,
-            returnArray: [],
+            isSearch: [],  //判断查询还是条件搜索用户
+            searchInfo: {}, // 搜索用户时的oid和q
             rootNode:[],
             tipText:'',
             checkGroup: [],
             head: [{key: 'name',name: '姓名'},{key: 'username',name: '账号'},{key: 'organizationName',name: '部门'},{key: 'employeeId',name: '工号'},{key: 'role',name: '角色'},
-                    {key: 'type',name: '员工类型'},{key: 'group',name: '考勤组'},{key: 'status',name: '账号状态'}],
+                    {key: 'workTypeName',name: '员工类型'},{key: 'group',name: '考勤组'},{key: 'status',name: '账号状态'}],
             loading: false,
             tableData: [],
             total: 0,
@@ -99,6 +100,9 @@ export default {
         this.getOrganization().then(res=> {
             this.rootNode = res
             this.tipText = res[0].name
+        }).catch(err=> {
+            // this.$message.error(err.msg)
+            console.log(err);
         })
         //获取用户
         this.queryUserGroup()
@@ -129,6 +133,8 @@ export default {
                 this.getOrganization(node.data.id,1).then(res=> {
                     let data = this._.dropWhile(res,function(o) {return o.id == node.data.id })
                     return resolve(data)
+                }).catch(err=> {
+                    this.$message.error(err.msg)
                 })
             }
         },
@@ -139,38 +145,46 @@ export default {
                 url: `/sys/users?oid=${oid}&page=${page}&size=${size}`,
                 method: 'get',
             }).then(res=> {
-                console.log(res);
+                console.log('获取到用户列表数据',res);
                 if(res && res.content &&res.content.length) {
                     this.tableData = res.content
-                    this.total = res.totalPages
+                    this.total = res.recordCount
                 }
-                this.loading = false
+                this.isSearch = this.loading = false
             }).catch(err=> {
                 console.log(err);
             })
         },
         //查询用户
-        quertUser: function(page=0 ,search={oid:'',q: ''}, size=20) {
+        queryUser: function(page=0 ,searchInfo, size=20) {
+            let { username,depart } = this.queryUserData
+            this.searchInfo = {oid:depart[0],q: username}
             this.loading = true
             this.$axios({
                 url: '/sys/users/_search',
                 method: 'post',
                 data: {
-                    page,size,search
+                    page,size,search:this.searchInfo
                 }
             }).then(res=> {
                 if(res) {
                     this.tableData = res.content
-                    this.total = res.totalPages
+                    this.total = res.recordCount
                 }
                 this.loading = false
+                this.isSearch = true
             }).catch(err=> {
                 console.log(err);
             })
         },
         //翻页
         currentChange: function(val) {
-            this.queryUserGroup(0,val,20)
+            if(!this.isSearch) {
+                this.queryUserGroup(0,val,20)
+            } else {
+                this.queryUser(val,this.searchInfo,20)
+            }
+            document.documentElement.scrollTop = 0
         },
         //编辑用户信息
         editUser: function() {
@@ -179,10 +193,6 @@ export default {
         stopUse: function() {
             this.$message.error('开发中,勿急！')
         },
-        //格式化数据
-        // formatter: function(row, column,cellValue, index) {
-        //     console.log(row, column,cellValue, index);
-        // }
     }
 }
 </script>

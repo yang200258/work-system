@@ -192,7 +192,7 @@ export default {
         //创建考勤地点
         createSite: function() {
             this.addSite.isShowEdit = false
-            this.$router.replace('checksite')
+            this.$router.push('checksite')
         },
         //查看考勤地点
         querySite: function(scope) {
@@ -226,16 +226,14 @@ $leftWidth:80px;
                 top: 0;
             }
         }
-        .radio-wrapper {
-            display: flex;
-            // 班次设置tip文字样式
-            .radioTip {
-                color: #bbb;
-                font-size: 12px;
-                display: inline-block;
-                margin-left: 20px;
-            }
-        }
+    // 班次设置tip文字样式
+    .radioTip {
+        color: #bbb;
+        font-size: 12px;
+        display: inline-block;
+        margin-left: 20px;
+    }
+        
         .worktype-container {
             font-size: 14px;
             color: #606266;

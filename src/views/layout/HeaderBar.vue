@@ -6,16 +6,16 @@
             <p>EasySite</p>
         </div>
         <slot name="topnav"></slot>
-        <article class="userInfo">
-            <!-- <img src="@/assets/images/logout.png" alt=""> -->
-        </article>
+        <div class="userInfo">
+            <img @click.prevent="logout" src="@/assets/images/logout.png" alt="">
+        </div>
     </div>
     
 </template>
 
 <script>
 import { mapState, mapActions } from 'vuex'
-
+import ls from '@/utils/localStorage'
 export default {
     data() {
         return {
@@ -25,7 +25,7 @@ export default {
     computed: {
         ...mapState({
             username: state => state.user.user.name,
-        })
+        }),
     },
     methods: {
         ...mapActions({
@@ -34,6 +34,7 @@ export default {
         logout() {
             this.sysLogout().then(() => {
                 this.$router.push('/login')
+                ls.clear()
             })
         },
         goHome: function() {
@@ -47,6 +48,7 @@ export default {
     .sys-header {
         display: flex;
         flex-wrap: nowrap;
+        align-items: center;
         z-index: 1000;
         .logo {
             float: left;
@@ -54,7 +56,6 @@ export default {
             height: 60px;
             line-height: 60px;
             padding-left: 20px;
-            // color: $headerColor;
             font-size: 20px;
             margin-right: 6%;
             &:hover {
@@ -76,12 +77,17 @@ export default {
                 z-index: 9999;
             }
         }
-        .userinfo {
-            float: right;
-            // img {
-            //     display: block;
-            //     width: 100%;
-            // }
+        .userInfo {
+            height: 60px;
+            display: flex;
+            align-items: center;
+            color: red;
+            position: absolute;
+            right: 5%;
+            img {
+                cursor: pointer;
+                width: 24px;
+            }
         }
     }
 </style>

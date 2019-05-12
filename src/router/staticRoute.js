@@ -12,9 +12,9 @@ const staticRoute = [{
         component: layout,
         children: [{
             path: '',
-            name: 'homeed',
+            name: 'home',
             component: resolve => require(['@/views/home'], resolve),
-            meta: { name: '首页' }
+            meta: { title: '首页' }
         }]
     },
     {
@@ -24,7 +24,7 @@ const staticRoute = [{
             path: '',
             name: 'usermanageex',
             component: resolve => require(['@/views/usermanage'], resolve),
-            meta: { name: '用户管理' }
+            meta: { title: '用户管理' }
         }]
     },
     {
@@ -34,22 +34,23 @@ const staticRoute = [{
             path: '',
             name: 'work1',
             component: resolve => require(['@/views/holiday'], resolve),
-            meta: { name: '节假日' }
+            meta: { title: '节假日' }
         }]
     },
     {
         path: '/checkgroup',
         component: layout,
         children: [{
-                path: '',
-                name: 'checkgroup',
+                path: '/checkgroup',
                 component: resolve => require(['@/views/checkgroup'], resolve),
-                meta: { name: '创建考勤组' }
+                name: 'cerategroup',
+                meta: { title: '创建考勤组' }
             },
             {
                 path: '/checksite',
                 component: resolve => require(['@/views/checkgroup/checksite'], resolve),
-                meta: { name: '创建考勤地点' }
+                name: 'ceratesite',
+                meta: { title: '创建考勤地点' }
             },
         ]
     }

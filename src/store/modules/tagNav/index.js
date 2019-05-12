@@ -15,30 +15,11 @@ const mutations = {
             console.error(`${data.name} 组件出现命名重复，请检查组件中的name字段。当前组件所在的路由地址为：${data.path}`)
             return
         }
-        if (data.path.includes('home') || data.path.includes('userManage') || data.path.includes('work1')) state.openedPageList = []
         state.openedPageList.push(data)
         if (state.cachePage) {
             state.cachedPageName.push(data.name)
         }
     },
-    // removeTagNav(state, data) {
-    //     if (data) {
-    //         for (let [i, v] of state.openedPageList.entries()) {
-    //             if (v.path === data.path) {
-    //                 state.openedPageList.splice(i, 1)
-    //             }
-    //         }
-    //         if (state.cachePage) {
-    //             let index = state.cachedPageName.indexOf(data.name)
-    //             if (index >= 0) {
-    //                 state.cachedPageName.splice(index, 1)
-    //             }
-    //         }
-    //     } else {
-    //         state.openedPageList = []
-    //         state.cachedPageName = []
-    //     }
-    // }
 }
 
 

@@ -4,7 +4,7 @@
             <el-radio :label="i" v-for="(item,i) in clockNumItem" :key="i">{{item}}</el-radio>
         </el-radio-group>
         <div class="clock-num">
-            <time-tag v-for="(item,i) in clockNum[countData.type]" :key="i" :data="item"></time-tag>
+            <time-tag v-for="(item,i) in clockNum[countData.type]" :key="i" :data="item" @changTime="changeTime"></time-tag>
         </div>
     </div>
 </template>
@@ -31,8 +31,15 @@ export default {
     components: {
         TimeTag
     },
-    computed: {
-        
+    watch: {
+        clockNum: function() {
+            this.countData.time = this.clockNum[this.countData.type]
+        }
+    },
+    methods: {
+        changeTime: function(data) {
+            console.log(data);
+        }
     }
 }
 </script>

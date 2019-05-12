@@ -5,7 +5,7 @@
         <my-dialog :title="showLayer.title" :show.sync="showLayer.isShowEdit" :width="'30%'" @close="closeEdit" :center="true" :isConfirm="true" @confirm="confirm" :confirmText="showLayer.confirmText"
         :isCancel="true" :size="'mini'" @cancel="cancel">
             <my-form :formData="timeData" :formItem="formItem" slot="dialog-content" :size="'middle'" class="dateset"> </my-form>
-            <clock-count ></clock-count>
+            <clock-count :countData="timeData.worktime"></clock-count>
         </my-dialog>
     </div>
 </template>

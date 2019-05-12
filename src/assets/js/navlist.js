@@ -11,7 +11,16 @@ var data = [{
     {
         name: '创建考勤组',
         auth: '',
-        path: '/checkgroup',
+        path: '',
+        child: [{
+                path: '/checkgroup',
+                name: '创建考勤组',
+            },
+            {
+                path: '/checksite',
+                name: '创建考勤地点',
+            },
+        ]
     },
 
     {

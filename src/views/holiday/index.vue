@@ -68,7 +68,6 @@ export default {
                 let sametime = this._.intersection(val,this.editForm.workDays)
                 let workDays = this._.pullAll(this.editForm.workDays,sametime)
                 this.editForm.workDays = workDays
-                this.$set(this.editForm,'workDays',workDays)
                 return val
             }
         },
@@ -114,6 +113,7 @@ export default {
         },
         //翻页查询
         currentChange: function(val) {
+            console.log(val);
             this.getHoliday(val,20)
         },
         closeEdit: function(data) {
@@ -147,9 +147,11 @@ export default {
         saveEdit: function() {
           this.$refs['editForm'].$refs.formRef.validate(valid=> {
                 if(valid) {
-                    this.editForm.vacationDays = this.editForm.vacationDays.join(';')
-                    this.editForm.workDays = this.editForm.workDays.join(';')
-                    this.editHoliday(this.editForm).then(res=> {
+                    let editForm = this.editForm
+                    console.log(editForm)
+                    editForm.vacationDays = typeof(editForm.vacationDays) == 'string' ? editForm.vacationDays : editForm.vacationDays.join(';')
+                    editForm.workDays = editForm.workDays && editForm.workDays.join(';') || ''
+                    this.editHoliday(editForm).then(res=> {
                         if(res) {
                             this.$message.success(res)
                             this.isShowEdit = false 
@@ -206,7 +208,7 @@ export default {
                             this.getHoliday()
                         }
                     }).catch(err=> {
-                        console.log(err);
+                        console.log(err)
                     })
                 }
             })

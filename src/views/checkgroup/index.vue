@@ -55,6 +55,7 @@
                 </div>
             </div>
         </el-form>
+        <!-- 编辑组员弹窗 -->
         <my-dialog :title="editUser.title" :show.sync="editUser.isShowEdit" :width="'70%'" @close="closeEdit" :center="true" @confirm="confirm" :confirmText="editUser.confirmText"
             :isCancel="true" @cancel="cancel">
             <div class="edit-wrapper" slot="dialog-content" style="position: relative">
@@ -62,11 +63,12 @@
                 <select-tree v-if="isSelectPart" style="position: absolute ;top: 0px; left: 8%;z-index:999"></select-tree>
                 <el-row>
                     <table-data v-slot:default="props" :head="head" :tableData="tableData" :isSelected="false"  :isEditTable="false" :isDeleteTable="false" :totalNumber="total" :pageSize="pageSize">
-                        <img slot="option" src="@/assets/images/del.png" class="delImg" @click.prevent="delUser(props)">
+                        <img slot="option" src="../../assets/images/del.png" class="delImg" @click.prevent="delUser(props)">
                     </table-data>
                 </el-row>
             </div>
         </my-dialog>
+        <!-- 添加地点弹窗 -->
         <my-dialog :title="addSite.title" :show.sync="addSite.isShowEdit" :width="'60%'" @close="closeAdd" :center="true" :isConfirm="false">
             <div slot="dialog-content" class="site-wrapper">
                 <header>
@@ -127,7 +129,7 @@ export default {
             head: [{key:'avater',name: '头像'},{key:'username',name: '用户账号'},{key:'name',name: '姓名'},{key:'mobile',name: '手机号'},{key:'email',name: '邮箱'},{key:'hisgroup',name: '历史考勤组'},
                     {key:'organ',name: '组织'}],
             //考勤组成员信息
-            tableData: [{avater:'',username: 'yqq',name: 'qqy',mobile: '888888888',email: '',hisgroup: '1号',organ:'2号'}],
+            tableData: [{avater:'https://p.ssl.qhimg.com/dmfd/400_300_/t0120b2f23b554b8402.jpg',username: 'yqq',name: 'qqy',mobile: '888888888',email: '888888888',hisgroup: '1号',organ:'2号'}],
             total: 0,
             pageSize: 0,
             // ------------添加考勤地点数据-------------------

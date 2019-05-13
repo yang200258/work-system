@@ -10,7 +10,7 @@ Vue.use(VueRouter)
 NProgress.configure({ showSpinner: false });
 const router = new VueRouter({
         mode: 'history',
-        base: (process.env.NODE_ENV === 'production') ? '/home/' : '/',
+        base: (process.env.NODE_ENV === 'production') ? '/' : '/',
         routes
     })
     // let permissionList = []

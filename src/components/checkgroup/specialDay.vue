@@ -2,10 +2,13 @@
     <div class="specialday-container">
         <el-button size="mini" type="primary" @click.prevent="choose">{{buttonText}}</el-button>
         <span>{{tipText}}</span>
-        <my-dialog :title="showLayer.title" :show.sync="showLayer.isShowEdit" :width="'30%'" @close="closeEdit" :center="true" :isConfirm="true" @confirm="confirm" :confirmText="showLayer.confirmText"
+        <my-dialog :title="showLayer.title" :show.sync="showLayer.isShowEdit" :width="'50%'" @close="closeEdit" :center="true" :isConfirm="true" @confirm="confirm" :confirmText="showLayer.confirmText"
         :isCancel="true" :size="'mini'" @cancel="cancel">
-            <my-form :formData="timeData" :formItem="formItem" slot="dialog-content" :size="'middle'" class="dateset"> </my-form>
-            <clock-count :countData="timeData.worktime"></clock-count>
+            <my-form :formData="timeData" :formItem="formItem" slot="dialog-content" :size="'middle'" class="dateset"></my-form>
+            <div class="check-count" slot="dialog-content" v-if="type === 0">
+                <span >打卡次数</span>
+                <clock-count :countData="timeData.worktime"></clock-count>
+            </div>
         </my-dialog>
     </div>
 </template>
@@ -25,7 +28,6 @@ export default {
     data() {
         return {
             formItem:[{prop: 'date',label: '日期',type:'date',placeholder:'请选择日期'}],
-            clockNumItem: ['两次','四次','六次'],
         }
     },
     components: {
@@ -62,6 +64,16 @@ export default {
         margin-bottom: 10px;
         /deep/ .el-form-item__label-wrap {
             margin-right: 60px;
+        }
+    }
+    .check-count {
+        display: flex;
+        margin-top: 20px;
+        span {
+            color: #606266;
+            display: block;
+            margin-right: 44px;
+            white-space: nowrap;
         }
     }
 }

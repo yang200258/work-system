@@ -7,7 +7,12 @@
                         :data="tableData" @selection-change="selectionChange" :highlight-current-row="true" :header-cell-class-name="'title'">
                             <el-table-column type="selection" align="center" v-if="isSelected"> </el-table-column>
                             <el-table-column v-for="(item,index) in head" :prop="item.key" :label="item.name" :key="index"
-                             align="center" :show-overflow-tooltip="true" :formatter="formatter"> </el-table-column>
+                             align="center" :show-overflow-tooltip="true" :formatter="formatter"> 
+                                <template slot-scope="scope" >
+                                    <img v-if="scope.column.property == 'avater'" :src="scope.row.avater" style="max-width: 40px;border-radius: 50%;    ">
+                                    <p v-else>{{scope.row[item.key]}}</p>
+                                </template>
+                             </el-table-column>
                             <el-table-column label="操作" align="center" v-if="isOption">
                                 <slot name="option"></slot>
                                 <template slot-scope="scope" v-if="scope.row.status !== '离职'">

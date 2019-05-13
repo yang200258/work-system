@@ -59,15 +59,15 @@ service.interceptors.response.use(
     response => {
         console.log('responsedata', response);
         console.log('requestList', requestList);
-        for (let i = 0; i < requestList.length; i++) {
-            if (requestList[i] == response.config.url) {
-                // 注意，不能保证500ms必定执行
-                setTimeout(function() {
-                    requestList.splice(i, 1)
-                }, 500)
-                break
-            }
-        }
+        // for (let i = 0; i < requestList.length; i++) {
+        //     if (requestList[i] == response.config.url) {
+        //         // 注意，不能保证500ms必定执行
+        //         setTimeout(function() {
+        //             requestList.splice(i, 1)
+        //         }, 500)
+        //         break
+        //     }
+        // }
         return Promise.resolve(response.data)
     },
     error => {
@@ -75,7 +75,7 @@ service.interceptors.response.use(
             console.log(error)
             return Promise.reject("Ajax Abort: 该请求在axios拦截器中被中断")
         } else if (error.response) {
-            console.log('请求时错误拦截error', error);
+            console.log('请求时错误拦截error', error)
             switch (error.response.status) {
                 case 401:
                     router.push('error/401')
@@ -85,6 +85,12 @@ service.interceptors.response.use(
                     break
                 case 404:
                     router.push('error/404')
+                    break
+                case 406:
+                    Message({
+                        message: error.response.data.msg || `服务器错误！错误代码：${error.response.data.code}`,
+                        type: 'error'
+                    })
                     break
                 default:
                     Message({

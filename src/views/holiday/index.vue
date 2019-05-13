@@ -8,7 +8,8 @@
             <table-data :tableLoading="loadingHoliday" :tableData="holiday" :head="head" :isSelected="true" :isOption="true"
                 :isEditTable="true" :editTableName="'编辑'" :isDeleteTable="true" :deleteTableName="'删除'" :isPagination="true"
                 @currentChange="currentChange" :totalNumber="totalNumber" @editTable="showEdit"  :optionType="optionType"
-                @deleteTable="showDelete" @selectionChange="selectHoliday" :delStyle="delStyle"></table-data>
+                @deleteTable="showDelete" @selectionChange="selectHoliday" :delStyle="delStyle" :formatter="formatter">
+            </table-data>
             <my-dialog :title="title" :show.sync="isShowEdit" :width="'40%'" @close="closeEdit" :center="true" :isConfirm="true" @confirm="confirm" :confirmText="confirmText">
                 <my-form :rules="editRule" :formData="editForm" :formItem="formItem" ref="editForm" slot="dialog-content"></my-form>
             </my-dialog>
@@ -83,10 +84,17 @@ export default {
     mounted() {
         this.getHoliday()
     },
-    beforeDestroyed() {
-        console.log(22222222222);
-    },
     methods: {
+        //格式化表格数据
+        /* eslint-disable */
+        formatter: function(row, column, cellValue, index) {
+            // console.log('过滤',row, column, cellValue, index)
+            if(column.property == 'vacationDays' || column.property == 'workDays') { 
+                return cellValue == '' ? '无' : cellValue
+            } else {
+                return cellValue
+            }
+        },
         //初始获取假期数据
         getHoliday: function(page=0,size=20) {
             this.loadingHoliday = false
@@ -111,9 +119,10 @@ export default {
         closeEdit: function(data) {
             this.isShowEdit = data
             this.$nextTick(()=> {
-                this.$refs['editForm'].$refs.formRef.resetFields();
+                this.$refs['editForm'].$refs.formRef.resetFields()
             }) 
             this.editForm = {name:'',year: '',vacationDays: [],workDays: []}
+            console.log('------------',this.editForm);
         },
         //确认按钮判断
         confirm: function() {

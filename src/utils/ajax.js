@@ -44,7 +44,9 @@ service.interceptors.request.use(
         } else {
             router.push('/')
         }
-        // stopRepeatRequest(config.url, cancel)
+        config.headers['Cache-Control'] = 'no-cache'
+        config.headers['Pragma'] = 'no-cache'
+            // stopRepeatRequest(config.url, cancel)
         console.log('config', config);
         return config
     },
@@ -78,7 +80,10 @@ service.interceptors.response.use(
             console.log('请求时错误拦截error', error)
             switch (error.response.status) {
                 case 401:
-                    router.push('error/401')
+                    Message({
+                        message: error.response.data.msg || `服务器错误！错误代码：${error.response.data.code}`,
+                        type: 'error'
+                    })
                     break
                 case 403:
                     router.push('error/403')

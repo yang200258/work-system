@@ -9,21 +9,20 @@
                             <el-table-column v-for="(item,index) in head" :prop="item.key" :label="item.name" :key="index"
                              align="center" :show-overflow-tooltip="true" :formatter="formatter"> 
                                 <template slot-scope="scope" >
-                                    <img v-if="scope.column.property == 'avater'" :src="scope.row.avater" style="max-width: 40px;border-radius: 50%;    ">
+                                    <img v-if="scope.column.property == 'avater'" :src="scope.row.avater" style="max-width: 40px;border-radius: 50%;">
                                     <p v-else>{{scope.row[item.key]}}</p>
                                 </template>
                              </el-table-column>
                             <el-table-column label="操作" align="center" v-if="isOption">
-                                <slot name="option"></slot>
-                                <template slot-scope="scope" v-if="scope.row.status !== '离职'">
+                                <template slot-scope="scope" v-if="scope.row.status !== '离职'" >
+                                    <slot name="option" :scope="scope"></slot>
                                     <el-button :style="editStyle" :type="optionType.edit"  size="mini" @click.prevent="editTable(scope)" v-if="isEditTable" >{{editTableName}}</el-button>
                                     <el-button :style="scope.row.status == '停用'?'':delStyle" :type="optionType.delete" size="mini" @click.prevent="deleteTable(scope)" v-if="isDeleteTable">{{scope.row.status == '停用'?'启用':deleteTableName}}</el-button>
                                 </template>
                             </el-table-column>
                         </el-table>
-                        <el-pagination @size-change="sizeChange" @current-change="currentChange" :current-page="currentPage"
-                        :page-sizes="[20, 40, 60, 80]" :page-size="pageSize" layout="total, sizes, prev, pager, next, jumper" :total="totalNumber"
-                        background class="page" v-if="isPagination"></el-pagination>
+                        <el-pagination @size-change="sizeChange" @current-change="currentChange" :current-page="currentPage" :page-sizes="[20, 40, 60, 80]" :page-size="pageSize" 
+                        layout="total, sizes, prev, pager, next, jumper" :total="totalNumber" background class="page" v-if="isPagination"></el-pagination>
                 </el-main>
             </el-container>
         </el-main>

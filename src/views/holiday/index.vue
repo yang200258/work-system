@@ -148,7 +148,6 @@ export default {
           this.$refs['editForm'].$refs.formRef.validate(valid=> {
                 if(valid) {
                     let editForm = this.editForm
-                    console.log(editForm)
                     editForm.vacationDays = typeof(editForm.vacationDays) == 'string' ? editForm.vacationDays : editForm.vacationDays.join(';')
                     editForm.workDays = editForm.workDays && editForm.workDays.join(';') || ''
                     this.editHoliday(editForm).then(res=> {

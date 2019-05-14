@@ -1,5 +1,6 @@
 const CompressionWebpackPlugin = require('compression-webpack-plugin')
 const productionGzipExtensions = ['js', 'css']
+    // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
     // const htmlwebpackplugin = require('html-webpack-plugin')
 
 module.exports = {
@@ -52,15 +53,19 @@ module.exports = {
     chainWebpack: config => {
         // 移除 prefetch 插件
         // config.plugins.delete('prefetch')
-
-        // 或者
-        // 修改它的选项：
-        // config.plugin('prefetch').tap(options => {
-        //     options[0].fileBlacklist = options[0].fileBlacklist || []
-        //     options[0].fileBlacklist.push(/myasyncRoute(.)+?\.js$/)
-        //     return options
-        // })
-        //修改url-loader上传限制
+        // if (config.build.bundleAnalyzerReport) {
+        config
+            .plugin('webpack-bundle-analyzer')
+            .use(require('webpack-bundle-analyzer').BundleAnalyzerPlugin)
+            // }
+            // 或者
+            // 修改它的选项：
+            // config.plugin('prefetch').tap(options => {
+            //     options[0].fileBlacklist = options[0].fileBlacklist || []
+            //     options[0].fileBlacklist.push(/myasyncRoute(.)+?\.js$/)
+            //     return options
+            // })
+            //修改url-loader上传限制
         config.module
             .rule('images')
             .use('url-loader')

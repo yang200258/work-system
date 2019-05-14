@@ -47,16 +47,16 @@ export default {
 
 <style lang="scss" scoped>
     .clock-container {
-        overflow: hidden;
+        // overflow: hidden;
         // .el-radio-group {
         //     display: flex;
         // }
         .clock-num {
-            // display: flex;
-            // margin: 30px 0;
-            // align-items: center;
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
+            display: flex;
+            margin: 30px 0;
+            align-items: center;
+            // display: grid;
+            // grid-template-columns: 1fr 1fr 1fr;
         }
     }
 </style>

@@ -46,6 +46,9 @@ export default {
             display: flex;
             align-items: center;
             margin-bottom: 10px;
+            p {
+                white-space: nowrap;
+            }
             .el-date-editor {
                 margin: 0 20px;
                 width: 180px;

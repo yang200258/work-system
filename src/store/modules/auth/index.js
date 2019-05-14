@@ -1,15 +1,15 @@
 import axios from '@/utils/ajax'
 import Auth from '@/utils/auth'
 import Navlist from '@/assets/js/navlist'
-import { proxy } from '@/utils/proxy.js'
+// import { proxy } from '@/utils/proxy.js'
 
 let state = {
-    token: '',
-    identityCode: '',
-    navlist: Navlist[0].data,
-    organ: []
-}
-state = proxy(state, 'loginInfo', ['token', 'navlist'])
+        token: '',
+        identityCode: '',
+        navlist: Navlist[0].data,
+        organ: []
+    }
+    // state = proxy(state, 'loginInfo', ['token', 'navlist'])
 const mutations = {
     //设置token
     setToken: (state, data) => {

@@ -161,10 +161,10 @@ export default {
             this.searchInfo = {oid:depart[0],q: username}
             this.loading = true
             this.$axios({
-                url: '/sys/users/_search',
+                url: `/sys/users/_search?page=${page}&size=${size}`,
                 method: 'post',
                 data: {
-                    page,size,search:this.searchInfo
+                    search:this.searchInfo
                 }
             }).then(res=> {
                 if(res) {
@@ -213,6 +213,9 @@ export default {
                     .el-form-item {
                         padding-right: 100px;
                         margin-bottom: 0;
+                        /deep/ .el-form-item__label {
+                            white-space: nowrap;
+                        }
                     }
                 }
                 .query-info {

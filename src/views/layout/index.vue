@@ -44,6 +44,7 @@ export default {
     .header-bar {
         min-width: 560px;
         position: fixed;
+        top: 0;
         max-height: 60px;
         background-color: #384367;
         width: 100%;

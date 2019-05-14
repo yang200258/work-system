@@ -6,9 +6,9 @@
             <p>EasySite</p>
         </div>
         <slot name="topnav"></slot>
-        <div class="userInfo">
+        <!-- <div class="userInfo">
             <img @click.prevent="logout" src="@/assets/images/logout.png" alt="">
-        </div>
+        </div> -->
     </div>
     
 </template>

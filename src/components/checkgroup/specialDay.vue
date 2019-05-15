@@ -9,11 +9,11 @@
                 <time-tag :time="timeTagData"></time-tag>
             </div>
         </my-dialog>
-        <table-data :head="head[type]" :tableData="tableData" :isOption="true" :isPagination="false" :isSelected="false" v-if="timeTagData.length">
-            <div class="option" slot="option">
+        <table-data :head="head[type]" :tableData="tableData" :isPagination="false" :isSelected="false" v-if="timeTagData.length">
+            <template #option="{scope:scope}">
                 <span>编辑</span>|
                 <span>删除</span>
-            </div>
+            </template>
         </table-data>
     </div>
 </template>

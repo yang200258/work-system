@@ -9,20 +9,20 @@
                             <el-table-column v-for="(item,index) in head" :prop="item.key" :label="item.name" :key="index"
                              align="center" :show-overflow-tooltip="true" :formatter="formatter"> 
                                 <template slot-scope="scope" >
-                                    <img v-if="scope.column.property == 'avater'" :src="scope.row.avater" style="max-width: 40px;border-radius: 50%;">
-                                    <p v-else>{{scope.row[item.key]}}</p>
+                                    <slot name="special" :scope="scope">{{scope.row[item.key]}}</slot>
                                 </template>
                              </el-table-column>
-                            <el-table-column label="操作" align="center" v-if="isOption">
-                                <template slot-scope="scope" v-if="scope.row.status !== '离职'" >
+                            <el-table-column label="操作" align="center" v-if="option.isOption">
+                                <template slot-scope="scope">
                                     <slot name="option" :scope="scope"></slot>
-                                    <el-button :style="editStyle" :type="optionType.edit"  size="mini" @click.prevent="editTable(scope)" v-if="isEditTable" >{{editTableName}}</el-button>
-                                    <el-button :style="scope.row.status == '停用'?'':delStyle" :type="optionType.delete" size="mini" @click.prevent="deleteTable(scope)" v-if="isDeleteTable">{{scope.row.status == '停用'?'启用':deleteTableName}}</el-button>
+                                    <el-button :style="option.edit.editStyle" :type="option.edit.editType"  size="mini" @click.prevent="editTable(scope)" v-if="option.edit.isEdit" >{{option.edit.editName}}</el-button>
+                                    <el-button :style="option.choose.chooseStyle" :type="option.choose.chooseType"  size="mini" @click.prevent="chooseTable(scope)" v-if="option.choose.isChoose" >{{option.choose.chooseName}}</el-button>
+                                    <el-button :style="option.del.delStyle" :type="option.del.delType" size="mini" @click.prevent="deleteTable(scope)" v-if="option.del.isDel">{{option.del.delName}}</el-button>
                                 </template>
                             </el-table-column>
                         </el-table>
-                        <el-pagination @size-change="sizeChange" @current-change="currentChange" :current-page="currentPage" :page-sizes="[20, 40, 60, 80]" :page-size="pageSize" 
-                        layout="total, sizes, prev, pager, next, jumper" :total="totalNumber" background class="page" v-if="isPagination"></el-pagination>
+                        <el-pagination @size-change="sizeChange" @current-change="currentChange" :current-page="page.currentPage" :page-sizes="[20, 40, 60, 80]" :page-size="page.pageSize" 
+                        layout="total, sizes, prev, pager, next, jumper" :total="totalNumber" background class="page" v-if="page.isPagination"></el-pagination>
                 </el-main>
             </el-container>
         </el-main>
@@ -43,21 +43,13 @@ export default {
             return cellValue
         }},
         // 操作区
-        isOption: { type: Boolean, default: true },
-        isEditTable: { type: Boolean, default: true },
-        editTableName: { type: String, default: '编辑' },
-        isDeleteTable: { type: Boolean, default: true },
-        deleteTableName: { type: String, default: ' ' },
-        optionType: {type: Object,default: function() {return {'edit':'text','delete':'text'}  } },
+        option: {type:Object,default:()=> {return {isOption: true,edit: {isEdit:true,editName: '编辑',editType:'primary',editStyle: {}},
+                                                    del: {isDel: true,delName: '删除',delType:'danger',delStyle:{}},
+                                                    choose: {isChoose: false,chooseName: '选择',chooseType: 'success',chooseStyle:{}}
+                                                    }}},
         //分页区
-        isPagination: { type: Boolean, default: true },
-        currentPage:{ type: Number,default: 1 },
-        pageSize: { type: Number,default: 1 },
+        page: {type:Object,default: ()=> {return {isPagination:true,currentPage:1,pageSize:1} }},
         totalNumber:  { type: Number,default: 0 },
-        //样式区
-        optionStyle: {type: Object,default:function() {return {}  }},
-        editStyle: {type: Object,default:function() {return {}  }},
-        delStyle: {type: Object,default: function() {return {color: 'red'}  } },
     },
     data(){
         return{
@@ -69,15 +61,18 @@ export default {
     },
     methods: {
         sizeChange(val) {
-            console.log(`每页 ${val} 条`);
+            console.log(`每页 ${val} 条`)
              this.$emit('sizeChange',val)
         },
         currentChange(val) {
-            // console.log(`当前页: ${val}`);
+            // console.log(`当前页: ${val}`)
             this.$emit('currentChange',val)
         },
         editTable: function(scope){
             this.$emit('editTable',scope)
+        },
+        chooseTable: function(scope){
+            this.$emit('chooseTable',scope)
         },
         deleteTable: function(scope){
             this.$emit('deleteTable',scope)

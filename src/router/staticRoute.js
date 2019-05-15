@@ -47,10 +47,10 @@ const staticRoute = [{
                 meta: { title: '创建考勤组' }
             },
             {
-                path: '/checksite',
-                component: resolve => require(['@/views/checkgroup/checksite'], resolve),
-                name: 'ceratesite',
-                meta: { title: '创建考勤地点' }
+                path: '/clocksite',
+                component: resolve => require(['@/views/clocksite'], resolve),
+                name: 'clocksitemanage',
+                meta: { title: '考勤地点管理' }
             },
         ]
     }

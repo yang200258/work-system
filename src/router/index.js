@@ -9,7 +9,7 @@ import whiteList from './whiteList'
 Vue.use(VueRouter)
 NProgress.configure({ showSpinner: false });
 const router = new VueRouter({
-        mode: 'history',
+        mode: 'hash',
         base: (process.env.NODE_ENV === 'production') ? '/' : '/',
         routes
     })

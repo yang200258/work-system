@@ -5,10 +5,8 @@
             <el-button type="primary" icon="el-icon-delete" size="middle" @click.prevent="showDelete" v-if="delId.length > 1">删除</el-button>
         </header>
         <footer class="footer">
-            <table-data :tableLoading="loadingHoliday" :tableData="holiday" :head="head" :isSelected="true" :isOption="true"
-                :isEditTable="true" :editTableName="'编辑'" :isDeleteTable="true" :deleteTableName="'删除'" :isPagination="true"
-                @currentChange="currentChange" :totalNumber="totalNumber" @editTable="showEdit"  :optionType="optionType"
-                @deleteTable="showDelete" @selectionChange="selectHoliday" :delStyle="delStyle" :formatter="formatter">
+            <table-data :tableLoading="loadingHoliday" :tableData="holiday" :head="head" :isSelected="true" :isPagination="true" @currentChange="currentChange" :totalNumber="totalNumber" 
+                @editTable="showEdit" @deleteTable="showDelete" @selectionChange="selectHoliday" :formatter="formatter">
             </table-data>
             <my-dialog :title="title" :show.sync="isShowEdit" :width="'40%'" @close="closeEdit" :center="true" :isConfirm="true" @confirm="confirm" :confirmText="confirmText">
                 <my-form :rules="editRule" :formData="editForm" :formItem="formItem" ref="editForm" slot="dialog-content"></my-form>
@@ -44,7 +42,6 @@ export default {
             editForm: {name:'',year: '',vacationDays: [],workDays: []},
             deleteName: '',
             delId: [],
-            delStyle: {},
             formItem: [
                 {type:'input',size:'small',prop:'name',placeholder: '请输入名称',label: '节日名称：'},
                 {type:'year',size:'small',prop:'year',placeholder: '请选择年份',label: '所属年份：'},

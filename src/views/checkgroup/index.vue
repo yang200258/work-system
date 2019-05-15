@@ -62,7 +62,10 @@
                 <el-row> <el-button size="mini" plain @click.prevent="isSelectPart = !isSelectPart">按部门添加</el-button> </el-row>
                 <select-tree v-if="isSelectPart" style="position: absolute ;top: 0px; left: 8%;z-index:999"></select-tree>
                 <el-row>
-                    <table-data :head="head" :tableData="users" :isSelected="false"  :isEditTable="false" :isDeleteTable="false" :totalNumber="total" :pageSize="pageSize">
+                    <table-data :head="head" :tableData="users" :isSelected="false" :option="option" :totalNumber="total" :pageSize="pageSize">
+                        <template #special="{scope: scope}">
+                            <img v-if="scope.column.property == 'avater'"  :src="scope.row.avater" style="max-width: 40px;border-radius: 50%;">
+                        </template>
                         <template #option="{scope: scope}">
                             <img src="../../assets/images/del.png" class="delImg" @click.prevent="delUser(scope)">
                         </template>
@@ -73,21 +76,18 @@
         <!-- 添加地点弹窗 -->
         <my-dialog :title="addSite.title" :show.sync="addSite.isShowEdit" :width="'60%'" @close="closeAdd" :center="true" :isConfirm="false">
             <div slot="dialog-content" class="site-wrapper">
-                <header>
-                    <div class="search">
-                        <el-input placeholder="请输入地点名称" suffix-icon="el-icon-search" size="mini" v-model="search"> </el-input>
-                        <el-input placeholder="请输入城市" v-model="city" size="mini"> </el-input>
-                    </div>
-                    <el-button type="primary" size="mini" @click.prevent="createSite">创建</el-button>
-                </header>
-                <section>
-                    <table-data :head="sitehead" :tableData="siteTableData" :isSelected="false"  :isEditTable="false" :isDeleteTable="false" :totalNumber="total" :pageSize="pageSize">
-                        <template #option="{scope: scope}" class="option">
-                            <el-button type="success" size="mini" @click.prevent="querySite(scope)">查看</el-button>
-                            <el-button type="primary" size="mini" @click.prevent="chooseSite(scope)">选择</el-button>
-                        </template>
-                    </table-data>
-                </section>
+                <clock-site :searchInfo="searchInfo" :siteInfo="siteInfo" :sitehead="sitehead" :option="optionsite" @querySite="querySite" @chooseSite="chooseSite">
+                    <template #clockstyle="{scope:scope}">
+                        <div class="clockstyle" v-if="scope.column.property == 'clockstyle'">
+                            <el-checkbox-group>
+                                <el-checkbox label="0">蓝牙</el-checkbox>
+                                <el-checkbox label="1">WIFI</el-checkbox>
+                                <el-checkbox label="2">GPS</el-checkbox>
+                            </el-checkbox-group>
+                            <el-input size="mini" placeholder="请输入打卡范围"></el-input>
+                        </div>
+                    </template>
+                </clock-site>
             </div>
         </my-dialog>
         <footer>
@@ -104,6 +104,7 @@ import ClockCount from '@/components/checkgroup/clockCount'
 import MyDialog from '@/components/common/MyDialog'
 import TableData from '@/components/common/TableData'
 import SelectTree from '@/components/common/SelectTree'
+import ClockSite from '@/components/common/ClockSite'
 
 const days = ['周一','周二','周三','周四','周五','周六','周日']
 export default {
@@ -132,6 +133,7 @@ export default {
             isSelectPart: false,
             head: [{key:'avater',name: '头像'},{key:'username',name: '用户账号'},{key:'name',name: '姓名'},{key:'mobile',name: '手机号'},{key:'email',name: '邮箱'},{key:'hisgroup',name: '历史考勤组'},
                     {key:'organ',name: '组织'}],
+            option:{isOption: true,edit:{isEdit:false},del: {isDel: false},choose:{isChoose: false}},
             //考勤组成员信息
             users: [{id:0,avater:'https://p.ssl.qhimg.com/dmfd/400_300_/t0120b2f23b554b8402.jpg',username: 'yqq',name: '张三',mobile: '888888888',email: '888888888',hisgroup: '1号',organ:'2号'},
                         {id:1,avater:'https://p.ssl.qhimg.com/dmfd/400_300_/t0120b2f23b554b8402.jpg',username: 'yqq',name: '李四',mobile: '888888888',email: '888888888',hisgroup: '1号',organ:'2号'},
@@ -141,16 +143,17 @@ export default {
             pageSize: 0,
             // ------------添加考勤地点数据-------------------
             addSite: {title: '添加考勤地点',isShowEdit: false,confirmText: '提交'},
-            //搜索地点信息
-            search:'',
-            //城市信息
-            city:'',
-            sitehead: [{key: 'city',name: '城市'},{key: 'sitename',name: '地点名称'},{key: 'style',name: '打卡方式'},{key: 'group',name: '应用考勤组'}],
-            siteTableData: [{city: '海口',sitename: '海南大厦',style: 'GPS',group: '产品中心考勤组'}]
+            optionsite:{isOption: true,edit:{isEdit:true,editName: '查看',editType:'primary'},del: {isDel: false},choose:{isChoose: true,chooseName: '选择',chooseType:'success'}},
+            //搜索地点信息（包括地点名称和城市）
+            searchInfo:{},
+            siteInfo: {
+                content:[{id:0,city: '海口',sitename: '海南大厦1',clockstyle: 'GPS',group: '产品中心考勤组'},{id:1,city: '海口',sitename: '海南大厦2',clockstyle: 'GPS',group: '产品中心考勤组'},
+                            {id:2,city: '海口',sitename: '海南大厦3',clockstyle: 'GPS',group: '产品中心考勤组'},{id:3,city: '海口',sitename: '海南大厦4',clockstyle: 'GPS',group: '产品中心考勤组'}],total: 0},
+            sitehead: [{key: 'city',name: '城市'},{key: 'sitename',name: '地点名称'},{key: 'clockstyle',name: '打卡方式选择'},{key: 'group',name: '应用考勤组'}],
         }
     },
     components: {
-        SpecialDay,SiteTag,MyDialog,TableData,SelectTree,ClockCount
+        SpecialDay,SiteTag,MyDialog,TableData,SelectTree,ClockCount,ClockSite
     },
     methods: {
         //全选按钮工作日激活操作
@@ -189,6 +192,7 @@ export default {
         },
         //删除考勤组成员
         delUser: function(scope) {
+            console.log(scope);
             this.users = this._.dropWhile(this.users, (item)=> {return item.id === scope.row.id})
         },
         // ------------添加考勤地点方法-------------------
@@ -228,6 +232,10 @@ $leftWidth:80px;
         width: 70%;
         .group-user {
             position: relative;
+            /deep/ .el-textarea__inner {
+                color: #409EFF;
+                text-decoration: underline;
+            }
             .el-button {
                 background-color: #CBEBF8;
                 color: #3366FF;
@@ -303,18 +311,17 @@ $leftWidth:80px;
             }
         }
         .site-wrapper {
-            header {
+            .clockstyle {
                 display: flex;
-                justify-content: space-between;
-                margin-bottom: 40px;
-                .el-input {
-                    width: 200px;
-                    margin-right: 20px;
-                }
-                .el-button {
-                    position: relative;
-                    right: 0;
-                    width: 80px;
+                align-items: center;
+                justify-content: flex-start;
+                .el-checkbox-group {
+                    display: flex;
+                    align-items: center;
+                    justify-content: flex-start;
+                    .el-checkbox {
+                        margin-right: 0;
+                    }
                 }
             }
         }

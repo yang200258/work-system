@@ -44,7 +44,13 @@ const staticRoute = [{
                 path: 'clock_group_manage',
                 component: resolve => require(['@/views/clockgroupmanage'], resolve),
                 name: 'clock_group_manage',
-                meta: { title: '考勤组管理' }
+                meta: { title: '考勤组管理' },
+            },
+            {
+                path: 'create_clock_group',
+                component: resolve => require(['@/views/clockgroupmanage/createClockGroup'], resolve),
+                name: 'create_clock_group',
+                meta: { title: '创建考勤组' }
             },
             {
                 path: 'clocksite',

@@ -18,8 +18,8 @@ export default {
         width: {type:String,default:'50%'},
         center: {type:Boolean,default: false},
         isCancel: {type: Boolean,default: false},
-        isConfirm: {type: Boolean,default: true},
         cancelText: {type: String,default: '取消'},
+        isConfirm: {type: Boolean,default: true},
         confirmText: {type: String,default: '保存'},
         size: {type:String,default: 'small'}
     },

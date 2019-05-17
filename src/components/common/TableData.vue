@@ -12,7 +12,7 @@
                                     <slot name="special" :scope="scope">{{scope.row[item.key]}}</slot>
                                 </template>
                              </el-table-column>
-                            <el-table-column label="操作" align="center" v-if="isOption">
+                            <el-table-column label="操作" align="center" v-if="isOption" :class-name="'option'">
                                 <template #default="scope">
                                     <slot name="option" :scope="scope"></slot>
                                     <el-button v-for="(item,index) in option" :key="index" :style="item.style" :type="item.type"  size="mini" @click.prevent="optionEvent(scope,item)">{{item.name}}</el-button>
@@ -99,6 +99,13 @@ export default {
                     position: absolute;
                     right: 4%;
                     margin-top: 12px;
+                }
+                .option {
+                    .cell {
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                    }
                 }
             }
         }

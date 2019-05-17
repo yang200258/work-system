@@ -33,8 +33,8 @@ export default {
                 this.$refs.navbar.activeIndex = ''
                 return
             }
-            let indexPath = this.$refs.navbar.items[path].indexPath
-            this.selectMenu(path, indexPath)
+            // let indexPath = this.$refs.navbar.items[path].indexPath
+            // this.selectMenu(path, indexPath)
         }
     },
     methods: {

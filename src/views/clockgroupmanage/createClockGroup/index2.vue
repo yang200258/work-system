@@ -67,7 +67,7 @@
                             <img v-if="scope.column.property == 'avater'"  :src="scope.row.avater" style="max-width: 40px;border-radius: 50%;">
                         </template>
                         <template #option="{scope: scope}">
-                            <img src="../../assets/images/del.png" class="delImg" @click.prevent="delUser(scope)">
+                            <img src="../../../assets/images/del.png" class="delImg" @click.prevent="delUser(scope)">
                         </template>
                     </table-data>
                 </el-row>

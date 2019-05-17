@@ -11,6 +11,7 @@ var data = [{
     {
         name: '系统设置',
         auth: '',
+        path: '',
         child: [{
                 path: '/sysset/clock_group_manage',
                 name: '考勤组管理',
@@ -23,6 +24,7 @@ var data = [{
     },
     {
         name: '设备管理',
+        path: '',
         child: [{
                 path: '/device_manage/bluetooth',
                 name: '蓝牙设备管理'

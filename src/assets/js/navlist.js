@@ -11,17 +11,28 @@ var data = [{
     {
         name: '系统设置',
         auth: '',
-        path: '',
         child: [{
-                path: '/checkgroup',
-                name: '创建考勤组',
+                path: '/sysset/clock_group_manage',
+                name: '考勤组管理',
             },
             {
-                path: '/clocksite',
+                path: '/sysset/clocksite',
                 name: '考勤地点管理',
             },
         ]
     },
+    {
+        name: '设备管理',
+        child: [{
+                path: '/device_manage/bluetooth',
+                name: '蓝牙设备管理'
+            },
+            {
+                path: '/device_manage/wifi',
+                name: 'WIFI设备管理'
+            }
+        ]
+    }
 ]
 
 export default [{

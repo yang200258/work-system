@@ -24,7 +24,7 @@ export default {
         searchInfo: {type: Object},
         siteInfo: {type:Object},
         sitehead: {type:Array},
-        option: {type: Object}
+        option: {type: Array}
     },
     data() {
         return {

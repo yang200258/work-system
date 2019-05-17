@@ -50,17 +50,12 @@ export default {
 <style lang="scss" scoped>
     .dialog-container {
         .el-dialog__footer {
-            // display: flex;
-            // justify-content: center;
             .dialog-footer {
                 width: 20%;
                 display: block;
                 margin:0 auto;
                 display: flex;
                 justify-content: space-between;
-                .el-button {
-                    // width: 30%;
-                }
             }
         }
         

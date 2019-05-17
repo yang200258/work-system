@@ -6,9 +6,9 @@
             <p>EasySite</p>
         </div>
         <slot name="topnav"></slot>
-        <!-- <div class="userInfo">
+        <div class="userInfo">
             <img @click.prevent="logout" src="@/assets/images/logout.png" alt="">
-        </div> -->
+        </div>
     </div>
     
 </template>
@@ -83,6 +83,7 @@ export default {
             align-items: center;
             color: red;
             position: absolute;
+            top: 0;
             right: 5%;
             img {
                 cursor: pointer;

@@ -51,7 +51,7 @@
                 <el-button type="primary" size="mini">导出</el-button>
                 <el-button type="primary" size="mini">导入</el-button>
             </el-row>
-            <table-data :head="head" :tableData="tableData" :tableLoading="loading" :isSelected="true" :option="option" :totalNumber="total" @editTable="editUser" @deleteTable="stopUse"></table-data>
+            <table-data :head="head" :tableData="tableData" :tableLoading="loading" :isSelected="true" :option="option" :totalNumber="total" @editTable="editUser" @delTable="stopUse"></table-data>
         </div>
     </div>
 </template>
@@ -79,7 +79,7 @@ export default {
             loading: false,
             tableData: [],
             total: 0,
-            option: {isOption: true,edit: {isEdit:true,editName: '编辑',editType:'primary'},del: {isDel: true,delName: '停用',delType:'danger',delStyle:{}},choose: {isChoose: false}},
+            option: [{name: '编辑',type:'primary',event: 'editTable'},{name: '停用',type:'danger',event: 'delTable'}],
             showMore: false,
         }
     },

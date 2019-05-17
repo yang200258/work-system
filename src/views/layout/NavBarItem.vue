@@ -5,7 +5,6 @@
         <!-- 创建子菜单 -->
         <nav-bar-item v-for="(subItem,i) in item.child" :key="navIndex+'-'+i" :navIndex="navIndex+'-'+i" :item="subItem"></nav-bar-item>
     </el-submenu>
-
     <el-menu-item v-else :index="item.path" :route="{path: item.path}"><i v-if="item.icon" class="item.icon"></i>{{ item.name }}</el-menu-item>
 </template>
 
@@ -14,8 +13,8 @@ export default {
     name: 'NavBarItem',
     props: ['item','navIndex'],
     methods: {
-        go: function(path){
-            this.$router.push({path})
+        go: function(){
+            // this.$router.push({path})
         }
     }
 }

@@ -133,7 +133,7 @@ export default {
             isSelectPart: false,
             head: [{key:'avater',name: '头像'},{key:'username',name: '用户账号'},{key:'name',name: '姓名'},{key:'mobile',name: '手机号'},{key:'email',name: '邮箱'},{key:'hisgroup',name: '历史考勤组'},
                     {key:'organ',name: '组织'}],
-            option:{isOption: true,edit:{isEdit:false},del: {isDel: false},choose:{isChoose: false}},
+            option:[],
             //考勤组成员信息
             users: [{id:0,avater:'https://p.ssl.qhimg.com/dmfd/400_300_/t0120b2f23b554b8402.jpg',username: 'yqq',name: '张三',mobile: '888888888',email: '888888888',hisgroup: '1号',organ:'2号'},
                         {id:1,avater:'https://p.ssl.qhimg.com/dmfd/400_300_/t0120b2f23b554b8402.jpg',username: 'yqq',name: '李四',mobile: '888888888',email: '888888888',hisgroup: '1号',organ:'2号'},
@@ -143,7 +143,7 @@ export default {
             pageSize: 0,
             // ------------添加考勤地点数据-------------------
             addSite: {title: '添加考勤地点',isShowEdit: false,confirmText: '提交'},
-            optionsite:{isOption: true,edit:{isEdit:true,editName: '查看',editType:'primary'},del: {isDel: false},choose:{isChoose: true,chooseName: '选择',chooseType:'success'}},
+            optionsite:[{name: '查看',type:'primary',event:'editTable'},{name: '选择',type:'success',event: 'chooseTable'}],
             //搜索地点信息（包括地点名称和城市）
             searchInfo:{},
             siteInfo: {

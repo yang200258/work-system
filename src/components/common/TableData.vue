@@ -8,16 +8,14 @@
                             <el-table-column type="selection" align="center" v-if="isSelected"> </el-table-column>
                             <el-table-column v-for="(item,index) in head" :prop="item.key" :label="item.name" :key="index"
                              align="center" :show-overflow-tooltip="true" :formatter="formatter"> 
-                                <template slot-scope="scope" >
+                                <template #default="scope">
                                     <slot name="special" :scope="scope">{{scope.row[item.key]}}</slot>
                                 </template>
                              </el-table-column>
-                            <el-table-column label="操作" align="center" v-if="option.isOption">
-                                <template slot-scope="scope">
+                            <el-table-column label="操作" align="center" v-if="isOption">
+                                <template #default="scope">
                                     <slot name="option" :scope="scope"></slot>
-                                    <el-button :style="option.edit.editStyle" :type="option.edit.editType"  size="mini" @click.prevent="editTable(scope)" v-if="option.edit.isEdit" >{{option.edit.editName}}</el-button>
-                                    <el-button :style="option.choose.chooseStyle" :type="option.choose.chooseType"  size="mini" @click.prevent="chooseTable(scope)" v-if="option.choose.isChoose" >{{option.choose.chooseName}}</el-button>
-                                    <el-button :style="option.del.delStyle" :type="option.del.delType" size="mini" @click.prevent="deleteTable(scope)" v-if="option.del.isDel">{{option.del.delName}}</el-button>
+                                    <el-button v-for="(item,index) in option" :key="index" :style="item.style" :type="item.type"  size="mini" @click.prevent="optionEvent(scope,item)">{{item.name}}</el-button>
                                 </template>
                             </el-table-column>
                         </el-table>
@@ -43,10 +41,8 @@ export default {
             return cellValue
         }},
         // 操作区
-        option: {type:Object,default:()=> {return {isOption: true,edit: {isEdit:true,editName: '编辑',editType:'primary',editStyle: {}},
-                                                    del: {isDel: true,delName: '删除',delType:'danger',delStyle:{}},
-                                                    choose: {isChoose: false,chooseName: '选择',chooseType: 'success',chooseStyle:{}}
-                                                    }}},
+        isOption: {type:Boolean,default: true},
+        option: {type:Array,default:()=> {return [{name: '编辑',type:'primary',style: {},event: 'editTable'},{name: '删除',type:'danger',style:{},event: 'delTable'}]}},
         //分页区
         page: {type:Object,default: ()=> {return {isPagination:true,currentPage:1,pageSize:1} }},
         totalNumber:  { type: Number,default: 0 },
@@ -65,24 +61,14 @@ export default {
              this.$emit('sizeChange',val)
         },
         currentChange(val) {
-            // console.log(`当前页: ${val}`)
             this.$emit('currentChange',val)
         },
-        editTable: function(scope){
-            this.$emit('editTable',scope)
-        },
-        chooseTable: function(scope){
-            this.$emit('chooseTable',scope)
-        },
-        deleteTable: function(scope){
-            this.$emit('deleteTable',scope)
+        optionEvent: function(scope,item) {
+            this.$emit(item.event,scope)
         },
         selectionChange: function(val){
             this.$emit('selectionChange',val)
         },
-        // formatter: function(row, column,cellValue, index){
-        //     this.$emit('formatter',row, column,cellValue, index)
-        // },
     }
 }
 </script>
@@ -107,12 +93,7 @@ export default {
                         text-overflow: ellipsis;
                         white-space: normal;
                         word-break: break-all;
-                        // line-height: 23px;
-                        // padding-left: 10px;
-                        // padding-right: 10px;
-                        // text-align: left;
                     }
-                    
                 }
                 .page {
                     position: absolute;

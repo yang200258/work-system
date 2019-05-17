@@ -51,7 +51,7 @@ router.beforeEach((to, from, next) => {
         // 如果当前处于登录状态，并且跳转地址为login，则自动跳回系统首页
         // 这种情况出现在手动修改地址栏地址时
         // console.log('跳转后路径',to);
-        console.log('跳转前路径', from);
+        console.log('跳转前路径', from,to)
         if (to.path === '/login') {
             next({ path: "/home", replace: true })
         } else if (to.path.indexOf("/error") >= 0) {

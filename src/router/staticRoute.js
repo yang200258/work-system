@@ -38,20 +38,37 @@ const staticRoute = [{
         }]
     },
     {
-        path: '/checkgroup',
+        path: '/sysset',
         component: layout,
         children: [{
-                path: '/checkgroup',
-                component: resolve => require(['@/views/checkgroup'], resolve),
-                name: 'cerategroup',
-                meta: { title: '创建考勤组' }
+                path: 'clock_group_manage',
+                component: resolve => require(['@/views/clockgroupmanage'], resolve),
+                name: 'clock_group_manage',
+                meta: { title: '考勤组管理' }
             },
             {
-                path: '/clocksite',
+                path: 'clocksite',
                 component: resolve => require(['@/views/clocksite'], resolve),
                 name: 'clocksitemanage',
                 meta: { title: '考勤地点管理' }
             },
+        ]
+    },
+    {
+        path: '/device_manage',
+        component: layout,
+        children: [{
+                path: 'bluetooth',
+                component: resolve => require(['@/views/bluetooth'], resolve),
+                name: 'bluetooth',
+                meta: { title: '蓝牙设备管理' }
+            },
+            {
+                path: 'wifi',
+                component: resolve => require(['@/views/wifi'], resolve),
+                name: 'wifi',
+                meta: { title: 'WIFI设备管理' }
+            }
         ]
     }
 ]

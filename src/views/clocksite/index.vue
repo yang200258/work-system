@@ -15,7 +15,7 @@ export default {
                 content:[{id:0,city: '海口',sitename: '海南大厦1',style: 'GPS',group: '产品中心考勤组'},{id:1,city: '海口',sitename: '海南大厦2',style: 'GPS',group: '产品中心考勤组'},
                             {id:2,city: '海口',sitename: '海南大厦3',style: 'GPS',group: '产品中心考勤组'},{id:3,city: '海口',sitename: '海南大厦4',style: 'GPS',group: '产品中心考勤组'}],total: 0},
             sitehead: [{key: 'city',name: '城市'},{key: 'sitename',name: '地点名称'},{key: 'style',name: '打卡设备'},{key: 'group',name: '应用考勤组'}],
-            option:{isOption: true,edit:{isEdit:true,editName: '查看',editType:'primary'},del: {isDel: true,delName:'删除',delType:'danger'},choose:{isChoose: true,chooseName: '选择',chooseType:'success'}},
+            option:[{name: '查看',type:'success',event: 'chooseTable'},{name: '编辑',type:'primary',event: 'editTable'},{name:'删除',type:'danger',event: 'delTable'}],
         }
     },
     components: {

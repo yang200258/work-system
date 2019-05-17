@@ -6,7 +6,7 @@
         </header>
         <footer class="footer">
             <table-data :tableLoading="loadingHoliday" :tableData="holiday" :head="head" :isSelected="true" :isPagination="true" @currentChange="currentChange" :totalNumber="totalNumber" 
-                @editTable="showEdit" @deleteTable="showDelete" @selectionChange="selectHoliday" :formatter="formatter">
+                @editTable="showEdit" @delTable="showDelete" @selectionChange="selectHoliday" :formatter="formatter">
             </table-data>
             <my-dialog :title="title" :show.sync="isShowEdit" :width="'40%'" @close="closeEdit" :center="true" :isConfirm="true" @confirm="confirm" :confirmText="confirmText">
                 <my-form :rules="editRule" :formData="editForm" :formItem="formItem" ref="editForm" slot="dialog-content"></my-form>

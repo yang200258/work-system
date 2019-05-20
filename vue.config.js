@@ -54,18 +54,19 @@ module.exports = {
         // 移除 prefetch 插件
         // config.plugins.delete('prefetch')
         // if (config.build.bundleAnalyzerReport) {
-        config
-            .plugin('webpack-bundle-analyzer')
-            .use(require('webpack-bundle-analyzer').BundleAnalyzerPlugin)
-            // }
-            // 或者
-            // 修改它的选项：
-            // config.plugin('prefetch').tap(options => {
-            //     options[0].fileBlacklist = options[0].fileBlacklist || []
-            //     options[0].fileBlacklist.push(/myasyncRoute(.)+?\.js$/)
-            //     return options
-            // })
-            //修改url-loader上传限制
+        // 增加分析报告
+        // config
+        //     .plugin('webpack-bundle-analyzer')
+        //     .use(require('webpack-bundle-analyzer').BundleAnalyzerPlugin)
+        // }
+        // 或者
+        // 修改它的选项：
+        // config.plugin('prefetch').tap(options => {
+        //     options[0].fileBlacklist = options[0].fileBlacklist || []
+        //     options[0].fileBlacklist.push(/myasyncRoute(.)+?\.js$/)
+        //     return options
+        // })
+        //修改url-loader上传限制
         config.module
             .rule('images')
             .use('url-loader')

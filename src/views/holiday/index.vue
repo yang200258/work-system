@@ -5,8 +5,8 @@
             <el-button type="primary" icon="el-icon-delete" size="middle" @click.prevent="showDelete" v-if="delId.length > 1">删除</el-button>
         </header>
         <footer class="footer">
-            <table-data :tableLoading="loadingHoliday" :tableData="holiday" :head="head" :isSelected="true" :isPagination="true" @currentChange="currentChange" :totalNumber="totalNumber" 
-                @editTable="showEdit" @delTable="showDelete" @selectionChange="selectHoliday" :formatter="formatter">
+            <table-data :tableLoading="loadingHoliday" :tableData="holiday" :head="head" :isSelected="true" @currentChange="currentChange" :totalNumber="totalNumber" 
+                @editTable="showEdit" @delTable="showDelete" @selectionChange="selectHoliday" :format="format">
             </table-data>
             <my-dialog :title="title" :show.sync="isShowEdit" :width="'40%'" @close="closeEdit" :center="true" :isConfirm="true" @confirm="confirm" :confirmText="confirmText">
                 <my-form :rules="editRule" :formData="editForm" :formItem="formItem" ref="editForm" slot="dialog-content"></my-form>
@@ -83,12 +83,12 @@ export default {
     methods: {
         //格式化表格数据
         /* eslint-disable */
-        formatter: function(row, column, cellValue, index) {
+        format: function(scope) {
             // console.log('过滤',row, column, cellValue, index)
-            if(column.property == 'vacationDays' || column.property == 'workDays') { 
-                return cellValue == '' ? '无' : cellValue
+            if(scope.column.property == 'vacationDays' || scope.column.property == 'workDays') { 
+                return scope.row[scope.column.property] == '' ? '无' : scope.row[scope.column.property]
             } else {
-                return cellValue
+                return scope.row[scope.column.property]
             }
         },
         //初始获取假期数据

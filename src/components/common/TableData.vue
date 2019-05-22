@@ -3,19 +3,22 @@
         <el-main style="padding:0">
             <el-container class="infoTable">
                 <el-main style="padding:0">
-                        <el-table  v-loading="tableLoading" element-loading-text="拼命加载中" element-loading-spinner="el-icon-loading" :default-sort="tableSort"
+                        <el-table  v-loading="tableLoading" element-loading-text="拼命加载中" element-loading-spinner="el-icon-loading" :default-sort="tableSort" :empty-text="emptyText"
                         :data="tableData" @selection-change="selectionChange" :highlight-current-row="true" :header-cell-class-name="'title'">
                             <el-table-column type="selection" align="center" v-if="isSelected"> </el-table-column>
                             <el-table-column v-for="(item,index) in head" :prop="item.key" :label="item.name" :key="index"
-                             align="center" :show-overflow-tooltip="true" :formatter="formatter"> 
-                                <template #default="scope">
-                                    <slot name="special" :scope="scope">{{scope.row[item.key]}}</slot>
+                             align="center" :show-overflow-tooltip="true"> 
+                                <template slot-scope="scope">
+                                    <slot name="special" :scope="scope">
+                                        <span>{{format(scope)}}</span>
+                                    </slot>
                                 </template>
                              </el-table-column>
                             <el-table-column label="操作" align="center" v-if="isOption" :class-name="'option'">
-                                <template #default="scope">
-                                    <slot name="option" :scope="scope"></slot>
-                                    <el-button v-for="(item,index) in option" :key="index" :style="item.style" :type="item.type"  size="mini" @click.prevent="optionEvent(scope,item)">{{item.name}}</el-button>
+                                <template slot-scope="scope">
+                                    <slot name="option" :scope="scope">
+                                        <el-button v-for="(item,index) in option" :key="index" :style="item.style" :type="item.type"  size="mini" @click.prevent="optionEvent(scope,item)">{{item.name}}</el-button>
+                                    </slot>
                                 </template>
                             </el-table-column>
                         </el-table>
@@ -37,9 +40,11 @@ export default {
         tableData: {type: Array},
         head: {type: Array},
         isSelected: { type: Boolean, default: true },
-        formatter: {type: Function,default: function(row, column,cellValue, index) {
-            return cellValue
-        }},
+        emptyText: {type:String,default: '暂无数据'},
+        // formatter: {type: Function,default: function(row, column,cellValue, index) {
+        //     return cellValue
+        // }},
+        format: {type:Function,default: function(scope) {return scope.row[scope.column.property] }},
         // 操作区
         isOption: {type:Boolean,default: true},
         option: {type:Array,default:()=> {return [{name: '编辑',type:'primary',style: {},event: 'editTable'},{name: '删除',type:'danger',style:{},event: 'delTable'}]}},
@@ -69,6 +74,12 @@ export default {
         selectionChange: function(val){
             this.$emit('selectionChange',val)
         },
+        // format: function(scope) {
+        //     // console.log(scope);
+        //     // this.$emit('format',scope)
+        //     return scope.row[scope.column.property]
+            
+        // }
     }
 }
 </script>

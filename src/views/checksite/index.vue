@@ -11,18 +11,6 @@
                 <el-tabs type="border-card" class="tab" @tab-click="tabclick" >
                     <el-tab-pane :label="item" v-for="item in tabItem" :key="item">
                         <check-style :equips="equips" :addEquips="addEquips" v-if="item != 'GPS'"></check-style>
-                        <div class="gps-style" v-else>
-                            <div class="left-gps">
-                                <el-checkbox v-model="isGpsCheck">允许GPS打卡</el-checkbox>
-                            </div>
-                            <div class="right-gps">
-                                <span>GPS打卡范围</span>
-                                <div class="gps-input">
-                                    <el-input type="text" size="small" v-model="gpsDistrict" placeholder="请输入允许打卡距离" clearable></el-input>
-                                    <span>米</span> 
-                                </div>
-                            </div>
-                        </div>
                     </el-tab-pane>
                 </el-tabs>
             </div>
@@ -39,7 +27,7 @@ import CheckStyle from '@/components/checkgroup/checkStyle'
 export default {
     data() {
         return {
-            tabItem: ['蓝牙','WIFI','GPS'],
+            tabItem: ['蓝牙','WIFI'],
             equips: [],
             addEquips: [],
             isGpsCheck: false,

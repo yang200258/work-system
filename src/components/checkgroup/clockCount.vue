@@ -1,6 +1,6 @@
 <template>
     <div class="clock-container">
-        <el-radio :label="countData.type" v-model="countData.type">{{countData.text}}</el-radio>
+        <el-radio :label="countData.type" v-model="workType.num">{{countData.text}}</el-radio>
         <time-tag v-for="(item,i) in countData.clockNum" :key="i" :data="item" @changTime="changeTime"></time-tag>
     </div>
 </template>
@@ -11,9 +11,11 @@ import TimeTag from '@/components/common/TimeTag'
 export default {
     props: {
         countData: {type: Object},
+        workType: {type:Object,default: function() {return {type:0}}}
     },
     data() {
         return {
+            // workType: 0
         }
     },
     components: {

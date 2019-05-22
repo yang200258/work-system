@@ -24,7 +24,6 @@
             </div>
             <div class="right">
                 <el-button size="mini" @click.prevent="reset">重置</el-button>
-                <el-button type="primary" size="mini" @click.prevent="add">添加</el-button>
             </div>
         </div>
     </div>

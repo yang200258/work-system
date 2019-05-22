@@ -8,7 +8,8 @@
             <el-button type="primary" size="mini" @click.prevent="createSite">创建</el-button>
         </header>
         <section>
-            <table-data :head="sitehead" :tableData="siteInfo.content" :isSelected="false" :option="option"  :totalNumber="siteInfo.total" @delTable="delSite(scope)" @editTable="querySite(scope)" @chooseTable="chooseSite(scope)">
+            <table-data :head="sitehead" :tableData="siteInfo.content" :isSelected="false" :option="option"  :totalNumber="siteInfo.total" @delTable="delSite(scope)" @editTable="querySite(scope)" 
+            @chooseTable="chooseSite(scope)" @currentChange="nextPage">
                 <template #special="{scope: scope}">
                     <slot name="clockstyle" :scope="scope"></slot>
                 </template>
@@ -40,6 +41,12 @@ export default {
         },
         delSite: function(scope) {
             this.$emit('delSite',scope)
+        },
+        nextPage: function(val) {
+            this.$emit('nextPage',val)
+        },
+        createSite: function() {
+            this.$emit('createSite')
         }
     },
     components: {

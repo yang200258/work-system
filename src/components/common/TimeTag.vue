@@ -1,6 +1,6 @@
 <template>
     <div class="time-container">
-        <p>{{data.text}}</p>
+        <div class="text"><p>{{data.text}}</p></div>
         <el-time-picker is-range v-model="data.time" range-separator="-" start-placeholder="00:00" end-placeholder="00:00" prefix-icon="el-icon-time" 
         format="HH:mm" value-format="HH:mm" @change="changTime"> </el-time-picker>
     </div>
@@ -28,9 +28,16 @@ export default {
     .time-container {
         display: flex;
         align-items: center;
-        p {
+        .text {
+            width: 72px;
             white-space: nowrap;
             overflow: hidden;
+            p {
+                font-family: 'PingFangSC-Regular', 'PingFang SC';
+                font-style: normal;
+                font-size: 14px;
+                color: #606266;
+            }
         }
         .el-date-editor {
             margin: 0 20px;

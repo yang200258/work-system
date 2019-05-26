@@ -1,5 +1,5 @@
 // 生产环境中注释掉以下语句
-// import '../mock/index.js'
+import '../mock/index.js'
 
 import Vue from 'vue'
 import App from './App.vue'

@@ -2,9 +2,11 @@
 import auth from './auth'
 import user from './user'
 import tagNav from './tagNav'
+import site from './site'
 
 export default {
     auth,
     user,
-    tagNav
+    tagNav,
+    site
 }

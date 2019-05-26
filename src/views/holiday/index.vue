@@ -9,7 +9,7 @@
                 @editTable="showEdit" @delTable="showDelete" @selectionChange="selectHoliday" :format="format">
             </table-data>
             <my-dialog :title="title" :show.sync="isShowEdit" :width="'40%'" @close="closeEdit" :center="true" :isConfirm="true" @confirm="confirm" :confirmText="confirmText">
-                <my-form :rules="editRule" :formData="editForm" :formItem="formItem" ref="editForm" slot="dialog-content"></my-form>
+                <my-form :rules="editRule" :formData="editForm" :formItem="formItem" ref="editForm" slot="dialog-content" :position="'right'" class="editForm"></my-form>
             </my-dialog>
             <my-dialog :title="'删除节日'" :show.sync="isShowDelete" :width="'30%'" @close="closeDelete" :isCancel="true" @cancel="isShowDelete = false" :isConfirm="true" @confirm="deleteHoliday" :confirmText="'确定'">
                 <div class="dia-content" slot="dialog-content">
@@ -43,10 +43,10 @@ export default {
             deleteName: '',
             delId: [],
             formItem: [
-                {type:'input',size:'small',prop:'name',placeholder: '请输入名称',label: '节日名称：'},
-                {type:'year',size:'small',prop:'year',placeholder: '请选择年份',label: '所属年份：'},
-                {type:'dates',size:'small',prop:'vacationDays',placeholder: '选择一个或多个日期',label: '休息日期：'},
-                {type:'dates',size:'small',prop:'workDays',placeholder: '选择一个或多个日期',label: '补班日期：',options: {disabledDate: time => {
+                {type:'input',inputType:'text',size:'small',prop:'name',placeholder: '请输入名称',label: '节日名称：'},
+                {type:'date',dateType:'year',size:'small',prop:'year',placeholder: '请选择年份',label: '所属年份：',valueFormat:'yyyy'},
+                {type:'date',dateType:'dates',size:'small',prop:'vacationDays',placeholder: '选择一个或多个日期',label: '休息日期：',format:'yyyy年MM月dd日',valueFormat:'yyyy/MM/dd'},
+                {type:'date',dateType:'dates',size:'small',prop:'workDays',placeholder: '选择一个或多个日期',label: '补班日期：',format:'yyyy年MM月dd日',valueFormat:'yyyy/MM/dd',options: {disabledDate: time => {
                     let distime = this.editForm.vacationDays
                     let timer = utils.filterDate(time)
                     if(distime && distime.length && distime.includes(timer)) return true
@@ -277,6 +277,13 @@ export default {
         margin:0 4%;
         header {
             margin-bottom: 20px;
+        }
+        .footer {
+            .editForm {
+                /deep/ .el-form-item {
+                    display: flex;
+                }
+            }
         }
     }
 </style>

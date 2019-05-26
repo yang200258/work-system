@@ -53,16 +53,22 @@ const staticRoute = [{
                 meta: { title: '创建考勤组' }
             },
             {
+                path: 'clocksite',
+                component: resolve => require(['@/views/clocksite'], resolve),
+                name: 'clocksite',
+                meta: { title: '考勤地点管理' }
+            },
+            {
                 path: 'create_clock_site',
-                component: resolve => require(['@/views/checksite'], resolve),
+                component: resolve => require(['@/views/clocksite/createClockSite'], resolve),
                 name: 'create_clock_site',
                 meta: { title: '创建考勤地点' }
             },
             {
-                path: 'clocksite',
-                component: resolve => require(['@/views/clocksite'], resolve),
-                name: 'clocksitemanage',
-                meta: { title: '考勤地点管理' }
+                path: 'edit_clock_site',
+                component: resolve => require(['@/views/clocksite/editClockSite'], resolve),
+                name: 'edit_clock_site',
+                meta: { title: '编辑考勤地点' }
             },
         ]
     },

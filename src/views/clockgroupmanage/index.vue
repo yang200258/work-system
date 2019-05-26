@@ -1,15 +1,10 @@
 <template>
     <div class="clockgroup-manage">
         <header class="clockgroup-header">
-            <div class="left">
-                <my-input v-for="(item,i) in searchInfo" :key="i" :data="item"></my-input>
-                <my-select :info="styleData.info" :data="styleData"></my-select>
-                <el-button icon="el-icon-search" type="primary">搜索</el-button>
-            </div>
-            <el-button icon="el-icon-edit" type="primary" @click="isShowCreate = true">添加</el-button>
+            <my-form :formData="searchInfo" :formItem="formItem" :size="'mini'" :isInline="true" @search="search" @showCreate="showCreate"></my-form>
         </header>
         <section class="clockgroup-content">
-            <table-data :head="head" :tableData="clockGroupData" :tableLoading="clockGroupLoading" :option="option"></table-data>
+            <table-data :head="head" :tableData="clockGroupData" :tableLoading="clockGroupLoading" :option="option" @chooseTable="getClockGroup" @editTable="editClockGroup" @delTable="delClockGroup"></table-data>
         </section>
         <my-dialog :title="'新建考勤组'" :width="'40%'" :show.sync="isShowCreate" :isCancel="true" :confirmText="'提交'" @close="closeCreate" @cancel="cancelCreate" class="create-group" @confirm="goCreate">
             <template slot="dialog-content">
@@ -36,16 +31,19 @@
 import TableData from '@/components/common/TableData'
 import MyDialog from '@/components/common/MyDialog'
 import MyInput from '@/components/common/MyInput'
-import MySelect from '@/components/common/MySelect'
+import MyForm from '@/components/common/MyForm'
 export default {
     data() {
         return {
             // ----------------------搜索考勤组--------------------
-            searchInfo: [{text: '考勤组名称',placeholder:'请输入内容',info:''},{text: '考勤地点',placeholder:'请输入内容',info:''},{text: '创建人',placeholder:'请输入内容',info:''}],
-            styleData: {info: [],text: '打卡方式',placeholder:'请选择打卡方式',options: [{label:'蓝牙',value: 0},{label:'WIFI',value: 1},{label:'GPS',value: 2}]},
+            searchInfo: {},
+            formItem: [{prop:'name',label:'考勤组名称',placeholder:'请输入内容',type:'input',inputType:'text'},{prop:'site',label:'考勤地点',placeholder:'请输入内容',type:'input',inputType:'text'},
+                        {prop:'clockType',label:'打卡方式',placeholder:'请选择',type:'select',options:[{name:'蓝牙',value:0},{name:'WIFI',value:1},{name:'GPS',value:2}]},
+                        {prop:'user',label:'创建人',placeholder:'请输入内容',type:'input',inputType:'text'},{prop:'city',label:'所在城市',placeholder:'请选择',type:'select',options:[]},
+                        {type:'button',buttonType:'primary',text:'搜索',icon:'el-icon-search',event:'search'},{type:'button',buttonType:'primary',text:'添加',icon:'el-icon-edit',event: 'showCreate'}],
             // -------------------------考勤组展示-------------------------
-            head:[{key: 'name',label:'考勤组名称'},{key: '',label:'考勤地点/打卡方式'},{key: '',label:'班次类型'},{key: '',label:'成员数'},{key: '',label:'创建人'},
-                    {key: '',label:'更新时间'}],
+            head:[{key: 'name',label:'考勤组名称'},{key: 'clockType',label:'考勤地点/打卡方式'},{key: 'clockCount',label:'打卡次数/作息时段'},{key: 'type',label:'班次类型'},{key: 'city',label:'所在城市'},
+                    {key: 'user',label:'创建人'},{key: 'time',label:'更新时间'},{key: 'workday',label:'工作日设置'}],
             clockGroupData: [],
             clockGroupLoading: false,
             option:[{name: '查看',type:'success',event: 'chooseTable'},{name: '编辑',type:'primary',event: 'editTable'},{name:'删除',type:'danger',event: 'delTable'}],
@@ -55,7 +53,7 @@ export default {
             clockType: 1
         }
     },
-    components: {TableData,MyDialog,MyInput,MySelect},
+    components: {TableData,MyDialog,MyInput,MyForm},
     methods: {
         closeCreate: function() {
             this.isShowCreate = false
@@ -63,10 +61,30 @@ export default {
         cancelCreate: function() {
             this.isShowCreate = false
         },
+        showCreate: function() {
+            this.isShowCreate = true
+        },
+        //添加考勤组
         goCreate: function() {
             if(!this.groupData.info) return this.$message.error('请先填写考勤组名称')
-            this.isShowCreate = false
+            // this.isShowCreate = false
             this.$router.push('create_clock_group')
+        },
+        //搜索考勤组
+        search: function() {
+            
+        },
+        //查看考勤组
+        getClockGroup: function(scope) {
+            console.log(scope)
+        },
+        //编辑考勤组
+        editClockGroup: function(scope) {
+            console.log(scope)
+        },
+        //删除考勤组
+        delClockGroup: function(scope) {
+            console.log(scope)
         }
     }
 }
@@ -76,17 +94,14 @@ export default {
     .clockgroup-manage {
         margin: 0 40px;
         .clockgroup-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            .el-button {
-                margin-left: 20px;
-            }
-            .left {
-                display: flex;
-                align-items: center;
-                .myinput-container {
-                    margin-right: 20px;
+            margin-bottom: 20px;
+            /deep/ .el-form {
+                .el-form-item {
+                    margin-bottom: 0;
+                    &:last-child {
+                        position: absolute;
+                        right: 100px;
+                    }
                 }
             }
         }

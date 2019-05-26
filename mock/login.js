@@ -4,7 +4,7 @@ const data = {
 }
 
 export default [{
-    path: '/accounts/login',
+    path: '/sys/accounts/login',
     data: data,
     method: 'post'
 }]

@@ -6,24 +6,24 @@
                 <el-input size="mini" suffix-icon="el-icon-search" placeholder="输入名称搜索" v-model="searchKey" @keyup.enter.native="searchDevice"></el-input>
             </div>
             <div class="tab-content">
-                <el-scrollbar style="height: 100%;"><equip-tag v-for="(item,i) in equips" :key="i" :site="item.site" :device="item.device" @add="addDevice"></equip-tag></el-scrollbar>
+                <el-scrollbar style="height: 100%;"><equip-tag v-for="(item,i) in equips" :key="i" :device="item" @add="addDevice" v-show="type === item.type"></equip-tag></el-scrollbar>
             </div>
         </div>
         <div class="right-tab">
             <span>已添加设备</span>
             <div class="tab-content">
-                 <el-scrollbar style="height: 100%;"><equip-tag v-for="(item,i) in addEquips" :key="i" :site="item.site" :device="item.device" :type="1" @delete="deleteDevice"></equip-tag></el-scrollbar>
+                 <el-scrollbar style="height: 100%;"><equip-tag v-for="(item,i) in addEquips" :key="i" :device="item" :type="1" @delete="delDevice" v-show="type === item.type"></equip-tag></el-scrollbar>
             </div>
         </div>
     </div>
 </template>
 
 <script>
-import EquipTag from '@/components/checkgroup/equipTag'
+import EquipTag from '@/components/site/equipTag'
+import {mapState,mapMutations} from 'vuex'
 export default {
     props: {
-        equips: {type:Array},
-        addEquips: {type:Array},
+        type: {type:Number}
     },
     data() {
         return {
@@ -33,19 +33,44 @@ export default {
     components: {
         EquipTag
     },
+    computed: {
+        ...mapState({
+            equips: state => state.site.equips,     // 设备列表
+            addEquips: state => state.site.addEquips,   //已添加设备
+            // inialDeviceId: state => state.site.inialDeviceId    //记录初始状态时的已添加设备
+        })
+    },
     methods: {
+        ...mapMutations({
+            setEquips: 'site/setEquips',
+            setAddEquips: 'site/setAddEquips',
+            // setInialDeviceId: 'site/setInialDeviceId',
+        }),
         //搜索设备
         searchDevice() {
-            console.log('搜索设备');
+            this.$emit('searchDevice',this.searchKey)
         },
         // 添加设备
-        addDevice: function(data) {
-            this.addEquips.push(data)
-            console.log(data);
+        addDevice: function(device) {
+            const list = []
+            const addequip = this.addEquips
+            addequip.push(device)
+            this.setAddEquips(addequip)
+            this.equips.forEach(item=> {
+                if(item.id !== device.id) list.push(item)
+            })
+            this.setEquips(list)
         },
         // 删除设备
-        deleteDevice: function(data) {
-            console.log(data);
+        delDevice: function(device) {
+            const list = []
+            let equip = this.equips
+            equip.push(device)
+            this.setEquips(equip)
+            this.addEquips.forEach(item=> {
+                if(item.id !== device.id) list.push(item)
+            })
+            this.setAddEquips(list)
         }
     }
 }

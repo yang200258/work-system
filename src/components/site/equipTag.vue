@@ -1,8 +1,8 @@
 <template>
     <div class="tag-container">
-        <p :class="type === 0 ? 'add' : 'delete'">{{site}}-{{device}}</p>
-        <el-button size="mini" type="success" @click.prevent="$emit('add',{site,device})" v-if="type === 0">添加 >></el-button>
-        <el-button size="mini" type="danger" @click.prevent="$emit('delete',{site,device})" v-else>删除</el-button>
+        <p :class="type === 0 ? 'add' : 'delete'">{{device.name}}-{{device.type == 0 ? '蓝牙设备' : 'WIFI设备'}}</p>
+        <el-button size="mini" type="success" @click.prevent="$emit('add',device)" v-if="type === 0">添加 >></el-button>
+        <el-button size="mini" type="danger" @click.prevent="$emit('delete',device)" v-if="type === 1">删除</el-button>
     </div>
 </template>
 
@@ -10,8 +10,7 @@
 <script>
 export default {
     props: {
-        site: {type: String},
-        device: {type:String},
+        device: {type:Object},
         type: {type: Number,default: 0}
     },
     data() {

@@ -26,7 +26,8 @@ export default {
         searchInfo: {type: Object},
         siteInfo: {type:Object},
         sitehead: {type:Array},
-        option: {type: Array}
+        option: {type: Array},
+        
     },
     data() {
         return {
@@ -35,10 +36,19 @@ export default {
     },
     methods: {
         format: function(scope) {
-            if(scope.column.property == 'clockGroup') {
-                return scope.row['clockGroup'].map(item=> item.name).join(';')
+            let cellValue = scope.row[scope.column.property]
+            let property = scope.column.property
+            if(property == 'clockGroup') {
+                return cellValue.map(item=> item.name).join(';')
+            } else if(property == 'clockStyle') {
+                const list = []
+                const clockStyle = ['蓝牙','WIFI','GPS']
+                cellValue.forEach(item => {
+                    list.push(clockStyle[item])
+                })
+                return list.join(';')
             } else {
-                return scope.row[scope.column.property]
+                return cellValue
             }
         },
         editTable: function(scope) {

@@ -49,7 +49,7 @@ export default {
             //获取到的地点信息
             siteInfo: {content:[],total: 0},
             //表头
-            sitehead: [{key: 'city',name: '城市'},{key: 'name',name: '地点名称'},{key: 'style',name: '打卡设备'},{key: 'clockGroup',name: '应用考勤组'}],
+            sitehead: [{key: 'city',name: '城市'},{key: 'name',name: '地点名称'},{key: 'clockStyle',name: '打卡设备'},{key: 'clockGroup',name: '应用考勤组'}],
             //操作配置
             option:[{name: '查看',type:'success',event: 'chooseTable'},{name:'删除',type:'danger',event: 'delTable'},{name: '编辑',type:'primary',event: 'editTable'}],
             isShowSite: false,
@@ -67,7 +67,7 @@ export default {
     },
     mounted() {
         // this.querySite()
-        this.siteInfo.content = [{id:0,city:'海口',name:'海南大厦',style:[0,1,2],clockGroup:[''],latitude:'19.977465',longitude: '110.513438',address:'国兴大道'}]
+        this.siteInfo.content = [{id:0,city:'海口',name:'海南大厦',clockStyle:[0,1,2],clockGroup:[{id:0,name:'大客户事业群智慧协同团队'},{id:1,name:'易建科技运营管理部'}],latitude:'19.977465',longitude: '110.513438',address:'国兴大道'}]
     },
     methods: {
         ...mapMutations({
@@ -125,7 +125,7 @@ export default {
             this.setSiteInfo({})
         },
         //******************删除考勤地点信息************************** */
-        //删除考勤地点
+        //删除考勤地点---待做
         delSite: function(scope) {
             console.log(scope)
         },

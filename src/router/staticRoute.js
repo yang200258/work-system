@@ -8,6 +8,29 @@ const staticRoute = [{
         component: resolve => require(['@/views/login'], resolve)
     },
     {
+        path: '/error',
+        component: layout,
+        children: [{
+                path: '401',
+                name: '401',
+                component: resolve => require(['@/views/error/401'], resolve),
+                meta: { title: '401错误' }
+            },
+            {
+                path: '403',
+                name: '403',
+                component: resolve => require(['@/views/error/403'], resolve),
+                meta: { title: '403错误' }
+            },
+            {
+                path: '404',
+                name: '404',
+                component: resolve => require(['@/views/error/404'], resolve),
+                meta: { title: '404错误' }
+            }
+        ]
+    },
+    {
         path: '/home',
         component: layout,
         children: [{

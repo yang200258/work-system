@@ -82,13 +82,11 @@ export default {
     },
     methods: {
         //格式化表格数据
-        /* eslint-disable */
-        format: function(scope) {
-            // console.log('过滤',row, column, cellValue, index)
-            if(scope.column.property == 'vacationDays' || scope.column.property == 'workDays') { 
-                return scope.row[scope.column.property] == '' ? '无' : scope.row[scope.column.property]
+        format: function(cellvalue,property) {
+            if(property == 'vacationDays' || property == 'workDays') { 
+                return cellvalue == '' ? '无' : cellvalue
             } else {
-                return scope.row[scope.column.property]
+                return cellvalue
             }
         },
         //初始获取假期数据

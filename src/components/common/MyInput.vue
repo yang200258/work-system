@@ -31,7 +31,6 @@ export default {
             align-items: center;
             p {
                 white-space: nowrap;
-                font-family: 'PingFangSC-Semibold', 'PingFang SC Semibold', 'PingFang SC';
                 font-style: normal;
                 color: #666666;
                 font-size: 14px;

@@ -81,18 +81,28 @@ export default {
         optionDevice: function() {
             let officeId = this.officeId
             let {newId,delId} = this.contrastDevice(this.inialDeviceId,this.addEquips)       //获取到的新增设备和减少设备的id，待接口
-            console.log(delId);
             this.$axios({
                 url: '/es/offices/addDevice',
                 method: 'post',
                 data: {deviceId:newId,officeId}
             }).then(res=> {
-                console.log('操作设备成功',res)
+                console.log('添加设备成功',res)
                 if(res) {
                     // this.$message.success('设备操作成功')
-                    //编辑或新增成功后清楚数据
-                    this.clearSiteInfo()
-                    this.$router.push('clocksite')
+                    this.$axios({
+                        url: '/es/offices/delDevice',
+                        method: 'post',
+                        data: {deviceId:delId,officeId}
+                    }).then(delRes=> {
+                        console.log('删除设备成功',delRes)
+                        if(delRes) {
+                            this.$message.success('保存设备成功！')
+                            //编辑或新增成功后清楚数据
+                            this.clearSiteInfo()
+                            this.$router.push('clocksite')
+                        }
+                    })
+                    
                 }
             }).catch(err=> {
                 console.log(err)

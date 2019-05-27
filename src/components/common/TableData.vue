@@ -6,11 +6,10 @@
                         <el-table  v-loading="tableLoading" element-loading-text="拼命加载中" element-loading-spinner="el-icon-loading" :default-sort="tableSort" :empty-text="emptyText"
                         :data="tableData" @selection-change="selectionChange" :highlight-current-row="true" :header-cell-class-name="'title'">
                             <el-table-column type="selection" align="center" v-if="isSelected"> </el-table-column>
-                            <el-table-column v-for="(item,index) in head" :prop="item.key" :label="item.name" :key="index"
-                             align="center" :show-overflow-tooltip="true"> 
+                            <el-table-column v-for="(item,index) in head" :prop="item.key" :label="item.name" :key="index" align="center" :show-overflow-tooltip="true"> 
                                 <template slot-scope="scope">
                                     <slot name="special" :scope="scope">
-                                        <span>{{format(scope)}}</span>
+                                        <span v-html="format(scope.row[scope.column.property],scope.column.property)">{{format(scope.row[scope.column.property],scope.column.property)}}</span>
                                     </slot>
                                 </template>
                              </el-table-column>
@@ -23,7 +22,7 @@
                             </el-table-column>
                         </el-table>
                         <el-pagination @size-change="sizeChange" @current-change="currentChange" :current-page="page.currentPage" :page-sizes="[20, 40, 60, 80]" :page-size="page.pageSize" 
-                        layout="total, sizes, prev, pager, next, jumper" :total="totalNumber" background class="page" v-if="page.isPagination"></el-pagination>
+                            layout="total, sizes, prev, pager, next, jumper" :total="totalNumber" background class="page" v-if="page.isPagination"></el-pagination>
                 </el-main>
             </el-container>
         </el-main>

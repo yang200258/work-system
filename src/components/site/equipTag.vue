@@ -36,7 +36,6 @@ export default {
             overflow: hidden;
             text-overflow: ellipsis;
             font-size: 14px;
-            font-family: 'PingFangSC-Regular', 'PingFang SC';
             color: #67C23A;
             white-space: nowrap;
         }

@@ -72,7 +72,6 @@ export default {
             p {
                 font-size: 24px;
                 color: #FFFFFF;
-                font-family: Arial;
                 font-weight: 700;
                 z-index: 9999;
             }

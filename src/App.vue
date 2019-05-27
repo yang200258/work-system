@@ -28,7 +28,7 @@ export default {
 <style lang="scss">
 @import './assets/style/normalize.css';
 #app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  font-family: 'PingFangSC-Regular', 'PingFang SC';
   margin: 0;
   height: 100%;
 }

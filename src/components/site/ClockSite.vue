@@ -21,6 +21,7 @@
 
 <script>
 import TableData from '@/components/common/TableData'
+import utils from '@/utils/utils'
 export default {
     props: {
         searchInfo: {type: Object},
@@ -35,20 +36,13 @@ export default {
         }
     },
     methods: {
-        format: function(scope) {
-            let cellValue = scope.row[scope.column.property]
-            let property = scope.column.property
+        format: function(cellvalue,property) {
             if(property == 'clockGroup') {
-                return cellValue.map(item=> item.name).join(';')
+                return cellvalue.map(item=> item.name).join(';')
             } else if(property == 'clockStyle') {
-                const list = []
-                const clockStyle = ['蓝牙','WIFI','GPS']
-                cellValue.forEach(item => {
-                    list.push(clockStyle[item])
-                })
-                return list.join(';')
+                return utils.filterClockType(cellvalue)
             } else {
-                return cellValue
+                return cellvalue
             }
         },
         editTable: function(scope) {

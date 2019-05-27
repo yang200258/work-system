@@ -2,14 +2,16 @@
     <div class="time-container">
         <div class="text"><p>{{data.text}}</p></div>
         <el-time-picker is-range v-model="data.time" range-separator="-" start-placeholder="00:00" end-placeholder="00:00" prefix-icon="el-icon-time" 
-        format="HH:mm" value-format="HH:mm" @change="changTime"> </el-time-picker>
+            format="HH:mm" value-format="HH:mm" @change="changTime" :readonly="readonly" :size="size"> </el-time-picker>
     </div>
 </template>
 
 <script>
 export default {
     props: {
-        data: {type: Object}
+        data: {type: Object},
+        readonly: {type:Boolean,default:false},
+        size: {type:String,default: 'small'}
     },
     data() {
         return {
@@ -33,7 +35,6 @@ export default {
             white-space: nowrap;
             overflow: hidden;
             p {
-                font-family: 'PingFangSC-Regular', 'PingFang SC';
                 font-style: normal;
                 font-size: 14px;
                 color: #606266;

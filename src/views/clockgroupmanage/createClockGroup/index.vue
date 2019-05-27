@@ -7,7 +7,7 @@
             </el-steps>
         </header>
         <section class="create-content">
-            <div class="first" v-if="active === 0">
+            <div class="first" v-if="active == 0">
                 <!-- 打卡次数及时间设置 -->
                 <div class="worktype">
                     <div class="worktype-header">
@@ -47,11 +47,7 @@
                     </div>
                     <div class="line"></div>
                     <div class="site-content">
-                        <div class="sitetag-header">
-                            <p>地点名称</p>
-                            <p>打卡方式</p>
-                        </div>
-                        <site-tag v-for="(item,i) in siteData" :siteData="item" :key="i" @delsite="delsite"></site-tag>
+                        <site-tag :siteData="siteData" @delsite="delsite"></site-tag>
                     </div>
                 </div>
                 <div class="content">
@@ -88,7 +84,7 @@
                     </el-row>
                 </div>
             </div>
-            <div class="fourth">
+            <div class="fourth" v-if="active === 3">
                 <div class="left-cal">
                     <p>请在下方日历选择日期进行设置</p>
                     <el-calendar class="calendar">
@@ -129,6 +125,7 @@ import SiteTag from '@/components/checkgroup/siteTag'
 import TableData from '@/components/common/TableData'
 import SelectTree from '@/components/common/SelectTree'
 import SpecialDay from '@/components/checkgroup/specialDay'
+import utils from '@/utils/utils'
 const days = ['周一','周二','周三','周四','周五','周六','周日']
 export default {
     data() {
@@ -150,13 +147,13 @@ export default {
             days:days,
             // --------------------考勤地点设置--------------------------
             // 地点标签数据
-            siteData:[{city: '北京',site: '雍和航星园',clockStyle: [0,1,2]},{city: '海口',site: '海南大厦',clockStyle: [0,1]}],
+            siteData:[{city: '北京',site: '雍和航星园',clockType: [0,1,2]},{city: '海口',site: '海南大厦',clockType: [0,1]}],
             //搜索地点标签
             siteName: '',
             city: '',
             cityOptions: [{value:'hainan',label:'海南'}],
-            siteHead: [{key:'place',name: '所在位置'},{key:'siteName',name: '地点名称'},{key:'clockStyle',name: '支持打卡方式'}],
-            siteTableData: [{place:'海南',siteName:'海南大厦',clockStyle:[0,1,2]}],
+            siteHead: [{key:'place',name: '所在位置'},{key:'siteName',name: '地点名称'},{key:'clockType',name: '支持打卡方式'}],
+            siteTableData: [{place:'海南',siteName:'海南大厦',clockType:[0,1,2]}],
             option: [{name: '查看',type:'success',style: {},event: 'editTable'},{name: '选择',type:'primary',style:{},event: 'chooseTable'}],
             // ------------------------考勤组成员编辑---------------
             //是否按部门添加考勤组成员
@@ -219,17 +216,11 @@ export default {
         chooseTable: function() {
             
         },
-        formatter: function(scope) {
-            let cellValue = scope.row[scope.column.property]
-            if(scope.column.property == 'clockStyle') { 
-                const value = ['蓝牙','WIFI','GPS']
-                let list = []
-                cellValue.forEach(item=> {
-                    list.push(value[item])
-                })
-                return list.join(';')
+        formatter: function(cellvalue,property) {
+            if(property == 'clockType') { 
+                return utils.filterClockType(cellvalue)
             } else {
-                return cellValue
+                return cellvalue
             }
         },
         //删除考勤组成员
@@ -285,12 +276,10 @@ export default {
 $contentLeft: 20px;
 
     .create-group-container {
-        font-family: 'PingFangSC-Semibold', 'PingFang SC Semibold', 'PingFang SC';
         .group-header {
             margin: 20px 60px;
             p {
                 white-space: nowrap;
-                font-family: 'PingFangSC-Regular', 'PingFang SC';
                 font-weight: 400;
                 font-style: normal;
                 font-size: 20px;
@@ -342,7 +331,6 @@ $contentLeft: 20px;
                         line-height: 50px;
                         padding-left: $contentLeft;
                         span {
-                                font-family: PingFangSC-Semibold, "PingFang SC Semibold", "PingFang SC";
                                 font-weight: 650;
                                 font-style: normal;
                                 font-size: 14px;
@@ -368,7 +356,6 @@ $contentLeft: 20px;
                     .text {
                         margin-right: 60px;
                         span {
-                            font-family: 'PingFangSC-Semibold', 'PingFang SC Semibold', 'PingFang SC';
                             font-weight: 650;
                             font-style: normal;
                             font-size: 14px;
@@ -390,7 +377,6 @@ $contentLeft: 20px;
                     display: flex;
                     align-items: center;
                     margin-top: 40px;
-                    font-family: 'PingFangSC-Semibold', 'PingFang SC Semibold', 'PingFang SC';
                     font-style: normal;
                     .text {
                         margin-right: 60px;
@@ -427,15 +413,6 @@ $contentLeft: 20px;
                     }
                     .site-content {
                         margin-top: 10px;
-                        .sitetag-header {
-                            display: grid;
-                            grid-template-columns: 1fr 3fr 40px;
-                            p {
-                                &:first-child {
-                                    min-width: 200px;
-                                }
-                            }
-                        }
                     }
                 }
                 .content {

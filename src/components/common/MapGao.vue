@@ -67,7 +67,7 @@ export default {
         }
     },
     beforeDestroy() {
-        console.log('xiaohui');
+        console.log('xiaohui')
     },
     computed:  {
         ...mapState({

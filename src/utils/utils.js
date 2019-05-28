@@ -9,21 +9,31 @@ const util = {
     },
     //根据给出数组判断打卡方式
     filterClockType: function(arr) {
-        const list = []
-        const value = ['蓝牙', 'WIFI', 'GPS']
-        arr.forEach(item => {
-            list.push(value[item])
-        })
-        return list.join(';')
+        if (arr) {
+            const list = []
+            const value = ['蓝牙', 'WIFI', 'GPS']
+            arr.forEach(item => {
+                list.push(value[item])
+            })
+            return list.join(';')
+        } else {
+            return '无'
+        }
+
     },
     //根据给出数组返回工作日
     filterWorkDay: function(arr) {
-        const days = ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
-        const list = []
-        arr.forEach((item, i) => {
-            if (item) list.push(days[i])
-        })
-        return list.join(';')
+        if (arr) {
+            const days = ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+            const list = []
+            arr.forEach((item, i) => {
+                if (item) list.push(days[i])
+            })
+            return list.join(';')
+        } else {
+            return '无'
+        }
+
     }
 }
 

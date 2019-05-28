@@ -4,7 +4,7 @@
             <el-tab-pane label="添加地点信息" name="optionSite">
                 <site-info :isShowReset="isShowReset"></site-info>
             </el-tab-pane>
-            <el-tab-pane label="添加打卡设备" name="optionDevice" lazy :disabled="isDisable">
+            <el-tab-pane label="添加打卡设备" name="optionDevice" lazy :disabled="(optionSiteId || !isDisable) ? false : true">
                 <device-info :tabDeviceName="tabDeviceName" :tabItem="tabItem" @searchDevice="searchDevice" ></device-info>
             </el-tab-pane>
         </el-tabs>
@@ -20,20 +20,24 @@ import DeviceInfo from '@/components/site/deviceInfo'
 import {mapState,mapMutations} from 'vuex'
 export default {
     props: {
-        isDisable: {type:Boolean,default: true},
-        activeName: {type:String},
-        isShowReset: {type:Boolean,default: true}
+        // isDisable: {type:Boolean,default: true},
+        // activeName: {type:String},
+        isShowReset: {type:Boolean,default: true},
+        optionSiteId: {type:Number},
+        
     },
     data() {
         return {
             officeId: null,   //添加或编辑的考勤地点ID
             tabItem: ['蓝牙','WIFI'],
             tabDeviceName: '蓝牙',
+            activeName: 'optionSite',
+            isDisable: true,
         }
     },
     mounted() {
         //获取可选设备列表
-        // this.queryDevice()
+        this.queryDevice()
     },
     computed: {
         ...mapState({
@@ -69,8 +73,8 @@ export default {
                 console.log('成功操作考勤地点',res);
                 if(res) {
                     // this.$message.success('添加地点成功')
-                    this.officeId = res
-                    this.activeName = 'addDevice'
+                    this.officeId = res.id
+                    this.activeName = 'optionDevice'
                     this.isDisable = false
                 }
             }).catch(err=> {

@@ -74,8 +74,8 @@ export default {
             rootNode:[],
             tipText:'',
             checkGroup: [],
-            head: [{key: 'name',name: '姓名'},{key: 'username',name: '账号'},{key: 'organizationName',name: '部门'},{key: 'employeeId',name: '工号'},{key: 'role',name: '角色'},
-                    {key: 'workTypeName',name: '员工类型'},{key: 'group',name: '考勤组'},{key: 'status',name: '账号状态'}],
+            head: [{key: 'name',name: '姓名'},{key: 'username',name: '账号'},{key: '',name: '部门'},{key: 'employeeId',name: '工号'},{key: 'role',name: '角色'},
+                    {key: 'workTypeName',name: '员工类型'},{key: '',name: '考勤组'},{key: '',name: '账号状态'}],
             loading: false,
             tableData: [],
             total: 0,
@@ -96,7 +96,6 @@ export default {
             this.rootNode = res
             this.tipText = res[0].name
         }).catch(err=> {
-            // this.$message.error(err.msg)
             console.log(err);
         })
         //获取用户
@@ -141,7 +140,7 @@ export default {
                 method: 'get',
             }).then(res=> {
                 console.log('获取到用户列表数据',res);
-                if(res && res.content &&res.content.length) {
+                if(res) {
                     this.tableData = res.content
                     this.total = res.recordCount
                 }

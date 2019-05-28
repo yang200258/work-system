@@ -131,7 +131,7 @@ export default {
         },
         //编辑考勤组
         goEdit: function() {
-
+            this.$router.push('edit_clock_group')
         },
         closeSee: function() {
             this.isShowSee = false
@@ -139,6 +139,7 @@ export default {
         //编辑考勤组--------------------------------------
         editClockGroup: function(scope) {
             console.log(scope)
+            this.$router.push('edit_clock_group')
         },
         //删除考勤组---------------------------------------
         delClockGroup: function(scope) {

@@ -9,7 +9,8 @@
                             <el-table-column v-for="(item,index) in head" :prop="item.key" :label="item.name" :key="index" align="center" :show-overflow-tooltip="true"> 
                                 <template slot-scope="scope">
                                     <slot name="special" :scope="scope">
-                                        <span v-html="format(scope.row[scope.column.property],scope.column.property)">{{format(scope.row[scope.column.property],scope.column.property)}}</span>
+                                        <span v-html="format(scope.row[scope.column.property],scope.column.property)">{{scope.row[scope.column.property]}}</span>
+                                        <!-- <span>{{scope.row[scope.column.property]}}</span> -->
                                     </slot>
                                 </template>
                              </el-table-column>
@@ -43,7 +44,7 @@ export default {
         // formatter: {type: Function,default: function(row, column,cellValue, index) {
         //     return cellValue
         // }},
-        format: {type:Function,default: function(scope) {return scope.row[scope.column.property] }},
+        format: {type:Function,default: function(cellValue,property) {return cellValue }},
         // 操作区
         isOption: {type:Boolean,default: true},
         option: {type:Array,default:()=> {return [{name: '编辑',type:'primary',style: {},event: 'editTable'},{name: '删除',type:'danger',style:{},event: 'delTable'}]}},

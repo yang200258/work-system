@@ -1,6 +1,6 @@
 <template>
     <div class="check-container"> 
-        <option-site :activeName="activeName" :optionSiteId="optionSiteId" :isDisable="isDisable"></option-site>
+        <option-site :optionSiteId="optionSiteId"></option-site>
     </div>
 </template>
 
@@ -11,8 +11,6 @@ export default {
     data() {
         return {
             officeId: null,   //添加后的考勤地点ID
-            activeName: 'addSite',
-            isDisable: true,
             optionSiteId: 0
         }
     },

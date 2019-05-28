@@ -47,27 +47,24 @@ export default {
             //搜索地点信息（包括地点名称和城市）
             searchInfo:{},
             //获取到的地点信息
-            siteInfo: {content:[],total: 0},
+            siteInfo: {content:[],recordCount: 0},
             //表头
-            sitehead: [{key: 'city',name: '城市'},{key: 'name',name: '地点名称'},{key: 'clockStyle',name: '打卡设备'},{key: 'clockGroup',name: '应用考勤组'}],
+            sitehead: [{key: 'city',name: '城市'},{key: 'name',name: '地点名称'},{key: 'clockType',name: '打卡设备'},{key: 'clockGroup',name: '应用考勤组'}],
             //操作配置
             option:[{name: '查看',type:'success',event: 'chooseTable'},{name:'删除',type:'danger',event: 'delTable'},{name: '编辑',type:'primary',event: 'editTable'}],
             isShowSite: false,
             // ******************查看考勤地点*****************
             //查看考勤组时的设备
-            device: [{id:0,name:'海南大厦26层',type:0},{id:1,name:'海南大厦26层',type:0},{id:2,name:'海南大厦26层',type:1},{id:3,name:'海南大厦26层',type:1}],
+            device: [],
             //查看考勤组时的应用考勤组
-            clockGroup: ['大客户事业群智慧协同团队','易建科技运营管理部'],
-            lat: '',
-            lng: '',
+            clockGroup: [],
         }
     },
     components: {
        ClockSite,MyDialog,SiteInfo
     },
     mounted() {
-        // this.querySite()
-        this.siteInfo.content = [{id:0,city:'海口',name:'海南大厦',clockStyle:[0,1,2],clockGroup:[{id:0,name:'大客户事业群智慧协同团队'},{id:1,name:'易建科技运营管理部'}],latitude:'19.977465',longitude: '110.513438',address:'国兴大道'}]
+        this.querySite()
     },
     methods: {
         ...mapMutations({
@@ -81,8 +78,8 @@ export default {
             }).then(res=> {
                 console.log('获取考勤地点数据',res);
                 if(res) {
-                    let {content,total} = res 
-                    this.siteInfo = {content,total}
+                    let {content,recordCount} = res 
+                    this.siteInfo = {content,recordCount}
                 }
             }).catch(err=> {
                 this.$message.error(err)
@@ -107,14 +104,15 @@ export default {
         // 查看考勤地点
         chooseSite: function(scope) {
             let officeId = scope.row.id
+            let [page,size] = [1,20]
             this.setSite(scope.row)
+            this.clockGroup = scope.row.clockGroup.map(item=> item.name)
             this.isShowSite = true
             this.$axios({
-                url: '/es/offices/getDevice',
+                url: `/es/offices/getDevice?page=${page}&size=${size}&officeId=${officeId}`,
                 method: 'post',
-                data: {officeId}
             }).then(res=> {
-                this.clockGroup = res
+                this.device = res.content
             }).catch(err=> {
                 console.log(err);
             })
@@ -125,9 +123,21 @@ export default {
             this.setSiteInfo({})
         },
         //******************删除考勤地点信息************************** */
-        //删除考勤地点---待做
+        //删除考勤地点
         delSite: function(scope) {
-            console.log(scope)
+            let officeId  = scope.row.id
+            this.$axios({
+                url:`/es/offices/deleteOffice?officeId=${officeId}`,
+                method: 'post',
+                // data: {officeId}
+            }).then(res=> {
+                if(res) {
+                    this.$message.success(res)
+                    this.querySite()
+                }
+            }).catch(err=> {
+                console.log(err)
+            })
         },
         //******************编辑考勤地点信息************************** */
         editSite: function(scope) {
@@ -140,6 +150,7 @@ export default {
         },
         //创建考勤地点
         createSite: function() {
+            this.setSiteInfo({})
             this.$router.push('create_clock_site')
         },
         //设置考勤地点

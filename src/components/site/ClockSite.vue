@@ -39,7 +39,7 @@ export default {
         format: function(cellvalue,property) {
             if(property == 'clockGroup') {
                 return cellvalue.map(item=> item.name).join(';')
-            } else if(property == 'clockStyle') {
+            } else if(property == 'clockType') {
                 return utils.filterClockType(cellvalue)
             } else {
                 return cellvalue

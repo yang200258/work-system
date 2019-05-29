@@ -85,34 +85,34 @@ export default {
 <style lang="scss">
 @import '@/assets/style/headBar.scss';
     .top-nav {
-        display: flex;
-        align-items: center;
-        flex-wrap: nowrap;
         height: $headBarHeight;
         .el-menu.el-menu--horizontal {
             display: flex;
             align-items: center;
             flex-wrap: nowrap;
-            border-bottom: none;
             height: $headBarHeight;
             &>.el-submenu .el-submenu__icon-arrow {
                 display: none;
             }
-            .el-menu-item {
+            li {
                 height: $headBarHeight;
-                line-height: $headBarHeight;
-            }
-            .el-submenu {
-                .el-submenu__title {
-                    height: $headBarHeight;
+                &.el-menu-item {
                     line-height: $headBarHeight;
                 }
+                &.el-submenu {
+                    line-height: $headBarHeight;
+                    .el-submenu__title {
+                        height: $headBarHeight;
+                        display: flex;
+                        align-items: center;
+                    }
+                }
+                &:hover {
+                    color: #409eff!important;
+                }
             }
+            
         }
-        .el-submenu .el-menu-item {
-            min-width: 0;
-        }
-        
         .full-screen-navBg {
             position: absolute;
             left: 0;

@@ -1,6 +1,6 @@
 <template>
     <div class="clock-container">
-        <el-radio :label="countData.type" v-model="clockOrder.clockCount">{{countData.text}}</el-radio>
+        <el-radio :label="countData.type" v-model="clockOrder.clockCount" @change="changeClockCount">{{countData.text}}</el-radio>
         <time-tag v-for="(item,i) in countData.clockNum" :key="i" :data="item" @changTime="changeTime"></time-tag>
     </div>
 </template>
@@ -8,7 +8,7 @@
 
 <script>
 import TimeTag from '@/components/common/TimeTag'
-import {mapState} from 'vuex'
+import {mapState,mapMutations} from 'vuex'
 export default {
     props: {
         countData: {type: Object},
@@ -17,6 +17,7 @@ export default {
     data() {
         return {
             // workType: 0
+            timeList: [],
         }
     },
     computed: {
@@ -31,8 +32,18 @@ export default {
         
     },
     methods: {
+        ...mapMutations({
+            setClockCount: 'group/setClockCount',
+            setClockTime: 'group/setClockTime',
+            
+        }),
         changeTime: function(data) {
-            console.log(data);
+            this.timeList.push(data.time)
+            this.setClockTime(this.timeList)
+        },
+        changeClockCount: function(val) {
+            this.setClockTime([])
+            this.setClockCount(val)
         }
     }
 }

@@ -1,7 +1,6 @@
 <template>
     <div class="sys-header">
         <div class="logo" @click.prevent="goHome">
-            <!-- <slot name="logo"></slot> -->
             <img src="@/assets/images/logo.png" alt="">
             <p>EasySite</p>
         </div>
@@ -45,16 +44,19 @@ export default {
 </script>
 
 <style lang="scss">
+@import '@/assets/style/headBar.scss';
     .sys-header {
         display: flex;
         flex-wrap: nowrap;
         align-items: center;
         z-index: 1000;
+        color: #000;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
         .logo {
             float: left;
             display: flex;
-            height: 60px;
-            line-height: 60px;
+            height: $headBarHeight;
+            line-height: $headBarHeight;
             padding-left: 20px;
             font-size: 20px;
             margin-right: 6%;
@@ -71,7 +73,6 @@ export default {
             }
             p {
                 font-size: 24px;
-                color: #FFFFFF;
                 font-weight: 700;
                 z-index: 9999;
             }
@@ -80,7 +81,6 @@ export default {
             height: 60px;
             display: flex;
             align-items: center;
-            color: red;
             position: absolute;
             top: 0;
             right: 5%;

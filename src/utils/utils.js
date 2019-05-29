@@ -23,9 +23,9 @@ const util = {
     },
     //根据给出数组返回工作日
     filterWorkDay: function(arr) {
+        const days = ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+        const list = []
         if (arr) {
-            const days = ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
-            const list = []
             arr.forEach((item, i) => {
                 if (item) list.push(days[i])
             })
@@ -33,7 +33,18 @@ const util = {
         } else {
             return '无'
         }
-
+    },
+    //转换工作日
+    transformWorkday: function(arr) {
+        const days = ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+        const list = [true, true, true, true, true, true, true]
+        if (arr) {
+            arr.forEach((item, i) => {
+                if (days.indexOf(item) === -1) list[i] = false
+            })
+        }
+        console.log(list);
+        return list
     }
 }
 

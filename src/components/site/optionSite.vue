@@ -143,7 +143,11 @@ export default {
     },
     components: {
         SiteInfo,DeviceInfo
-    }
+    },
+    deactivated() {
+        this.activeName = 'optionSite'
+        this.isDisable = true
+    },
 }
 </script>
 

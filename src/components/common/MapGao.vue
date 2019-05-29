@@ -49,11 +49,11 @@ export default {
         }
     },
     watch: {
-        searchKey () {
-            if (this.searchKey === '') {
-                this.placeSearch.clear()
-            }
-        }
+        // searchKey () {
+        //     if (this.searchKey === '') {
+        //         this.placeSearch.clear()
+        //     }
+        // }
     },
     async created() {
         if(window.AMap && window.AMapUI && window.AMapUI.loadUI) {
@@ -66,8 +66,21 @@ export default {
             this.initMap()
         }
     },
-    beforeDestroy() {
-        console.log('xiaohui')
+    async activated() {
+        if(window.AMap && window.AMapUI && window.AMapUI.loadUI) {
+            this.initMap()
+        } else {
+            this.loading = true
+            await remoteLoad(`https://webapi.amap.com/maps?v=1.4.14&key=${MapKey}`)
+            await remoteLoad('http://webapi.amap.com/ui/1.0/main.js')
+            this.loading = false
+            this.initMap()
+        }
+    },
+    deactivated() {
+        this.map.destroy()
+        this.map = this.placeSearch = this.poiPicker = this.AMapUI = this.AMap =  null
+        this.searchKey = ''
     },
     computed:  {
         ...mapState({
@@ -78,6 +91,9 @@ export default {
         ...mapMutations({
             setSiteInfo: 'site/setSiteInfo'
         }),
+        init: function() {
+
+        },
         /* eslint-disable */
         initMap: function() {
             let AMapUI = this.AMapUI = window.AMapUI
@@ -118,11 +134,13 @@ export default {
             })
             //加载PoiPicker，loadUI的路径参数为模块名中 'ui/' 之后的部分
             AMapUI.loadUI(['misc/PoiPicker'], PoiPicker=> {
-                let poiPicker = new PoiPicker({
-                    input: 'output', //输入框id
-                })
-                //初始化poiPicker
-                this.poiPickerReady(poiPicker);
+                if(PoiPicker) {
+                    let poiPicker = new PoiPicker({
+                        input: 'output', //输入框id
+                    })
+                    //初始化poiPicker
+                    this.poiPickerReady(poiPicker);
+                }
             })
         },
         poiPickerReady: function(poiPicker) {

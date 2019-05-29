@@ -1,6 +1,6 @@
 <template>
     <div class="tag-nav">
-        <el-breadcrumb separator-class="el-icon-arrow-right">
+        <el-breadcrumb separator="/">
             <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
             <el-breadcrumb-item v-for="(item, index) in tagNavList"  :key="index" :to="item.path">{{item.meta.title}}</el-breadcrumb-item>
         </el-breadcrumb>

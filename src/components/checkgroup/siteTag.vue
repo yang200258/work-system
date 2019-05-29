@@ -6,25 +6,23 @@
         </div>
         <div class="sitetag-content" v-for="(item,i) in siteData" :key="i">
             <div class="name">
-                <a @click.prevent="goSiteInfo">{{item.city}}-{{item.site}}</a>
+                <a @click.prevent="goSiteInfo" v-if="item.city || item.site">{{item.city}}-{{item.site}}</a>
             </div>
-            <div class="clock-type" v-if="item.id">
+            <div class="clock-type" v-if="!isEdit">
                 <span v-if="item.clockType.includes(0)" style="margin-left:0;">蓝牙</span>
                 <span v-if="item.clockType.includes(1)">WIFI</span>
                 <span v-if="item.clockType.includes(2)">
                     GPS <span v-if="item.gpsDistrict">{{item.gpsDistrict}}米</span>
                 </span>
             </div>
-            <div class="clock-style" v-if="!item.id">
-                <el-checkbox-group v-model="item.clockType">
-                    <el-checkbox :label="0">蓝牙</el-checkbox>
-                    <el-checkbox :label="1">WIFI</el-checkbox>
-                    <el-checkbox :label="2">GPS</el-checkbox>
+            <div class="clock-style" v-if="isEdit">
+                <el-checkbox-group v-model="item.clockType" @change="changeClockType">
+                    <el-checkbox v-for="type in item.clockType" :key="type" :label="type">{{val[i]}}</el-checkbox>
                 </el-checkbox-group>
                 <el-input v-if="item.clockType.includes(2)" v-model="item.gpsDistrict" placeholder="打卡范围100米"></el-input>
             </div>
-            <div class="option" v-if="!item.id">
-                <img src="../../assets/images/del.png" alt="" @click="delsite">
+            <div class="option" v-if="isEdit">
+                <div class="el-icon-delete"  @click="delsite(item.id)"></div>
             </div>
         </div>
     </div>
@@ -33,20 +31,26 @@
 <script>
 export default {
     props: {
-        siteData: {type: Array}
+        siteData: {type: Array},
+        isEdit: {type: Boolean,default: true}
     },
     data() {
         return {
-            isShowGPS: false
+            isShowGPS: false,
+            val: ['蓝牙','WIFI','GPS'],
         }
     },
     methods: {
-        delsite: function() {
-          this.$emit('delsite')
+        delsite: function(id) {
+          this.$emit('delsite',id)
         },
         goSiteInfo: function() {
             
-        }
+        },
+        changeClockType: function(val) {
+            console.log(val)
+            return
+        },
     },
 
 }
@@ -101,10 +105,14 @@ export default {
             .option {
                 display: flex;
                 align-items: center;
-                img {
-                    display: block;
-                    width:30px;
-                    height: 30px;
+                .el-icon-delete {
+                    cursor: pointer;
+                    color: #000;
+                    font-size: 18px;
+                    font-weight: 700;
+                    &:hover {
+                        color: #409EFF;
+                    }
                 }
             }
         }

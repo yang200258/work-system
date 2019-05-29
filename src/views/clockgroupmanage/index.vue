@@ -35,7 +35,7 @@
                 </info-tag>
                 <info-tag :text="'考勤地点'">
                     <div class="site-content" slot="info-tag">
-                        <site-tag :siteData="groupInfo.clockType"></site-tag>
+                        <site-tag :siteData="groupInfo.clockType" :isEdit="false"></site-tag>
                     </div>
                 </info-tag>
                 <info-tag :text="'班次信息'">
@@ -68,6 +68,7 @@ import SiteTag from '@/components/checkgroup/siteTag'
 import TimeTag from '@/components/common/TimeTag'
 import SpecialDateTag from '@/components/checkgroup/specialDateTag'
 import utils from '@/utils/utils'
+import {mapMutations} from 'vuex'
 export default {
     data() {
         return {
@@ -103,6 +104,9 @@ export default {
     },
     components: {TableData,MyDialog,MyInput,MyForm,InfoTag,SiteTag,TimeTag,SpecialDateTag},
     methods: {
+        ...mapMutations({
+            setName: 'group/setName'
+        }),
         closeCreate: function() {
             this.isShowCreate = false
         },
@@ -138,8 +142,12 @@ export default {
         },
         //编辑考勤组--------------------------------------
         editClockGroup: function(scope) {
-            console.log(scope)
-            this.$router.push('edit_clock_group')
+            this.$router.push({
+                name: 'edit_clock_group',
+                params: {
+                    name: scope.row.name
+                }    
+            })
         },
         //删除考勤组---------------------------------------
         delClockGroup: function(scope) {

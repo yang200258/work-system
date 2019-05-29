@@ -4,12 +4,12 @@
             <div class="name">
                 <p> {{name}}</p>
                 <el-popover placement="bottom" title="修改考勤组名称" width="400" trigger="click">
-                    <el-input v-model="name" clearable></el-input>
+                    <el-input v-model="name" clearable @change="changeName"></el-input>
                     <i class="el-icon-edit" slot="reference"></i>
                 </el-popover>
             </div>
-            <el-steps :active="active" finish-status="success">
-                <el-step v-for="(item,i) in steps" :key="i" :title="item" :class="['step' + i, active == 3 ? 'isSet':'']"  @click.native="setSpecialDate(i)"></el-step>
+            <el-steps :active="active" :finish-status="status === 'new' ? 'success' : ''">
+                <el-step v-for="(item,i) in steps" :key="i" :title="item" :class="['step' + i, active === i ? 'isSet':'',status === 'edit' ? 'step-edit' : '']"  @click.native="setSpecialDate(i)"></el-step>
             </el-steps>
         </header>
         <section class="create-content">
@@ -31,7 +31,7 @@
                     </div>
                     <div class="workday">
                         <el-checkbox-group v-model="clockOrder.workDay" @change="handleCheckedCitiesChange">
-                            <el-checkbox v-for="day in days" :label="day" :key="day">{{day}}</el-checkbox>
+                            <el-checkbox v-for="day in days" :label="day" :key="day"></el-checkbox>
                         </el-checkbox-group>
                         <el-checkbox :indeterminate="isIndeterminate" v-model="checkAll" @change="handleCheckAllChange">全选</el-checkbox>
                     </div>
@@ -41,7 +41,7 @@
                     <div class="text">
                         <span>节假日设置</span>
                     </div>
-                    <el-checkbox v-model="clockOrder.autorest" class="autorest">法定节假日自动排休</el-checkbox>
+                    <el-checkbox v-model="clockOrder.autorest" class="autorest" @change="changeAutoRest">法定节假日自动排休</el-checkbox>
                     <span>（说明:勾选后自动在考勤日历应用国家假日办发布的节假日排序计划）</span>
                 </div>
             </div>
@@ -53,7 +53,7 @@
                     </div>
                     <div class="line"></div>
                     <div class="site-content">
-                        <site-tag :siteData="siteData" @delsite="delsite"></site-tag>
+                        <site-tag :siteData="clockSite" @delsite="delsite"></site-tag>
                     </div>
                 </div>
                 <div class="content">
@@ -67,7 +67,8 @@
                         </div>
                     </div>
                     <div class="content-table">
-                        <table-data :head="siteHead" :tableData="siteTableData" :option="option" :format="formatter" @editTable="editTable" @chooseTable="chooseTable" :isSelected="false"></table-data>
+                        <table-data :head="siteHead" :tableLoading="loadingSite" :tableData="siteTableData" :totalNumber="recordCount"  :option="option" :format="formatter" @editTable="editTable" @chooseTable="chooseTable" 
+                            :isSelected="false" :currentChange="nextSitePage"></table-data>
                     </div>
                 </div>
             </div>
@@ -79,7 +80,7 @@
                         <select-tree v-if="isSelectPart" class="select-depart"></select-tree>
                     </el-row>
                     <el-row>
-                        <table-data :head="head" :tableData="users" :isSelected="false" :option="userOption" :totalNumber="total" :pageSize="pageSize" :emptyText="emptyText">
+                        <table-data :head="head" :tableData="users" :tableLoading="loadingUser" :isSelected="false" :option="userOption" :totalNumber="totalUser" :emptyText="emptyText">
                             <template #special="{scope: scope}">
                                 <img v-if="scope.column.property == 'avater'" :src="scope.row.avater" style="max-width: 40px;border-radius: 50%;">
                             </template>
@@ -122,7 +123,7 @@
             <el-button @click="next" v-if="active < 2">下一步</el-button>
             <el-button @click="submit" type="primary" v-if="active == 2 || active == 3">提交 </el-button>
         </footer>
-        <footer v-else>
+        <footer class="create-footer" v-else>
             <el-button @click="saveEdit" type="primary">保存</el-button>
         </footer>
     </div>
@@ -140,7 +141,7 @@ const days = ['周一','周二','周三','周四','周五','周六','周日']
 export default {
     props: {
         status: {type:String,default:'new'},
-        name: {type: String,default:''}
+        name: {type: String}
     },
     data() {
         return {
@@ -151,7 +152,7 @@ export default {
             // 设置打卡次数渲染数据
             countData: [{type:0,text:'两次',clockNum: [{text: '工作时段 ',time: ''},{text: '休息时段',time: ''}]},{type:1,text:'四次',clockNum: [{text: '工作时段1',time: ''},{text: '工作时段2',time: ''}]},
                             {type:2,text:'六次',clockNum: [{text: '工作时段1',time: ''},{text: '工作时段2',time: ''},{text: '工作时段3',time: ''}]}],
-            clockCount: 0,          //打卡次数
+            // clockCount: 0,          //打卡次数
             // 工作日全选设置
             isIndeterminate: true,
             // workday: [],
@@ -161,24 +162,27 @@ export default {
             days:days,
             // --------------------考勤地点设置--------------------------
             // 地点标签数据
-            siteData:[{city: '北京',site: '雍和航星园',clockType: [0,1,2]},{city: '海口',site: '海南大厦',clockType: [0,1]}],
+            // siteData:[{id:2,city: '北京',site: '雍和航星园',clockType: [0,1,2]},{id:3,city: '海口',site: '海南大厦',clockType: [0,1]}],
             //搜索地点标签
+            loadingSite: false,
+            recordCount: 0,
             siteName: '',
             city: '',
             cityOptions: [{value:'hainan',label:'海南'}],
-            siteHead: [{key:'place',name: '所在位置'},{key:'siteName',name: '地点名称'},{key:'clockType',name: '支持打卡方式'}],
-            siteTableData: [{place:'海南',siteName:'海南大厦',clockType:[0,1,2]}],
+            siteHead: [{key:'city',name: '所在位置'},{key:'site',name: '地点名称'},{key:'clockType',name: '支持打卡方式'}],
             option: [{name: '查看',type:'success',style: {},event: 'editTable'},{name: '选择',type:'primary',style:{},event: 'chooseTable'}],
+            siteTableData: [{id:1,city:'海口',site:'北京大厦',clockType:[0,1,2]},{id:2,city:'北京',site:'海口大厦',clockType:[0,1]},{id:2,city:'北京',site:'海口大厦',clockType:[0,2]}],
             // ------------------------考勤组成员编辑---------------
             //是否按部门添加考勤组成员
             isSelectPart: false,
             head: [{key:'avater',name: '头像'},{key:'username',name: '用户账号'},{key:'name',name: '姓名'},{key:'mobile',name: '手机号'},{key:'email',name: '邮箱'},{key:'hisgroup',name: '历史考勤组'},
                     {key:'organ',name: '组织'}],
+            
             userOption:[],
             //考勤组成员信息
             users: [],
-            total: 0,
-            pageSize: 0,
+            loadingUser: false,
+            totalUser: 0,
             emptyText: '还没有添加考勤组成员！',
             // ----------------------------特殊日期------------------------------
             emptyDateText: '还没有添加特殊日期！',
@@ -203,46 +207,165 @@ export default {
             specialDate: state => state.group.specialDate,
         })
     },
+    watch: {
+        //监听active状态变化获取页面初始数据
+        active: function(val) {
+            switch(val) {
+                case 0:
+                    break;
+                case 1:
+                    //进入下一步时首先获取考勤地点列表
+                    this.getUsefulSite()
+                    //编辑时获取已添加考勤地点
+                    if(this.status === 'edit') this.getAddClockSite()
+                    break
+                case 2:
+                    break
+                case 3:
+                    break
+            }
+        }
+    },
     methods: {
         ...mapMutations({
-
+            setWorkDay: 'group/setWorkDay',
+            setAutoRest: 'group/setAutoRest',
+            setClockSite: 'group/setClockSite',
         }),
         ...mapActions({
-            
+            addClockSite: 'group/addClockSite',
+            getAddClockSite: 'group/getAddClockSite'
         }),
-        //全选按钮工作日激活操作
-        handleCheckAllChange(val) {
-            this.clockOrder.workDay = val ? days : [];
-            this.isIndeterminate = false;
+        // ***************************修改考勤组名称*******************************
+        changeName: function(val) {
+            this.$emit('changeName',val)
         },
-        //全部选择工作日激活操作
-        handleCheckedCitiesChange(value) {
-            let checkedCount = value.length;
-            this.checkAll = checkedCount === this.days.length;
-            this.isIndeterminate = checkedCount > 0 && checkedCount < this.days.length;
-        },
+        // ***************************点击操作*******************************
         //点击进行下一步
         next: function() {
+            switch(this.active) {
+                case 0:
+                    //操作班次编辑
+
+                    break
+                case 1:
+                    //操作考勤地点
+                    
+                    break
+            }
             this.active++
         },
         //点击进行上一步
         last: function(){
+            switch(this.active) {
+                case 1:
+                    //操作考勤地点
+                    break
+                case 2:
+                    //操作考勤组成员
+                    break
+            }
             this.active--
         },
+        //设置特殊日期及编辑是点击跳转
+        setSpecialDate: function(i) {
+            if(this.status === 'new' && i === 3) {
+                this.active = 3
+            } 
+            if(this.status === 'edit') this.active = i
+        },
+        //后两步的提交按钮
+        submit: function() {
+            switch(this.active) {
+                case 2:
+                    //操作考勤组成员
+                    break
+                case 3:
+                    //操作特殊日期
+                    break
+            }
+        },
+        // *************************保存编辑考勤组*******************
+        saveEdit: function() {
+            switch(this.active) {
+                case 0:
+                    //保存班次编辑
+                    break
+                case 1:
+                    //保存考勤地点
+                    break
+                case 2:
+                    //保存考勤组成员
+                    break
+                case 3:
+                    //保存特殊日期
+                    break
+            }
+        },
+        // ***********************考勤班次设置***********************
+        //全选按钮工作日激活操作
+        handleCheckAllChange(val) {
+            if(val) this.setWorkDay(this.days)
+            this.clockOrder.workDay = val ? days : []
+            this.isIndeterminate = false;
+        },
+        //全部选择工作日激活操作
+        handleCheckedCitiesChange(value) {
+            this.setWorkDay(value)
+            let checkedCount = value.length;
+            this.checkAll = checkedCount === this.days.length;
+            this.isIndeterminate = checkedCount > 0 && checkedCount < this.days.length;
+        },
+        //更改自动排休状态
+        changeAutoRest: function(val) {
+            this.setAutoRest(val)
+        },
+        // ********************************考勤地点设置*******************************
         // 创建考勤地点
         createSite: function() {
-            
+            this.$router.push('create_clock_group')
         },
         //删除已选择考勤地点
-        delsite: function() {
-
+        delsite: function(id) {
+            const list = this.clockSite
+            let data = this._.dropWhile(list,item=> item.id == id)
+            this.setClockSite(data)
         },
-        //查看可选择考勤地点
-        editTable: function() {
-
+        //获取考勤地点列表
+        getUsefulSite: function(name='',city='',page=1,size=20) {
+            this.loadingSite = true
+            this.$axios({
+                url: `**?page=${page}&size=${size}`,
+                method: 'get',
+                data: {name,city}
+            }).then(res=> {
+                if(res) {
+                    this.siteTableData = res.content
+                    this.recordCount = res.recordCount
+                    this.loadingSite = false
+                }
+            })
         },
-        chooseTable: function() {
-            
+        //翻页
+        nextSitePage: function(val) {
+            this.getUsefulSite(val,20)
+        },
+        //查看可选择考勤地点信息
+        editTable: function(scope) {
+            //根据对应地点跳转至查看考勤地点页面******目前不知道是否弹窗还是页面
+            console.log(scope)
+        },
+        //选择考勤地点---将对应信息添加至已选择项
+        chooseTable: function(scope) {
+            let list = this.clockSite
+            list.push(scope.row)
+            this.setClockSite(list)
+        },
+        //搜索考勤地点
+        searchSite: function() {
+            const name = this.siteName
+            const city = this.city
+            this.getUsefulSite(name,city,1,20)
         },
         formatter: function(cellvalue,property) {
             if(property == 'clockType') { 
@@ -251,19 +374,13 @@ export default {
                 return cellvalue
             }
         },
+        // ********************************考勤组成员设置*******************************
         //删除考勤组成员
         delUser: function(scope) {
             console.log(scope);
             this.users = this._.dropWhile(this.users, (item)=> {return item.id === scope.row.id})
         },
-        submit: function() {
-
-        },
-        setSpecialDate: function(i) {
-            if(i == 3) {
-                this.active = 3
-            }
-        },
+        // ********************************考勤组特殊日期设置*******************************
         //点击某一日期后弹出设置时间的操作
         setDate: function($event,date,data){
             this.day = data.day
@@ -272,8 +389,8 @@ export default {
             } else {
                 this.isSetSpecial = true
             }
-            this.$refs.setSpecial.style.top = $event.clientY + 'px'
-            this.$refs.setSpecial.style.left = $event.clientX + 20  + 'px'
+            this.$refs.setSpecial.style.top = ($event.screenY - $event.offsetY) + 'px'
+            this.$refs.setSpecial.style.left = ($event.screenX - $event.offsetX + $event.target.clientWidth) + 'px'
             if(data.type == 'current-month') {
                 let week = date.toString().split(' ')[0]
                 if(week == 'Sat' || week == 'Sun') {
@@ -286,16 +403,13 @@ export default {
         },
         //特殊日期保存
         submitSet: function(timeTagData) {
-            console.log(timeTagData)
+            console.log(timeTagData,this.day)
         },
         //删除考勤时间
         delTime: function(scope) {
-            console.log(scope);
+            console.log(scope)
         },
-        // *************************保存编辑考勤组*******************
-        saveEdit: function() {
-
-        },
+        
     },
     components: {
         ClockCount,SiteTag,TableData,SelectTree,SpecialDay
@@ -333,6 +447,33 @@ $contentLeft: 20px;
             }
             .el-steps {
                 margin-top: 20px;
+                //编辑状态时的step样式
+                .step-edit {
+                    &.isSet {
+                        /deep/ .el-step__main {
+                            .el-step__title {
+                                background-color: #409eff;
+                            }
+                        }
+                    }
+                    /deep/ .el-step__main {
+                        margin-top: 4px;
+                        .el-step__title {
+                            width:120px;
+                            background:#a7d2f9;
+                            border-radius: 2px;
+                            color: #fff;
+                            cursor: pointer;
+                            text-align: center;
+                            position: relative;
+                            right: 50px;
+                            &:hover {
+                                background-color: #409eff;
+                            }
+                        }
+                    }
+                }
+                //修改实线为虚线
                 .step2 {
                     /deep/ .el-step__head {
                         .el-step__line {
@@ -344,25 +485,30 @@ $contentLeft: 20px;
                 }
                 .step3 {
                     &.isSet {
-                        /deep/ .el-step__main {
-                            background-color: #ff0000;
+                        &.step-edit {
+                            /deep/ .el-step__title {
+                                background-color: #ff0000;
+                            }
                         }
                     }
                     /deep/ .el-step__main {
-                        background:#ffc7c7;
-                        border-radius: 2px;
-                        position: absolute;
-                        left: -100px;
-                        cursor: pointer;
-                        &:hover {
-                            background-color: #ff0000;
-                        }
                         .el-step__title {
+                            width:120px;
+                            border-radius: 2px;
+                            position: relative;
+                            right: 50px;
+                            cursor: pointer;
+                            background:#ffc7c7;
+                            text-align: center;
+                            margin: auto 0;
                             color: #fff;
+                            &:hover {
+                                background-color: #ff0000;
+                            }
                         }
+                        
                     }
                 }
-                
             }
         }
         .create-content {
@@ -549,6 +695,8 @@ $contentLeft: 20px;
                     }
                     .set-special {
                         position: absolute;
+                        background-color: #fff;
+                        // box-shadow:0px 3px 3px #c8c8c8 ;
                         .special-wrapper {
                             &:last-child {
                                 margin-top: 10px;

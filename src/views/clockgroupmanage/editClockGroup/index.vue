@@ -1,6 +1,6 @@
 <template>
     <div class="edit-group-container">
-        <option-group :status="'edit'" :name="'海南大厦26层-9点至17点30分'"></option-group>
+        <option-group :status="'edit'" :name="name" @changeName="changeName"></option-group>
     </div>
 </template>
 
@@ -9,7 +9,15 @@ import OptionGroup from '@/components/checkgroup/optionGroup'
 export default {
     data() {
         return {
-
+            name: ''
+        }
+    },
+    mounted() {
+        this.name = this.$route.params.name
+    },
+    methods: {
+        changeName: function(val) {
+            this.name = val
         }
     },
     components: {
@@ -21,6 +29,6 @@ export default {
 
 <style lang="scss" scoped>
 .edit-group-container {
-
+    
 }
 </style>

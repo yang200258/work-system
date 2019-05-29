@@ -36,17 +36,17 @@ export default {
 </script>
 
 <style lang="scss">
+@import '@/assets/style/headBar.scss';
 .wrapper {
     height: 100%;
     display: grid;
     grid-template-columns: 1fr;
-    grid-template-rows: 60px auto;
+    grid-template-rows: $headBarHeight auto;
     .header-bar {
         min-width: 560px;
         position: fixed;
         top: 0;
-        max-height: 60px;
-        background-color: #384367;
+        max-height: $headBarHeight;
         width: 100%;
     }
     .content {

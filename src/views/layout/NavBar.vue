@@ -1,6 +1,6 @@
 <template>
     <div class="top-nav">
-        <el-menu router ref="navbar" :default-active="defActive" mode="horizontal" menu-trigger="hover" @select="selectMenu" @open="openMenu" @close="closeMenu" unique-opened background-color="#384367" text-color="#fff" active-text-color="#ffd04b">
+        <el-menu router ref="navbar" :default-active="defActive" mode="horizontal" menu-trigger="hover" @select="selectMenu" @open="openMenu" @close="closeMenu" unique-opened text-color="#999" active-text-color="#409eff">
             <nav-bar-item v-for="(item, n) in navList" :item="item" :key="n" :navIndex="String(n)"></nav-bar-item>
         </el-menu>
         <div v-show="navBgShow" class="full-screen-navBg" @click.self="closeAll"></div>
@@ -83,15 +83,30 @@ export default {
 </script>
 
 <style lang="scss">
+@import '@/assets/style/headBar.scss';
     .top-nav {
         display: flex;
+        align-items: center;
         flex-wrap: nowrap;
-        max-height: 60px;
-        .el-menu--horizontal {
+        height: $headBarHeight;
+        .el-menu.el-menu--horizontal {
             display: flex;
+            align-items: center;
             flex-wrap: nowrap;
+            border-bottom: none;
+            height: $headBarHeight;
             &>.el-submenu .el-submenu__icon-arrow {
                 display: none;
+            }
+            .el-menu-item {
+                height: $headBarHeight;
+                line-height: $headBarHeight;
+            }
+            .el-submenu {
+                .el-submenu__title {
+                    height: $headBarHeight;
+                    line-height: $headBarHeight;
+                }
             }
         }
         .el-submenu .el-menu-item {

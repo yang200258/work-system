@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import {mapState,mapMutations} from 'vuex'
+import {mapState,mapMutations,mapActions} from 'vuex'
 import OptionSite from '@/components/site/optionSite'
 export default {
     data() {
@@ -15,7 +15,7 @@ export default {
     },
     mounted() {
         //获取初始对应地点已添加设备
-        this.getInialDevice()
+        if(this.$route.params.officeId) this.getInialDeviceId(this.$route.params.officeId)
     },
     computed: {
         ...mapState({
@@ -28,23 +28,15 @@ export default {
             setInialDeviceId: 'site/setInialDeviceId',
             setAddEquips: 'site/setAddEquips'
         }),
+        ...mapActions({
+            getInialDevice: 'site/getInialDevice'
+        }),
         //获取初始对应地点已添加设备
-        getInialDevice: function() {
-            let officeId = this.siteInfo.id
+        getInialDeviceId: function(officeId) {
+            // let officeId = this.siteInfo.id
             let [page,size] = [1,20]
-            this.$axios({
-                url: `/es/offices/getDevice?page=${page}&size=${size}&officeId=${officeId}`,
-                method: 'post',
-            }).then(res=> {
-                console.log('获取考勤地点对应已添加设备',res);
-                if(res) {
-                    this.setAddEquips(res.content)
-                    const deviceid = res.content.map( item=> item.id)
-                    this.setInialDeviceId(deviceid)
-                }
-            }).catch(err=> {
-                console.log(err)
-            })
+            let requestData = {page,size,officeId}
+            this.getInialDevice(requestData)
         }
     },
     components: {

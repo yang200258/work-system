@@ -3,7 +3,7 @@
         <!-- 创建父级菜单 -->
         <template slot="title"><i v-if="item.icon" class="item.icon"></i><span @click.prevent="go(item.path)">{{ item.name }}</span></template>
         <!-- 创建子菜单 -->
-        <nav-bar-item v-for="(subItem,i) in item.child" :key="navIndex+'-'+i" :navIndex="navIndex+'-'+i" :item="subItem"></nav-bar-item>
+        <nav-bar-item v-for="(subItem,i) in item.child" :key="navIndex+'-'+i" :navIndex="navIndex+'-'+i" :item="subItem" class="nav-bar-item"></nav-bar-item>
     </el-submenu>
     <el-menu-item v-else :index="item.path" :route="{path: item.path}"><i v-if="item.icon" class="item.icon"></i>{{ item.name }}</el-menu-item>
 </template>
@@ -19,3 +19,11 @@ export default {
     }
 }
 </script>
+
+<style lang="scss" scoped>
+    .nav-bar-item {
+        &:hover {
+            color: #409eff!important;
+        }
+    }
+</style>

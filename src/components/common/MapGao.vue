@@ -33,7 +33,8 @@ import remoteLoad from '@/utils/remoteLoad.js'
 import {mapState,mapMutations} from 'vuex'
 export default {
     props: {
-        isShowReset: {type: Boolean,default: true}
+        isShowReset: {type: Boolean,default: true},
+        isDestroy: {type: Boolean,default: false},
     },
     data() {
         return {
@@ -46,40 +47,31 @@ export default {
             district: '',
             districtinfo:'',
             loading: false,
+            marker: null,
+        }
+    },
+   async mounted() {
+        if(window.AMap && window.AMapUI && window.AMapUI.loadUI) {
+            this.initMap()
+        } else  {
+            this.loading = true
+            await remoteLoad(`https://webapi.amap.com/maps?v=1.4.14&key=${MapKey}`)
+            await remoteLoad('http://webapi.amap.com/ui/1.0/main.js')
+            this.loading = false
+            this.initMap()
         }
     },
     watch: {
-        // searchKey () {
-        //     if (this.searchKey === '') {
-        //         this.placeSearch.clear()
-        //     }
-        // }
-    },
-    async created() {
-        if(window.AMap && window.AMapUI && window.AMapUI.loadUI) {
-            this.initMap()
-        } else {
-            this.loading = true
-            await remoteLoad(`https://webapi.amap.com/maps?v=1.4.14&key=${MapKey}`)
-            await remoteLoad('http://webapi.amap.com/ui/1.0/main.js')
-            this.loading = false
-            this.initMap()
+        isDestroy(val) {
+            if(val) {
+                this.map.destroy()
+            } else {
+                this.initMap()
+            }
         }
     },
-    async activated() {
-        if(window.AMap && window.AMapUI && window.AMapUI.loadUI) {
-            this.initMap()
-        } else {
-            this.loading = true
-            await remoteLoad(`https://webapi.amap.com/maps?v=1.4.14&key=${MapKey}`)
-            await remoteLoad('http://webapi.amap.com/ui/1.0/main.js')
-            this.loading = false
-            this.initMap()
-        }
-    },
-    deactivated() {
+    beforeDestroy() {
         this.map.destroy()
-        this.map = this.placeSearch = this.poiPicker = this.AMapUI = this.AMap =  null
         this.searchKey = ''
     },
     computed:  {
@@ -91,9 +83,6 @@ export default {
         ...mapMutations({
             setSiteInfo: 'site/setSiteInfo'
         }),
-        init: function() {
-
-        },
         /* eslint-disable */
         initMap: function() {
             let AMapUI = this.AMapUI = window.AMapUI
@@ -101,7 +90,7 @@ export default {
             let mapConfig = {
                 resizeEnable: true,
                 cityName: MapCityName,
-                zoom: 10
+                zoom: 12
             }
             let map = this.map = new AMap.Map('map-container',mapConfig)
             // 启用工具条
@@ -111,10 +100,10 @@ export default {
                 }))
             })
             let siteInfo = this.siteInfo
-            if(siteInfo.latitude &&siteInfo.longitude) {
+            if(siteInfo.latitude && siteInfo.longitude) {
                 let {latitude,longitude} = siteInfo
                 mapConfig.center = [longitude, latitude]
-                const marker = new AMap.Marker({
+                let marker = this.marker = new AMap.Marker({
                     position: [longitude, latitude]
                 })
                 map.add(marker)
@@ -142,6 +131,7 @@ export default {
                     this.poiPickerReady(poiPicker);
                 }
             })
+            this.init = true
         },
         poiPickerReady: function(poiPicker) {
             this.poiPicker = poiPicker

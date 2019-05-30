@@ -1,6 +1,6 @@
 <template>
     <div class="top-nav">
-        <el-menu router ref="navbar" :default-active="defActive" mode="horizontal" menu-trigger="hover" @select="selectMenu" @open="openMenu" @close="closeMenu" unique-opened text-color="#999" active-text-color="#409eff">
+        <el-menu router ref="navbar" :default-active="defActive" mode="horizontal" menu-trigger="hover" @select="selectMenu" @open="openMenu" @close="closeMenu" unique-opened text-color="#666" active-text-color="#409eff">
             <nav-bar-item v-for="(item, n) in navList" :item="item" :key="n" :navIndex="String(n)"></nav-bar-item>
         </el-menu>
         <div v-show="navBgShow" class="full-screen-navBg" @click.self="closeAll"></div>
@@ -29,6 +29,7 @@ export default {
         // 当通过TagNav来激活页面时也执行一次selectMenu
         $route(){
             let path = this.$route.path
+            console.log(path);
             if(path.includes('home')) {
                 this.$refs.navbar.activeIndex = ''
                 return
@@ -96,15 +97,24 @@ export default {
             }
             li {
                 height: $headBarHeight;
+                // color: #666!important;
                 &.el-menu-item {
                     line-height: $headBarHeight;
+                    padding: 0 2px;
+                    margin: 0 20px;
                 }
                 &.el-submenu {
                     line-height: $headBarHeight;
                     .el-submenu__title {
+                        // color: #666!important;
                         height: $headBarHeight;
                         display: flex;
                         align-items: center;
+                        padding: 0 2px;
+                        margin: 0 20px;
+                        &:hover {
+                            color: #409eff!important;
+                        }
                     }
                 }
                 &:hover {

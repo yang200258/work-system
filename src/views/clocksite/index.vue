@@ -4,10 +4,10 @@
             @createSite="createSite" @searchSite="searchSite" @editTable="editSite">
         </clock-site>
         <!-- 查看考勤地点弹窗 -->
-        <my-dialog :title="'考勤地点信息'" :show="isShowSite" :width="'80%'" @close="closeSite" :isCancel="true" :cancelText="'关闭'" :isConfirm="true" :confirmText="'编辑'" @cancel="closeSite">
+        <my-dialog :title="'考勤地点信息'" :show="isShowSite" :width="'80%'" @close="closeSite" :isCancel="true" :cancelText="'关闭'" :isConfirm="true" :confirmText="'编辑'" @cancel="closeSite" @confirm="goEditSite">
             <template slot="dialog-content">
                 <div class="site">
-                    <site-info :isShowReset="!isShowSite"></site-info>
+                    <site-info :isShowReset="!isShowSite" :isDestroy="isDestroy"></site-info>
                 </div>
                 <el-divider></el-divider>
                 <div class="device">
@@ -16,13 +16,17 @@
                         <div class="left-device">
                             <p>蓝牙设备</p>
                             <div class="tag">
-                                 <div v-for="(item,i) in device" :key="i" v-show="item.type === 0">{{item.name}}-{{item.type == 0 ? '蓝牙设备' : 'WIFI设备'}}</div>
+                                <el-scrollbar style="height: 100%;">
+                                     <div v-for="(item,i) in device" :key="i" v-show="item.type === 0">{{item.name}}-{{item.type == 0 ? '蓝牙设备' : 'WIFI设备'}}</div>
+                                </el-scrollbar>
                             </div>
                         </div>
                         <div class="right-device">
                             <p>WIFI设备</p>
                             <div class="tag">
-                                <div v-for="(item,i) in device" :key="i" v-show="item.type === 1">{{item.name}}-{{item.type == 0 ? '蓝牙设备' : 'WIFI设备'}}</div>
+                                <el-scrollbar style="height: 100%;">
+                                    <div v-for="(item,i) in device" :key="i" v-show="item.type === 1">{{item.name}}-{{item.type == 0 ? '蓝牙设备' : 'WIFI设备'}}</div>
+                                </el-scrollbar>
                             </div>
                         </div>
                     </div>
@@ -53,6 +57,7 @@ export default {
             //操作配置
             option:[{name: '查看',type:'success',event: 'chooseTable'},{name:'删除',type:'danger',event: 'delTable'},{name: '编辑',type:'primary',event: 'editTable'}],
             isShowSite: false,
+            isDestroy: false,
             // ******************查看考勤地点*****************
             //查看考勤组时的设备
             device: [],
@@ -107,12 +112,15 @@ export default {
             let [page,size] = [1,20]
             this.setSite(scope.row)
             this.clockGroup = scope.row.clockGroup.map(item=> item.name)
-            this.isShowSite = true
+            this.isShowSite = true 
+            this.isDestroy = false
             this.$axios({
                 url: `/es/offices/getDevice?page=${page}&size=${size}&officeId=${officeId}`,
                 method: 'post',
             }).then(res=> {
-                this.device = res.content
+                if(res) {
+                    this.device = res.content
+                }
             }).catch(err=> {
                 console.log(err);
             })
@@ -120,6 +128,7 @@ export default {
         //关闭查看弹框 + 关闭按钮关闭查看弹框
         closeSite: function() {
             this.isShowSite = false
+            this.isDestroy = true
             this.setSiteInfo({})
         },
         //******************删除考勤地点信息************************** */
@@ -142,7 +151,22 @@ export default {
         //******************编辑考勤地点信息************************** */
         editSite: function(scope) {
             this.setSite(scope.row)
-            this.$router.push('edit_clock_site')
+            this.$router.push({
+                name: 'edit_clock_site',
+                params: {
+                    officeId: scope.row.id
+                }    
+            })
+        },
+        //通过查看考勤地点页面进入编辑
+        goEditSite: function() {
+            this.isShowSite = false
+            this.$router.push({
+                name: 'edit_clock_site',
+                params: {
+                    officeId: this.siteInfo.id
+                }    
+            })
         },
         //翻页
         nextPage: function(val) {
@@ -180,18 +204,35 @@ export default {
                     .tag {
                         margin-top: 10px;
                         padding-left: 60px;
-                        div {
-                            padding: 6px;
-                            background-color: #409EFF;
-                            color: #FFF;
-                            border-radius: 4px;
-                            margin: 4px 0;
+                        height: 200px;
+                        overflow-y: auto;
+                        /deep/ .el-scrollbar__wrap {
+                            overflow-x: hidden!important;
+                        }
+                        .el-scrollbar {
+                            div {
+                                padding: 6px;
+                                background-color: #409EFF;
+                                color: #FFF;
+                                border-radius: 4px;
+                                margin: 10px 0;
+                                width: 200px;
+                                text-align: center;
+                                overflow: hidden;
+                            }
                         }
                     }
                 }
                 .right-device {
                     margin-left: 40px;
                     border-left: 1px solid #000;
+                    .tag {
+                        overflow-y: auto;
+                        /deep/ .el-scrollbar__wrap {
+                            overflow-x: hidden!important;
+                        }
+                    }
+                    
                 }
             }
         }

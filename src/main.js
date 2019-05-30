@@ -11,6 +11,9 @@ import 'babel-polyfill'
 //引入elementui插件
 import './plugins/elementui.js'
 
+//引入iconfont
+import '@/assets/style/iconfont/iconfont.css'
+
 //引入lodash语法便于操作数据
 import _ from 'lodash'
 Vue.prototype._ = _

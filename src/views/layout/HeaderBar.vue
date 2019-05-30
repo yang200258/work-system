@@ -2,11 +2,28 @@
     <div class="sys-header">
         <div class="logo" @click.prevent="goHome">
             <img src="@/assets/images/logo.png" alt="">
-            <p>EasySite</p>
         </div>
         <slot name="topnav"></slot>
         <div class="userInfo">
-            <img @click.prevent="logout" src="@/assets/images/logout.png" alt="">
+            <el-dropdown>
+                <span class="el-dropdown-link setting">
+                    <i class="iconfont icon-shezhi"></i>
+                    <i class="iconfont icon-sanjiao"></i>
+                </span>
+                <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item>设置1</el-dropdown-item>
+                    <el-dropdown-item>设置2</el-dropdown-item>
+                </el-dropdown-menu>
+            </el-dropdown>
+            <el-dropdown @command="avaterOption">
+                <span class="el-dropdown-link avater">
+                    <img src="@/assets/images/avater.png" alt="">
+                    <i class="iconfont icon-sanjiao"></i>
+                </span>
+                <el-dropdown-menu slot="dropdown" divided>
+                    <el-dropdown-item command="logout">退出</el-dropdown-item>
+                </el-dropdown-menu>
+            </el-dropdown>
         </div>
     </div>
     
@@ -30,6 +47,13 @@ export default {
         ...mapActions({
             sysLogout: 'auth/logout',
         }),
+        avaterOption: function(command) {
+            switch(command) {
+                case 'logout':
+                    this.logout()
+                    break
+            }
+        },
         logout() {
             this.sysLogout().then(() => {
                 this.$router.push('/login')
@@ -37,7 +61,7 @@ export default {
             })
         },
         goHome: function() {
-            this.$router.push('home')
+            this.$router.push('/home')
         }
     }
 }
@@ -49,44 +73,73 @@ export default {
         display: flex;
         flex-wrap: nowrap;
         align-items: center;
-        z-index: 1000;
+        z-index: 999;
         color: #000;
+        background-color: #fff;
         box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
         .logo {
-            float: left;
             display: flex;
             height: $headBarHeight;
             line-height: $headBarHeight;
-            padding-left: 20px;
-            font-size: 20px;
-            margin-right: 6%;
+            padding-left: 34px;
+            margin-right: 102px;
             &:hover {
                 cursor: pointer;
             }
             img {
                 display: block;
-                width: 100%;
-                height: 40px;
-                z-index: 9999;
+                width: 124px;
+                height: 30px;
                 margin: auto;
-                margin-right: 10px;
-            }
-            p {
-                font-size: 24px;
-                font-weight: 700;
-                z-index: 9999;
             }
         }
         .userInfo {
-            height: 60px;
+            height: $headBarHeight;
             display: flex;
             align-items: center;
             position: absolute;
             top: 0;
-            right: 5%;
-            img {
-                cursor: pointer;
-                width: 24px;
+            right: 28px;
+            overflow: hidden;
+            background-color: #fff;
+            .setting {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #666;
+                height: $headBarHeight;
+                width: $headBarHeight;
+                .icon-shezhi {
+                    font-size: 24px;
+                }
+                .icon-sanjiao {
+                    color: #666;
+                }
+                &:hover {
+                    .icon-sanjiao {
+                        color: #409eff;
+                    }
+                    color: #409eff;
+                }
+            }
+            .avater {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-left: 22px;
+                img {
+                    width: 24px;
+                    height: 24px;
+                    border-radius: 50%;
+                }
+                .icon-sanjiao {
+                    color: #666;
+                }
+                &:hover {
+                    .icon-sanjiao {
+                        color: #409eff;
+                    }
+                }
             }
         }
     }

@@ -1,7 +1,7 @@
 <template>
     <div class="tag-nav">
         <el-breadcrumb separator="/">
-            <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
+            <el-breadcrumb-item :to="{ path: '/home' }" :class="{active:isActive}">首页</el-breadcrumb-item>
             <el-breadcrumb-item v-for="(item, index) in tagNavList"  :key="index" :to="item.path">{{item.meta.title}}</el-breadcrumb-item>
         </el-breadcrumb>
     </div>
@@ -12,7 +12,6 @@
 export default {
     data(){
         return {
-            defaultPage: '/home',
             tagNavList: [],
         }
     },
@@ -28,10 +27,8 @@ export default {
     },
     methods: {
         addTagNav(){
-            console.log('-----------',this.$route)
             if(this.$route.name === 'home') return this.tagNavList = []
             let matched = this.$route.matched.filter(item => item.name)
-            // const first = matched[0];
             matched = [].concat(matched)
             this.tagNavList = matched
         },
@@ -44,9 +41,16 @@ export default {
 
 <style lang="scss" scoped>
     .tag-nav {
-        padding-left: 20px;
-        margin-bottom: 20px;
-        height: 30px;
+        padding-left: 48px;
+        margin-bottom: 24px;
         font-size: 14px;
+        // .active {
+        //     /deep/ .el-breadcrumb__inner {
+        //         color: #409eff;
+        //         &:hover {
+        //            color: #409eff; 
+        //         }
+        //     }
+        // }
     }
 </style>

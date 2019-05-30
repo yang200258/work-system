@@ -21,7 +21,7 @@ import {mapState,mapMutations} from 'vuex'
 export default {
     props: {
         // isDisable: {type:Boolean,default: true},
-        // activeName: {type:String},
+        // isInit: {type:Boolean},
         isShowReset: {type:Boolean,default: true},
         optionSiteId: {type:Number},
         
@@ -72,7 +72,8 @@ export default {
             }).then(res=> {
                 console.log('成功操作考勤地点',res);
                 if(res) {
-                    // this.$message.success('添加地点成功')
+                    if(!id) this.$message.success('添加考勤地点成功')
+                    if(id) this.$message.success('编辑考勤地点成功')
                     this.officeId = res.id
                     this.activeName = 'optionDevice'
                     this.isDisable = false

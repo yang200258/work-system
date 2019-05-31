@@ -1,12 +1,14 @@
 <template>
     <div class="wrapper">
-        <template>
-            <header-bar class="header-bar">
-                <template slot="topnav">
-                    <nav-bar ></nav-bar>
-                </template>
-            </header-bar>
-        </template>
+        <div class="headerbar">
+            <template>
+                <header-bar class="header-bar">
+                    <template slot="topnav">
+                        <nav-bar ></nav-bar>
+                    </template>
+                </header-bar>
+            </template>
+        </div>
         <div class="content">
             <tag-nav></tag-nav>
             <!-- <keep-alive> -->
@@ -50,7 +52,6 @@ export default {
         width: 100%;
     }
     .content {
-        margin-top: 80px;
         height: 100%;
     }
 }

@@ -69,38 +69,36 @@ const staticRoute = [{
                 component: resolve => require(['@/views/clockgroupmanage'], resolve),
                 name: 'clock_group_manage',
                 meta: { title: '考勤组管理' },
-                children: [{
-                        path: 'edit_clock_group',
-                        component: resolve => require(['@/views/clockgroupmanage/editClockGroup'], resolve),
-                        name: 'edit_clock_group',
-                        meta: { title: '编辑考勤组' }
-                    },
-                    {
-                        path: 'create_clock_group',
-                        component: resolve => require(['@/views/clockgroupmanage/createClockGroup'], resolve),
-                        name: 'create_clock_group',
-                        meta: { title: '创建考勤组' },
-                    },
-                ]
+            },
+            {
+                path: 'edit_clock_group',
+                component: resolve => require(['@/views/clockgroupmanage/editClockGroup'], resolve),
+                name: 'edit_clock_group',
+                meta: { title: '编辑考勤组' }
+            },
+            {
+                path: 'create_clock_group',
+                component: resolve => require(['@/views/clockgroupmanage/createClockGroup'], resolve),
+                name: 'create_clock_group',
+                meta: { title: '创建考勤组' },
             },
             {
                 path: 'clocksite',
                 component: resolve => require(['@/views/clocksite'], resolve),
                 name: 'clocksite',
                 meta: { title: '考勤地点管理' },
-                children: [{
-                        path: 'create_clock_site',
-                        component: resolve => require(['@/views/clocksite/createClockSite'], resolve),
-                        name: 'create_clock_site',
-                        meta: { title: '创建考勤地点' }
-                    },
-                    {
-                        path: 'edit_clock_site',
-                        component: resolve => require(['@/views/clocksite/editClockSite'], resolve),
-                        name: 'edit_clock_site',
-                        meta: { title: '编辑考勤地点' }
-                    },
-                ]
+            },
+            {
+                path: 'create_clock_site',
+                component: resolve => require(['@/views/clocksite/createClockSite'], resolve),
+                name: 'create_clock_site',
+                meta: { title: '创建考勤地点' }
+            },
+            {
+                path: 'edit_clock_site',
+                component: resolve => require(['@/views/clocksite/editClockSite'], resolve),
+                name: 'edit_clock_site',
+                meta: { title: '编辑考勤地点' }
             },
         ]
     },

@@ -29,7 +29,6 @@ export default {
         // 当通过TagNav来激活页面时也执行一次selectMenu
         $route(){
             let path = this.$route.path
-            console.log(path);
             if(path.includes('home')) {
                 this.$refs.navbar.activeIndex = ''
                 return
@@ -92,6 +91,7 @@ export default {
             align-items: center;
             flex-wrap: nowrap;
             height: $headBarHeight;
+            border-bottom: none;
             &>.el-submenu .el-submenu__icon-arrow {
                 display: none;
             }

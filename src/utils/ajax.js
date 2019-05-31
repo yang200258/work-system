@@ -6,7 +6,7 @@ import axios from 'axios'
 import router from '../router'
 import Auth from '@/utils/auth'
 import { Message } from 'element-ui'
-var requestList = []
+// var requestList = []
 
 /**
  * 阻止短时间内的重复请求
@@ -60,7 +60,7 @@ service.interceptors.request.use(
 service.interceptors.response.use(
     response => {
         console.log('responsedata', response);
-        console.log('requestList', requestList);
+        // console.log('requestList', requestList);
         // for (let i = 0; i < requestList.length; i++) {
         //     if (requestList[i] == response.config.url) {
         //         // 注意，不能保证500ms必定执行

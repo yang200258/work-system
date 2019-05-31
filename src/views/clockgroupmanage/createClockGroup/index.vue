@@ -21,6 +21,6 @@ export default {
 
 <style lang="scss" scoped>
 .create-group-container {
-    
+   
 }
 </style>

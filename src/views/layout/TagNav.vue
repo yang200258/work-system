@@ -41,8 +41,8 @@ export default {
 
 <style lang="scss" scoped>
     .tag-nav {
-        padding-left: 48px;
-        margin-bottom: 24px;
+        padding: 24px 48px 24px;
+        // margin: 24px 0;
         font-size: 14px;
         // .active {
         //     /deep/ .el-breadcrumb__inner {

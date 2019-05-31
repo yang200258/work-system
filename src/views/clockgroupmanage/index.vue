@@ -10,7 +10,7 @@
         <!-- 创建考勤组名称弹窗 -->
         <my-dialog :title="'新建考勤组'" :width="'40%'" :show.sync="isShowCreate" :isCancel="true" :confirmText="'提交'" @close="closeCreate" @cancel="cancelCreate" class="create-group" @confirm="goCreate">
             <template slot="dialog-content">
-                <my-input :data="groupData">
+                <my-input :placeholder="groupData.placeholder" :inputData="groupData.info">
                     <template slot="tip">
                         <p class="tip">Tip：推荐按照考勤地点加时间段的方式命名考勤组，如“海南大厦26层-9点至17点30分”</p>
                     </template>
@@ -86,7 +86,7 @@ export default {
             option:[{name: '查看',type:'success',event: 'chooseTable'},{name: '编辑',type:'primary',event: 'editTable'},{name:'删除',type:'danger',event: 'delTable'}],
             // --------------创建考勤组-------------------
             isShowCreate: false,
-            groupData: {text: '考勤组名称',placeholder:'请输入考勤组名称',info:''},
+            groupData: {placeholder:'请输入考勤组名称',info:''},
             clockType: 1,
             // ----------------查看考勤组信息----------------
             isShowSee: false,

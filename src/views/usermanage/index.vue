@@ -4,7 +4,7 @@
             <el-form :model="queryUserData" ref="queryForm" label-position="right" label-width="auto">
                 <div class="header">
                     <div class="show-info">
-                        <el-form-item prop="username" label="姓名/账号" label-width="auto">
+                        <!-- <el-form-item prop="username" label="姓名/账号" label-width="auto">
                             <el-input style="width:200px;" type="text" v-model="queryUserData.username" auto-complete="off" placeholder="请输入员工姓名/员工账号" size="mini" clearable></el-input>
                         </el-form-item>
                         <el-form-item prop="department" label="所属部门">
@@ -19,7 +19,8 @@
                             <el-select v-model="queryUserData.role" multiple placeholder="全部" collapse-tags size="mini">
                                 <el-option v-for="item in roleOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
                             </el-select>
-                        </el-form-item>
+                        </el-form-item> -->
+                        <form-com :formData="formData"></form-com>
                     </div>
                     <div class="query-info">
                         <div class="more-condition">
@@ -59,6 +60,7 @@
 <script>
 import SelectTree from '@/components/common/SelectTree.vue'
 import TableData from '@/components/common/TableData'
+import FormCom from '@/components/common/FormCom'
 export default {
     data() {
         return {
@@ -81,11 +83,13 @@ export default {
             total: 0,
             option: [{name: '编辑',type:'primary',event: 'editTable'},{name: '停用',type:'danger',event: 'delTable'}],
             showMore: false,
+            formData: [{type:'input',placeholder: '员工姓名/员工账号'},{type:'selectTree',placeholder:'全部',}]
         }
     },
     components: {
         SelectTree,
         TableData,
+        FormCom
     },
     watch: {
 

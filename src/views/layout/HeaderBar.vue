@@ -76,7 +76,8 @@ export default {
         z-index: 999;
         color: #000;
         background-color: #fff;
-        box-shadow: 0 2px 22px rgba(180, 180, 180, 0.2);
+        box-shadow: 0 0px 8px rgba(0, 0, 0, 0.1);
+        border-bottom: 1px solid #eee;
         .logo {
             display: flex;
             height: $headBarHeight;

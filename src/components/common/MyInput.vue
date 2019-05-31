@@ -1,8 +1,7 @@
 <template>
     <div class="myinput-container">
         <div class="text">
-            <p>{{data.text}}</p>
-            <el-input type="text" :placeholder="data.placeholder" v-model="data.info" clearable></el-input>
+            <el-input type="text" :placeholder="placeholder" v-model="inputData" clearable :size="size"></el-input>
         </div>
         <div class="input-wrapper">
             <slot name="tip" class="tip"></slot>
@@ -13,7 +12,9 @@
 <script>
 export default {
     props: {
-        data: {type:Object},
+        inputData: {type:String},
+        placeholder: {type: String,default: '请输入内容'},
+        size: {type:String,default: 'mini'}
     },
     data() {
         return {

@@ -18,9 +18,12 @@
       :load="loadNode"
       lazy
     ></el-tree>
-    <el-select slot="reference" ref="select" v-model="name"  :multiple="multiple" :placeholder="tipText" @click.prevent="changeShow" :size="size">
+    <!-- <el-select slot="reference" ref="select" v-model="name"  :multiple="multiple" :placeholder="tipText" @click.prevent="changeShow" :size="size">
       <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.label"></el-option>
-    </el-select>
+    </el-select> -->
+    <div class="trriger" slot="reference">
+      <p>{{}}</p>
+    </div>
   </el-popover>
   
 </template>

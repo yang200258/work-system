@@ -3,7 +3,11 @@
     <el-tree
       style="height:300px;"
       class="pop-tree"
+      empty-text="暂无数据"
+      highlight-current
       v-if="isShowSelect"
+      :props="defaultProps"
+      :load="loadNode"       
       :data="treeData"
       :node-key="nodeKey"
       :show-checkbox="multiple"
@@ -11,11 +15,8 @@
       :default-expanded-keys="defaultExpandedKeys"
       :default-checked-keys="defaultCheckedKeys"
       :default-expand-all="defaultExpandAll"
-      highlight-current
       @node-click="handleNodeClick"
       @check="getKeys"
-      :props="defaultProps"
-      :load="loadNode"
       lazy
     ></el-tree>
     <!-- <el-select slot="reference" ref="select" v-model="name"  :multiple="multiple" :placeholder="tipText" @click.prevent="changeShow" :size="size">
@@ -48,10 +49,6 @@ export default {
       type: Boolean,
       default: true
     },
-    size:{
-      type: String,
-      default: 'mini'
-    },
     //当有lazy加载时加载子数据的方法
     loadNode: {
       type: Function,
@@ -65,18 +62,13 @@ export default {
     id: [String, Array],
     //节点唯一标识
     nodeKey: { type: String, default: 'id' },
-    //默认文字
-    tipText: { type: String, default: '请选择' }
   },
   data () {
     return {
       // 是否显示树状选择器
       isShowSelect: false,
-      //select选项
-      options: [],
       //select选择器值
       key: [],
-      name:[],
       showValueTmp: '',
       //默认展开节点的key数组
       defaultExpandedKeys: [],
@@ -120,10 +112,6 @@ export default {
     this.setTreeCheckNode(this.key)
   },
   methods: {
-    changeShow() {
-      // if(!this.isShowSelect)  this.isShowSelect=true
-      this.isShowSelect = !this.isShowSelect
-    },
     handleNodeClick (data) {
       if (!this.multiple) {
         let tmpMap = {}

@@ -1,6 +1,6 @@
 <template>
   <el-popover placement="bottom-start" width="200" @hide="popoverHide" trigger="click" v-model="isShowSelect" class="tree-container"> 
-    <el-tree
+    <el-scrollbar><el-tree
       style="height:300px;"
       class="pop-tree"
       empty-text="暂无数据"
@@ -19,11 +19,11 @@
       @check="getKeys"
       lazy
     ></el-tree>
-    <!-- <el-select slot="reference" ref="select" v-model="name"  :multiple="multiple" :placeholder="tipText" @click.prevent="changeShow" :size="size">
-      <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.label"></el-option>
-    </el-select> -->
+    </el-scrollbar>
     <div class="trriger" slot="reference">
-      <p>{{}}</p>
+      <p style="margin-right:10px">{{nameText}}:</p>
+      <p style="margin-right:4px">{{tipText}}</p>
+      <div class="iconfont icon-sanjiao"></div>
     </div>
   </el-popover>
   
@@ -32,6 +32,8 @@
 <script>
 export default {
   props: {
+    //多选名称
+    nameText: {type:String},
     //数据
     treeData: { type: Array, required: false },
     //是否默认展开所有节点
@@ -67,8 +69,10 @@ export default {
     return {
       // 是否显示树状选择器
       isShowSelect: false,
+      // name: [],
       //select选择器值
       key: [],
+      tipText:'全部',
       showValueTmp: '',
       //默认展开节点的key数组
       defaultExpandedKeys: [],
@@ -85,8 +89,8 @@ export default {
   watch: {
     isShowSelect (val) {
       // 隐藏select自带的下拉框
-      this.$refs.select.blur()
-      if(!this.name.length) this.key = []
+      // this.$refs.select.blur()
+      // if(!this.name.length) this.key = []
       if (val) {
         // 下拉面板展开-选中节点-展开节点
         this.setTreeCheckNode(this.key)
@@ -127,8 +131,8 @@ export default {
       let tmp = []
       // let name = []
       console.log(data, checked);
-      if(checked && checked.checkedNodes &&checked.checkedNodes.length) this.name = [checked.checkedNodes[0].name]
-      if(checked && checked.checkedNodes &&checked.checkedNodes.length == 0) this.name =[]
+      if(checked && checked.checkedNodes &&checked.checkedNodes.length) this.tipText = checked.checkedNodes[0].name
+      if(checked && checked.checkedNodes &&checked.checkedNodes.length == 0) this.tipText = '全部'
       let checkedNodes = this._.uniqBy(checked.checkedNodes,'id')
       checkedNodes.forEach(node => {
         let tmpMap = {}
@@ -165,28 +169,20 @@ export default {
 
 <style lang="scss" scoped>
 .tree-container /deep/ {
-  .el-input--mini .el-input__inner {
-    height: 28px!important;
-  }
-  .el-select {
-    .el-select__tags {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      display: flex;
-      .el-tag--info {
-        width: 100%;
-        // position: relative;.
-        display: flex;
-        .el-select__tags-text {
-          width: 80%;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-        
-        .el-icon-close {
-          margin: auto;
-        }
-      }
+  .trriger {
+    height: 24px;
+    // width: 40px;
+    display: flex;
+    align-items: center;
+    &:hover {
+      cursor: pointer;
+    }
+    p {
+      font-size:12px;
+      color: #444853;
+      white-space: nowrap;
+      display: block;
+      margin-right: 10px;
     }
   }
 }

@@ -1,6 +1,7 @@
 // import { proxy } from '@/utils/proxy.js'
 let state = {
-    userInfo: {}
+    userInfo: {},
+
 }
 
 // state = proxy(state, 'userInfo', ['userInfo'])

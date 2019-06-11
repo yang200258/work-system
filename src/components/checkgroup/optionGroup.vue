@@ -170,7 +170,7 @@ export default {
             city: '',
             cityOptions: [{value:'hainan',label:'海南'}],
             siteHead: [{key:'city',name: '所在位置'},{key:'site',name: '地点名称'},{key:'clockType',name: '支持打卡方式'}],
-            option: [{name: '查看',type:'success',style: {},event: 'editTable'},{name: '选择',type:'primary',style:{},event: 'chooseTable'}],
+            option: [{name: '查看',type:1,event: 'editTable'},{name: '选择',type:1,event: 'chooseTable'}],
             siteTableData: [{id:1,city:'海口',site:'北京大厦',clockType:[0,1,2]},{id:2,city:'北京',site:'海口大厦',clockType:[0,1]},{id:2,city:'北京',site:'海口大厦',clockType:[0,2]}],
             // ------------------------考勤组成员编辑---------------
             //是否按部门添加考勤组成员

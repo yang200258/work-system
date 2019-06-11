@@ -20,7 +20,7 @@ export default {
     },
     data() {
         return {
-            option:[{name: '查看',type:'success',event: 'chooseTable'},{name: '编辑',type:'primary',event: 'editTable'},{name:'停用',type:'danger',event: 'delTable'}],
+            option:[{name: '查看',type:1,event: 'chooseTable'},{name: '编辑',type:1,event: 'editTable'},{name:'停用',type:2,event: 'delTable'}],
         }
     },
     components: {

@@ -1,39 +1,58 @@
 <template>
     <div class="table-data">
-        <el-main style="padding:0">
-            <el-container class="infoTable">
-                <el-main style="padding:0">
-                        <el-table  v-loading="tableLoading" element-loading-text="拼命加载中" element-loading-spinner="el-icon-loading" :default-sort="tableSort" :empty-text="emptyText"
-                        :data="tableData" @selection-change="selectionChange" :highlight-current-row="true" :header-cell-class-name="'title'">
-                            <el-table-column type="selection" align="center" v-if="isSelected"> </el-table-column>
-                            <el-table-column v-for="(item,index) in head" :prop="item.key" :label="item.name" :key="index" align="center" :show-overflow-tooltip="true"> 
-                                <template slot-scope="scope">
-                                    <slot name="special" :scope="scope">
-                                        <span v-html="format(scope.row[scope.column.property],scope.column.property)">{{scope.row[scope.column.property]}}</span>
-                                        <!-- <span>{{scope.row[scope.column.property]}}</span> -->
-                                    </slot>
-                                </template>
-                             </el-table-column>
-                            <el-table-column label="操作" align="center" v-if="isOption" :class-name="'option'">
-                                <template slot-scope="scope">
-                                    <slot name="option" :scope="scope">
-                                        <el-button v-for="(item,index) in option" :key="index" :style="item.style" :type="item.type"  size="mini" @click.prevent="optionEvent(scope,item)">{{item.name}}</el-button>
-                                    </slot>
-                                </template>
-                            </el-table-column>
-                        </el-table>
-                        <el-pagination @size-change="sizeChange" @current-change="currentChange" :current-page="page.currentPage" :page-sizes="[20, 40, 60, 80]" :page-size="page.pageSize" 
-                            layout="total, sizes, prev, pager, next, jumper" :total="totalNumber" background class="page" v-if="page.isPagination"></el-pagination>
-                </el-main>
-            </el-container>
-        </el-main>
+        <div class="search-container" v-if="isSearch">
+            <form-com :data="data" :formData="formData" :loadNode="loadNode" @changeMutiSelect="changeMutiSelect" @btnClick="btnClick"></form-com>
+        </div>
+        <el-divider v-if="isSearch"></el-divider>
+        <div class="muti-option" v-if="isMutiOption">
+            <div class="left-option">
+                <el-checkbox v-model="isShowSelected">已选中{{selectCount}}项</el-checkbox>
+                <slot name="leftOption"></slot>
+            </div>
+            <div class="right-option">
+                <slot name="rightOption"></slot>
+            </div>
+        </div>
+        <div class="table-container">
+            <el-table  v-loading="tableLoading" element-loading-text="拼命加载中" element-loading-spinner="el-icon-loading" :default-sort="tableSort" :empty-text="emptyText"
+            :data="tableData" @selection-change="selectionChange" :highlight-current-row="true" :header-cell-class-name="'title'">
+                <el-table-column type="selection" align="left" v-if="isSelected"> </el-table-column>
+                <el-table-column v-for="(item,index) in head" :prop="item.key" :label="item.name" :key="index" align="left" :show-overflow-tooltip="true"> 
+                    <template slot-scope="scope">
+                        <slot name="special" :scope="scope">
+                            <span v-html="format(scope.row[scope.column.property],scope.column.property)">{{scope.row[scope.column.property]}}</span>
+                        </slot>
+                    </template>
+                    </el-table-column>
+                <el-table-column label="操作" align="left" v-if="isOption" :class-name="'option'">
+                    <template slot-scope="scope">
+                        <slot name="option" :scope="scope">
+                            <span style="margin-right:22px;" :class="item.type == 1 ? 'edit' : 'del'" v-for="(item,index) in option" :key="index" @click.prevent="optionEvent(scope,item)">{{item.name}}</span>
+                        </slot>
+                    </template>
+                </el-table-column>
+            </el-table>
+            <el-pagination @size-change="sizeChange" @current-change="currentChange" :current-page="page.currentPage" :page-sizes="[20, 40, 60, 80]" :page-size="page.pageSize" 
+                layout="total, sizes, prev, pager, next, jumper" :total="totalNumber" background class="page" v-if="page.isPagination"></el-pagination>
+        </div>
     </div>
 </template>
 
 <script>
+import FormCom from './FormCom'
 export default {
     /* eslint-disable */
     props: {
+        //表格上方搜索区
+        isSearch: {type:Boolean,default: true},
+        data: {type: Object},
+        formData: {type:Array},
+        loadNode: {
+            type: Function,
+            default: function() {}
+        },
+        //表格上方批量操作区
+        isMutiOption: {type:Boolean,default:true},
         // 表格区
         tableLoading: { type: Boolean, default: false },
         tableSort: {prop:'sort', order: 'ascending'},
@@ -47,22 +66,23 @@ export default {
         format: {type:Function,default: function(cellValue,property) {return cellValue }},
         // 操作区
         isOption: {type:Boolean,default: true},
-        option: {type:Array,default:()=> {return [{name: '编辑',type:'primary',style: {},event: 'editTable'},{name: '删除',type:'danger',style:{},event: 'delTable'}]}},
+        option: {type:Array,default:()=> {return [{name: '编辑',event: 'editTable'},{name: '删除',event: 'delTable'}]}},
         //分页区
         page: {type:Object,default: ()=> {return {isPagination:true,currentPage:1,pageSize:1} }},
         totalNumber:  { type: Number,default: 0 },
     },
     data(){
         return{
-            isSHow: true
+            isSHow: true,
+            isShowSelected: false,
+            selectCount: 0
         }
     },
     components: {
-        
+        FormCom
     },
     methods: {
         sizeChange(val) {
-            console.log(`每页 ${val} 条`)
              this.$emit('sizeChange',val)
         },
         currentChange(val) {
@@ -72,51 +92,85 @@ export default {
             this.$emit(item.event,scope)
         },
         selectionChange: function(val){
+            this.selectCount = val.length
             this.$emit('selectionChange',val)
         },
-        // format: function(scope) {
-        //     // console.log(scope);
-        //     // this.$emit('format',scope)
-        //     return scope.row[scope.column.property]
-            
-        // }
+        btnClick: function() {
+            this.$emit('btnClick')
+        },
+        //处理多选时子组件中所选数据
+        changeMutiSelect: function(val1,val2) {
+            this.$emit('changeMutiSelect',val1,val2)
+        }
     }
 }
 </script>
 
 <style lang="scss">
     .table-data{
-        .infoTable {
+        .search-container {
+            padding: 0 32px;
+        }
+        .muti-option {
+            margin-left: 42px;
             display: flex;
-            flex-direction: column;
-            .el-main {
-                .title {
-                    font-weight: 700;
-                    color: black;
-                }
-                .hide {
-                    display: none;
-                }
-                .cell {
-                    &.el-tooltip {
-                        box-sizing: border-box;
-                        overflow: hidden;
-                        text-overflow: ellipsis;
-                        white-space: normal;
-                        word-break: break-all;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 22px;
+            .left-option {
+                display: flex;
+                align-items: center;
+                .el-checkbox {
+                    .el-checkbox__label {
+                        font-size:12px;
                     }
                 }
-                .page {
-                    position: absolute;
-                    right: 4%;
-                    margin-top: 12px;
+            }
+            .right-option {
+                display: flex;
+                align-items: center;
+                margin-right: 50px;
+            }
+            
+            
+        }
+        .table-container {
+            padding: 0 32px;
+            .title {
+                font-weight: 700;
+                color: black;
+            }
+            .cell {
+                font-size: 12px;
+            }
+            //操作按钮样式
+            .edit {
+                color: #0096FF;
+                &:hover {
+                    cursor:pointer;
                 }
-                .option {
-                    .cell {
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
+            }
+            .del {
+               color: #FF3F3F;
+               &:hover {
+                    cursor:pointer;
+                }
+            }
+            .page {
+                position: absolute;
+                right: 48px;
+                margin-top: 20px;
+                .el-pagination__total {
+                    font-size: 12px;
+                }
+                .el-pager {
+                    li {
+                       font-size: 12px;
+                       font-weight: 400; 
                     }
+                }
+                .el-pagination__jump {
+                    font-size: 12px;
                 }
             }
         }

@@ -1,12 +1,20 @@
 <template>
     <div class="holiday-container">
-        <header>
-            <el-button type="primary" icon="el-icon-edit" size="middle" @click.prevent="addHoli">添加</el-button>
-            <el-button type="primary" icon="el-icon-delete" size="middle" @click.prevent="showDelete" v-if="delId.length > 1">删除</el-button>
-        </header>
         <footer class="footer">
             <table-data :tableLoading="loadingHoliday" :tableData="holiday" :head="head" :isSelected="true" @currentChange="currentChange" :totalNumber="totalNumber" 
-                @editTable="showEdit" @delTable="showDelete" @selectionChange="selectHoliday" :format="format">
+                @editTable="showEdit" @delTable="showDelete" @selectionChange="selectHoliday" :format="format" :isSearch="false" >
+                <template slot="leftOption">
+                    <div class="del"  @click.prevent="showDelete" v-if="delId.length > 1">
+                        <i class="el-icon-delete"></i>  
+                        <span>删除</span>  
+                    </div>
+                </template>
+                <template slot="rightOption">
+                    <div class="add" @click.prevent="addHoli">
+                        <i class="el-icon-circle-plus-outline"></i>  
+                        <span>添加</span>  
+                    </div>
+                </template>
             </table-data>
             <my-dialog :title="title" :show.sync="isShowEdit" :width="'40%'" @close="closeEdit" :center="true" :isConfirm="true" @confirm="confirm" :confirmText="confirmText">
                 <my-form :rules="editRule" :formData="editForm" :formItem="formItem" ref="editForm" slot="dialog-content" :position="'right'" class="editForm"></my-form>
@@ -272,11 +280,20 @@ export default {
 
 <style lang="scss" scoped>
     .holiday-container {
-        margin:0 4%;
-        header {
-            margin-bottom: 20px;
-        }
         .footer {
+            .add,.del {
+                font-size: 12px;
+                display: flex;
+                align-items: center;
+                color: #0096FF;
+                font-weight: 700;
+                cursor: pointer;
+                >i {
+                    font-size: 16px;
+                    font-weight: 700;
+                    margin-right: 4px;
+                }
+            }
             .editForm {
                 /deep/ .el-form-item {
                     display: flex;

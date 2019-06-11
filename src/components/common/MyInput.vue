@@ -36,14 +36,11 @@ export default {
                 color: #666666;
                 font-size: 14px;
             }
-            .el-input {
-                margin-left: 20px;
-            }
         }
-        .input-wrapper {
-            padding-left: 90px;
-            margin-top: 10px;
-        }
+        // .input-wrapper {
+        //     padding-left: 90px;
+        //     padding-top: 10px;
+        // }
         
     }
 </style>

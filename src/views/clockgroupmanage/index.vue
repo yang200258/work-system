@@ -1,11 +1,11 @@
 <template>
     <div class="clockgroup-manage">
-        <header class="clockgroup-header">
+        <!-- <header class="clockgroup-header">
             <my-form :formData="searchInfo" :formItem="formItem" :size="'mini'" :isInline="true" @search="search" @showCreate="showCreate"></my-form>
-        </header>
+        </header> -->
         <section class="clockgroup-content">
             <table-data :head="head" :tableData="clockGroupData" :tableLoading="clockGroupLoading" :option="option" @chooseTable="getClockGroup" @editTable="editClockGroup" @delTable="delClockGroup" 
-                :format="format"></table-data>
+                :format="format" :data="searchInfo" :formData="formItem" @btnClick="search" @changeMutiSelect="changeMutiSelect"></table-data>
         </section>
         <!-- 创建考勤组名称弹窗 -->
         <my-dialog :title="'新建考勤组'" :width="'40%'" :show.sync="isShowCreate" :isCancel="true" :confirmText="'提交'" @close="closeCreate" @cancel="cancelCreate" class="create-group" @confirm="goCreate">
@@ -62,7 +62,6 @@
 import TableData from '@/components/common/TableData'
 import MyDialog from '@/components/common/MyDialog'
 import MyInput from '@/components/common/MyInput'
-import MyForm from '@/components/common/MyForm'
 import InfoTag from '@/components/checkgroup/infoTag'
 import SiteTag from '@/components/checkgroup/siteTag'
 import TimeTag from '@/components/common/TimeTag'
@@ -74,16 +73,16 @@ export default {
         return {
             // ----------------------搜索考勤组--------------------
             searchInfo: {},
-            formItem: [{prop:'name',label:'考勤组名称',placeholder:'请输入内容',type:'input',inputType:'text'},{prop:'site',label:'考勤地点',placeholder:'请输入内容',type:'input',inputType:'text'},
-                        {prop:'clockType',label:'打卡方式',placeholder:'请选择',type:'select',options:[{name:'蓝牙',value:0},{name:'WIFI',value:1},{name:'GPS',value:2}]},
-                        {prop:'user',label:'创建人',placeholder:'请输入内容',type:'input',inputType:'text'},{prop:'city',label:'所在城市',placeholder:'请选择',type:'select',options:[]},
-                        {type:'button',buttonType:'primary',text:'搜索',icon:'el-icon-search',event:'search'},{type:'button',buttonType:'primary',text:'添加',icon:'el-icon-edit',event: 'showCreate'}],
+            formItem: [{type:'input',placeholder: '考勤组名称',label: 'name'},{label:'site',placeholder:'考勤地点',type:'input'},
+                        {label:'clockType',nameText:'打卡方式',type:'mutiSelect',options:[{label:'蓝牙',value:0},{label:'WIFI',value:1},{label:'GPS',value:2}]},
+                        {label:'user',placeholder:'创建人',type:'input'},{label:'city',nameText:'所在城市',type:'mutiSelect',options:[]},
+                        {type:'button',btnType:'primary',nameText:'搜索'}],
             // -------------------------考勤组展示-------------------------
             head:[{key: 'name',name:'考勤组名称'},{key: 'clockType',name:'考勤地点/打卡方式'},{key: 'clockCount',name:'打卡次数/作息时段'},{key: 'workType',name:'班次类型'},{key: 'city',name:'所在城市'},
                     {key: 'user',name:'创建人'},{key: 'time',name:'更新时间'},{key: 'workday',name:'工作日设置'}],
             clockGroupData: [],
             clockGroupLoading: false,
-            option:[{name: '查看',type:'success',event: 'chooseTable'},{name: '编辑',type:'primary',event: 'editTable'},{name:'删除',type:'danger',event: 'delTable'}],
+            option:[{name: '查看',type:1,event: 'chooseTable'},{name: '编辑',type:1,event: 'editTable'},{name:'删除',type:2,event: 'delTable'}],
             // --------------创建考勤组-------------------
             isShowCreate: false,
             groupData: {placeholder:'请输入考勤组名称',info:''},
@@ -102,7 +101,7 @@ export default {
                                 clockCount:2,clockTime: [['09:00','17:30'],['09:00','17:30']],workType:0,city:'海口',user:'杨青青',time:'2018-09-09 21:21:21',workday:[true,true,false,false,true,true,false],
                                 users:109,specialDate:[{date:'2019-09-09',setting:'休息'},{date:'2019-09-09',setting:'上班'}]}]
     },
-    components: {TableData,MyDialog,MyInput,MyForm,InfoTag,SiteTag,TimeTag,SpecialDateTag},
+    components: {TableData,MyDialog,MyInput,InfoTag,SiteTag,TimeTag,SpecialDateTag},
     methods: {
         ...mapMutations({
             setName: 'group/setName'
@@ -193,6 +192,9 @@ export default {
             else {
                 return cellvalue
             }
+        },
+        changeMutiSelect: function(val1,val2) {
+            this.searchInfo[val2] = val1
         }
     }
 }
@@ -200,7 +202,6 @@ export default {
 
 <style lang="scss" scoped>
     .clockgroup-manage {
-        margin: 0 40px;
         .clockgroup-header {
             margin-bottom: 20px;
             /deep/ .el-form {

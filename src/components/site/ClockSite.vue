@@ -1,16 +1,8 @@
 <template>
     <div class="clocksite-container">
-        <header>
-            <div class="search">
-                <el-input placeholder="请输入地点名称" suffix-icon="el-icon-search" size="mini" v-model="searchInfo.name"> </el-input>
-                <el-input placeholder="请输入城市" v-model="searchInfo.city" size="mini"> </el-input>
-                <el-button type="primary" size="mini" @click="searchSite">搜索</el-button>
-            </div>
-            <el-button type="primary" size="mini" @click.prevent="createSite">创建</el-button>
-        </header>
         <section>
             <table-data :head="sitehead" :tableData="siteInfo.content" :isSelected="false" :option="option"  :totalNumber="siteInfo.total" @delTable="delTable" @editTable="editTable" 
-            @chooseTable="chooseTable" @currentChange="nextPage" :format="format">
+            @chooseTable="chooseTable" @currentChange="nextPage" :format="format" :data="searchInfo" :formData="formItem" @btnClick="searchSite" :mutiItem="mutiItem" @createSite="createSite">
                 <template #special="{scope: scope}">
                     <slot name="clockstyle" :scope="scope"></slot>
                 </template>
@@ -28,11 +20,11 @@ export default {
         siteInfo: {type:Object},
         sitehead: {type:Array},
         option: {type: Array},
-        
     },
     data() {
         return {
-            
+            formItem:[{type:'input',label:'name',placeholder:'考勤地点'},{type:'input',label:'city',placeholder:'城市'},{type:'button',btnType:'primary',nameText:'搜索'}],
+            mutiItem: {right:[{nameText:'添加',className:'el-icon-circle-plus-outline',event:'createSite'}]}
         }
     },
     methods: {
@@ -72,18 +64,19 @@ export default {
 
 <style lang="scss" scoped>
     .clocksite-container{
-        header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 40px;
-            .el-input {
-                width: 200px;
-                margin-right: 20px;
-            }
-            .el-button {
-                position: relative;
-                right: 0;
-                width: 80px;
+        section {
+            .add {
+                font-size: 12px;
+                display: flex;
+                align-items: center;
+                color: #0096FF;
+                font-weight: 700;
+                cursor: pointer;
+                >i {
+                    font-size: 16px;
+                    font-weight: 700;
+                    margin-right: 4px;
+                }
             }
         }
     }

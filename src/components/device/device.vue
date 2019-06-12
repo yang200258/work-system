@@ -1,13 +1,8 @@
 <template>
     <div class="bluetooth-manage">
-        <header class="bluetooth-header">
-            <el-input v-model="searchInfo.no" placeholder="设备编号"></el-input>
-            <el-checkbox v-model="searchInfo.isException">只显示通信异常设备（最近5天没有通信）</el-checkbox>
-            <el-button icon="el-icon-search" type="primary" @click="searchDevice">搜索</el-button>
-        </header>
         <section class="bluetooth-content">
             <table-data :head="table.head" :isSelected="false" :tableData="table.content" :tableLoading="table.loading" :option="option" :totalNumber="table.total" @currentChange="currentChange" @chooseTable="chooseTable"
-            @editTable="editTable" @delTable="delTable"></table-data>
+            @editTable="editTable" @delTable="delTable" :data="searchInfo" :formData="formItem" @btnClick="searchDevice"></table-data>
         </section>
     </div>
 </template>
@@ -21,6 +16,7 @@ export default {
     data() {
         return {
             option:[{name: '查看',type:1,event: 'chooseTable'},{name: '编辑',type:1,event: 'editTable'},{name:'停用',type:2,event: 'delTable'}],
+            formItem: [{type:'input',label:'no',placeholder:'设备编号'},{type:'checkbox',label:'isException',nameText:'只显示通信异常设备（最近5天没有通信）'},{type:'button',btnType:'primary',nameText:'搜索'}]
         }
     },
     components: {
@@ -49,21 +45,7 @@ export default {
 
 <style lang="scss" scoped>
     .bluetooth-manage {
-        margin: 20px 40px;
-        .bluetooth-header {
-            display: flex;
-            align-items: center;
-            justify-content: flex-start;
-            .el-checkbox {
-                margin: 0 20px;
-            }
-            .el-input {
-                width: 200px;
-            }
-        }
-        .bluetooth-content {
-            margin-top: 10px;
-        }
+        // margin: 20px 40px;
     }
 </style>
 

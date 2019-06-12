@@ -11,7 +11,7 @@ export default {
     props: {
         data: {type: Object},
         readonly: {type:Boolean,default:false},
-        size: {type:String,default: 'small'}
+        size: {type:String,default: 'mini'}
     },
     data() {
         return {
@@ -36,7 +36,7 @@ export default {
             overflow: hidden;
             p {
                 font-style: normal;
-                font-size: 14px;
+                font-size: 12px;
                 color: #606266;
             }
         }

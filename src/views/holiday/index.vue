@@ -2,19 +2,7 @@
     <div class="holiday-container">
         <footer class="footer">
             <table-data :tableLoading="loadingHoliday" :tableData="holiday" :head="head" :isSelected="true" @currentChange="currentChange" :totalNumber="totalNumber" 
-                @editTable="showEdit" @delTable="showDelete" @selectionChange="selectHoliday" :format="format" :isSearch="false" >
-                <template slot="leftOption">
-                    <div class="del"  @click.prevent="showDelete" v-if="delId.length > 1">
-                        <i class="el-icon-delete"></i>  
-                        <span>删除</span>  
-                    </div>
-                </template>
-                <template slot="rightOption">
-                    <div class="add" @click.prevent="addHoli">
-                        <i class="el-icon-circle-plus-outline"></i>  
-                        <span>添加</span>  
-                    </div>
-                </template>
+                @editTable="showEdit" @delTable="showDelete" @selectionChange="selectHoliday" :format="format" :isSearch="false" :mutiItem="mutiItem" @showDelete="showDelete" @addHoli="addHoli">
             </table-data>
             <my-dialog :title="title" :show.sync="isShowEdit" :width="'40%'" @close="closeEdit" :center="true" :isConfirm="true" @confirm="confirm" :confirmText="confirmText">
                 <my-form :rules="editRule" :formData="editForm" :formItem="formItem" ref="editForm" slot="dialog-content" :position="'right'" class="editForm"></my-form>
@@ -37,6 +25,7 @@ import utils from '@/utils/utils'
 export default {
     data() {
         return {
+            mutiItem: {left:[{nameText:'删除',className:'el-icon-delete',event:'showDelete'}],right:[{nameText:'添加',className:'el-icon-circle-plus-outline',event:'addHoli'}]},   //批量操作选项组
             loadingHoliday: false,
             holiday: [],
             head: [{key: 'year',name: '年份'},{key: 'name',name: '节日名称'},{key: 'vacationDays',name: '休息时间'},{key: 'workDays',name: '补班时间'}],
@@ -281,19 +270,6 @@ export default {
 <style lang="scss" scoped>
     .holiday-container {
         .footer {
-            .add,.del {
-                font-size: 12px;
-                display: flex;
-                align-items: center;
-                color: #0096FF;
-                font-weight: 700;
-                cursor: pointer;
-                >i {
-                    font-size: 16px;
-                    font-weight: 700;
-                    margin-right: 4px;
-                }
-            }
             .editForm {
                 /deep/ .el-form-item {
                     display: flex;

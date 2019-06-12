@@ -1,6 +1,6 @@
 <template>
     <div class="clock-container">
-        <el-radio :label="countData.type" v-model="clockOrder.clockCount" @change="changeClockCount">{{countData.text}}</el-radio>
+        <el-radio :label="countData.type" v-model="clockOrder.clockTimes" @change="changeClockCount">{{countData.text}}</el-radio>
         <time-tag v-for="(item,i) in countData.clockNum" :key="i" :data="item" @changTime="changeTime"></time-tag>
     </div>
 </template>
@@ -12,11 +12,9 @@ import {mapState,mapMutations} from 'vuex'
 export default {
     props: {
         countData: {type: Object},
-        // clockCount: {type:Number,default: 0}
     },
     data() {
         return {
-            // workType: 0
             timeList: [],
         }
     },

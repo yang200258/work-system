@@ -6,11 +6,11 @@
         <el-divider v-if="isSearch"></el-divider>
         <div class="muti-option" v-if="isMutiOption">
             <div class="left-option">
-                <el-checkbox v-model="isShowSelected">已选中{{selectCount}}项</el-checkbox>
-                <slot name="leftOption"></slot>
+                <el-checkbox v-model="isShowSelected" v-if="isSelected">已选中{{selectCount}}项</el-checkbox>
+                <muti-btn v-for="(item,i) in mutiItem.left" :key="i" :className="item.className" :nameText="item.nameText" @click.native="mutiOption(item)"></muti-btn>
             </div>
             <div class="right-option">
-                <slot name="rightOption"></slot>
+                <muti-btn v-for="(item,i) in mutiItem.right" :key="i" :className="item.className" :nameText="item.nameText" @click.native="mutiOption(item)"></muti-btn>
             </div>
         </div>
         <div class="table-container">
@@ -23,7 +23,7 @@
                             <span v-html="format(scope.row[scope.column.property],scope.column.property)">{{scope.row[scope.column.property]}}</span>
                         </slot>
                     </template>
-                    </el-table-column>
+                </el-table-column>
                 <el-table-column label="操作" align="left" v-if="isOption" :class-name="'option'">
                     <template slot-scope="scope">
                         <slot name="option" :scope="scope">
@@ -40,6 +40,7 @@
 
 <script>
 import FormCom from './FormCom'
+import MutiBtn from './MutiBtn'
 export default {
     /* eslint-disable */
     props: {
@@ -53,6 +54,7 @@ export default {
         },
         //表格上方批量操作区
         isMutiOption: {type:Boolean,default:true},
+        mutiItem: {type:Object,default: function() {return {left:[],right:[]}} },
         // 表格区
         tableLoading: { type: Boolean, default: false },
         tableSort: {prop:'sort', order: 'ascending'},
@@ -66,24 +68,24 @@ export default {
         format: {type:Function,default: function(cellValue,property) {return cellValue }},
         // 操作区
         isOption: {type:Boolean,default: true},
-        option: {type:Array,default:()=> {return [{name: '编辑',event: 'editTable'},{name: '删除',event: 'delTable'}]}},
+        option: {type:Array,default:()=> {return [{name: '编辑',event: 'editTable',type:1},{name: '删除',event: 'delTable',type:2}]}},
         //分页区
         page: {type:Object,default: ()=> {return {isPagination:true,currentPage:1,pageSize:1} }},
         totalNumber:  { type: Number,default: 0 },
     },
     data(){
         return{
-            isSHow: true,
             isShowSelected: false,
             selectCount: 0
         }
     },
     components: {
-        FormCom
+        FormCom,
+        MutiBtn
     },
     methods: {
         sizeChange(val) {
-             this.$emit('sizeChange',val)
+            this.$emit('sizeChange',val)
         },
         currentChange(val) {
             this.$emit('currentChange',val)
@@ -98,6 +100,10 @@ export default {
         btnClick: function() {
             this.$emit('btnClick')
         },
+        //处理批量操作事件分发
+        mutiOption: function(item) {
+            this.$emit(item.event)
+        },
         //处理多选时子组件中所选数据
         changeMutiSelect: function(val1,val2) {
             this.$emit('changeMutiSelect',val1,val2)
@@ -107,7 +113,7 @@ export default {
 </script>
 
 <style lang="scss">
-    .table-data{
+    .table-data {
         .search-container {
             padding: 0 32px;
         }

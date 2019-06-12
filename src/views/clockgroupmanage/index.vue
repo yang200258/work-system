@@ -1,27 +1,25 @@
 <template>
     <div class="clockgroup-manage">
-        <!-- <header class="clockgroup-header">
-            <my-form :formData="searchInfo" :formItem="formItem" :size="'mini'" :isInline="true" @search="search" @showCreate="showCreate"></my-form>
-        </header> -->
         <section class="clockgroup-content">
             <table-data :head="head" :tableData="clockGroupData" :tableLoading="clockGroupLoading" :option="option" @chooseTable="getClockGroup" @editTable="editClockGroup" @delTable="delClockGroup" 
-                :format="format" :data="searchInfo" :formData="formItem" @btnClick="search" @changeMutiSelect="changeMutiSelect"></table-data>
+                :format="format" :data="searchInfo" :formData="formItem" @btnClick="search" @changeMutiSelect="changeMutiSelect" :mutiItem="mutiItem" @showCreate="showCreate" @mutiTime="mutiTime"
+                @specialDate="specialDate" @currentChange="nextGroup">
+            </table-data>
         </section>
         <!-- 创建考勤组名称弹窗 -->
-        <my-dialog :title="'新建考勤组'" :width="'40%'" :show.sync="isShowCreate" :isCancel="true" :confirmText="'提交'" @close="closeCreate" @cancel="cancelCreate" class="create-group" @confirm="goCreate">
+        <my-dialog :title="'新建考勤组'" :width="'500px'" :show.sync="isShowCreate" :isCancel="true" :confirmText="'提交'" @close="closeCreate" @cancel="cancelCreate" class="create-group" @confirm="goCreate">
             <template slot="dialog-content">
-                <my-input :placeholder="groupData.placeholder" :inputData="groupData.info">
-                    <template slot="tip">
-                        <p class="tip">Tip：推荐按照考勤地点加时间段的方式命名考勤组，如“海南大厦26层-9点至17点30分”</p>
-                    </template>
-                </my-input>
+                <div class="clock-name">
+                    <el-input type="text" placeholder="考勤组名称" size="mini" style="width:400px;margin-bottom:18px" v-model="name"></el-input>
+                    <p class="tip">Tip：推荐按照考勤地点加时间段的方式命名考勤组，如“海南大厦26层-9点至17点30分”</p>
+                </div>
                 <div class="clock-type">
                     <div class="text">
                         <p>班次类型</p>
                     </div>
-                    <el-radio-group v-model="clockType" class="radio-wrapper">
-                        <el-radio :label="1">固定班次<span class="radioTip">每天的考勤时间一样</span></el-radio>
-                        <el-radio :label="2">排班制<span class="radioTip">自定义设置考勤时间</span></el-radio>
+                    <el-radio-group v-model="type" class="radio-wrapper">
+                        <el-radio :label="0">固定班次<span class="radioTip">每天的考勤时间一样</span></el-radio>
+                        <el-radio :label="1">排班制<span class="radioTip">自定义设置考勤时间</span></el-radio>
                     </el-radio-group>
                 </div>
             </template>
@@ -61,32 +59,34 @@
 <script>
 import TableData from '@/components/common/TableData'
 import MyDialog from '@/components/common/MyDialog'
-import MyInput from '@/components/common/MyInput'
 import InfoTag from '@/components/checkgroup/infoTag'
 import SiteTag from '@/components/checkgroup/siteTag'
 import TimeTag from '@/components/common/TimeTag'
 import SpecialDateTag from '@/components/checkgroup/specialDateTag'
 import utils from '@/utils/utils'
-import {mapMutations} from 'vuex'
+import {mapState,mapMutations,mapActions} from 'vuex'
 export default {
     data() {
         return {
+            mutiItem: {left: [{className:'el-icon-edit-outline',nameText:'批量考勤班次编辑',event:'mutiTime'},{className:'el-icon-date',nameText:'批量特殊日期设置',event:'specialDate'}],
+                        right: [{nameText:'创建考勤组',className:'el-icon-circle-plus-outline',event: 'showCreate'}]},
             // ----------------------搜索考勤组--------------------
             searchInfo: {},
-            formItem: [{type:'input',placeholder: '考勤组名称',label: 'name'},{label:'site',placeholder:'考勤地点',type:'input'},
-                        {label:'clockType',nameText:'打卡方式',type:'mutiSelect',options:[{label:'蓝牙',value:0},{label:'WIFI',value:1},{label:'GPS',value:2}]},
-                        {label:'user',placeholder:'创建人',type:'input'},{label:'city',nameText:'所在城市',type:'mutiSelect',options:[]},
+            formItem: [{type:'input',placeholder: '考勤组名称',label: 'name'},{label:'officeName',placeholder:'考勤地点',type:'input'},
+                        {label:'type',nameText:'打卡方式',type:'mutiSelect',options:[{label:'蓝牙',value:0},{label:'WIFI',value:1},{label:'GPS',value:2}]},
+                        {label:'creator',placeholder:'创建人',type:'input'},{label:'city',nameText:'所在城市',type:'mutiSelect',options:[]},
                         {type:'button',btnType:'primary',nameText:'搜索'}],
             // -------------------------考勤组展示-------------------------
-            head:[{key: 'name',name:'考勤组名称'},{key: 'clockType',name:'考勤地点/打卡方式'},{key: 'clockCount',name:'打卡次数/作息时段'},{key: 'workType',name:'班次类型'},{key: 'city',name:'所在城市'},
-                    {key: 'user',name:'创建人'},{key: 'time',name:'更新时间'},{key: 'workday',name:'工作日设置'}],
+            head:[{key: 'name',name:'考勤组名称'},{key: 'siteType',name:'考勤地点/打卡方式'},{key: 'counttime',name:'打卡次数/作息时段'},{key: 'type',name:'班次类型'},{key: 'city',name:'所在城市'},
+                    {key: 'creator',name:'创建人'},{key: 'updateTime',name:'更新时间'},{key: 'workDay',name:'工作日设置'}],
             clockGroupData: [],
             clockGroupLoading: false,
             option:[{name: '查看',type:1,event: 'chooseTable'},{name: '编辑',type:1,event: 'editTable'},{name:'删除',type:2,event: 'delTable'}],
             // --------------创建考勤组-------------------
             isShowCreate: false,
-            groupData: {placeholder:'请输入考勤组名称',info:''},
-            clockType: 1,
+            type: 1,
+            name: '',
+            id: '',        //创建考勤组成功后的id
             // ----------------查看考勤组信息----------------
             isShowSee: false,
             groupInfo: {},
@@ -97,15 +97,43 @@ export default {
         }
     },
     mounted() {
-        this.clockGroupData = [{name:'海南大厦26层-8点至17点',clockType:[{id:1,city:'北京',site:'海南大厦',clockType:[0,1,2],gpsDistrict: 100},{id:2,city:'海南',site:'北京大厦',clockType:[0,1]}],
-                                clockCount:2,clockTime: [['09:00','17:30'],['09:00','17:30']],workType:0,city:'海口',user:'杨青青',time:'2018-09-09 21:21:21',workday:[true,true,false,false,true,true,false],
-                                users:109,specialDate:[{date:'2019-09-09',setting:'休息'},{date:'2019-09-09',setting:'上班'}]}]
+        //获取考勤组数据
+        this.getGroup()
     },
-    components: {TableData,MyDialog,MyInput,InfoTag,SiteTag,TimeTag,SpecialDateTag},
+    computed: {
+        ...mapState({
+            // name: state=> state.group.name,
+        })
+    },
+    components: {TableData,MyDialog,InfoTag,SiteTag,TimeTag,SpecialDateTag},
     methods: {
         ...mapMutations({
             setName: 'group/setName'
         }),
+        ...mapActions({
+            'addGroup':'group/addGroup'
+        }),
+        //获取考勤组数据
+        getGroup: function(page=1,size=20,name='',officeName='',clockType=[],creator='',city='') {
+            this.clockGroupLoading = true
+            this.$axios({
+                url: `/es/clockGroups/_search?page=${page}&size=${size}`,
+                method: 'post',
+                data: {name,officeName,clockType,creator,city}
+            }).then(res=> {
+                if(res) {
+                    this.clockGroupData = res
+                    this.clockGroupLoading = false
+                }
+            }).catch(err=> {
+                console.log(err)
+                this.clockGroupLoading = false
+            })
+        },
+        //翻页
+        nextGroup: function(val) {
+            this.getGroup(val,20)
+        },
         closeCreate: function() {
             this.isShowCreate = false
         },
@@ -113,17 +141,25 @@ export default {
             this.isShowCreate = false
         },
         showCreate: function() {
+            this.name = ''
+            this.type = 0
             this.isShowCreate = true
         },
-        //添加考勤组
+        //添加考勤组-----------------
         goCreate: function() {
-            if(!this.groupData.info) return this.$message.error('请先填写考勤组名称')
-            this.isShowCreate = false
-            this.$router.push('create_clock_group')
+            // if(!this.groupName) return this.$message.error('请先填写考勤组名称')
+            let [name,type] = [this.name,this.type]
+            this.addGroup({name,type}).then(res=> {
+                console.log(res)
+                this.$message.success('创建考勤组成功！')
+                this.isShowCreate = false
+                this.$router.push('create_clock_group')
+            })
         },
         //搜索考勤组
         search: function() {
-            
+            let {name,office,type,creator,city} = this.searchInfo
+            this.getGroup(1,20,name,office,type,creator,city)
         },
         //查看考勤组------------------------------------
         getClockGroup: function(scope) {
@@ -150,7 +186,16 @@ export default {
         },
         //删除考勤组---------------------------------------
         delClockGroup: function(scope) {
-            console.log(scope)
+            this.$axios({
+                url: '/es/clockGroups/delete',
+                method: 'post',
+                data: {id: scope.row.id}
+            }).then(res => {
+                this.$message.success(res)
+                this.getGroup()
+            }).catch(err=> {
+                this.$message.error(err)
+            })
         },
         //调整考勤组数据展示**************
         showWorkDayType: function(val) {
@@ -164,6 +209,15 @@ export default {
                 case 6:
                     this.workDayShow = [{text:'工作时段1',time: val.clockTime[0]},{text:'工作时段2',time: val.clockTime[1]},{text:'工作时段3',time: val.clockTime[2]}]
             }
+        },
+        //批量操作考勤组------------------------------------------
+            //修改考勤时间
+        mutiTime: function() {
+
+        },
+            //修改特殊日期
+        specialDate: function() {
+
         },
         //****************格式化表格数据 */
         format: function(cellvalue,property) {
@@ -202,26 +256,12 @@ export default {
 
 <style lang="scss" scoped>
     .clockgroup-manage {
-        .clockgroup-header {
-            margin-bottom: 20px;
-            /deep/ .el-form {
-                .el-form-item {
-                    margin-bottom: 0;
-                    &:last-child {
-                        position: absolute;
-                        right: 100px;
-                    }
-                }
-            }
-        }
         .create-group {
-            /deep/ .el-dialog__body {
-                padding-right: 60px;
-            }
             .tip {
-                font-size: 13px;
-                color: rgb(153, 153, 153);
+                font-size: 12px;
+                color: #bbb;
                 white-space: normal;
+                line-height: 16px;
             }
             .clock-type {
                 display: flex;
@@ -232,7 +272,7 @@ export default {
                         white-space: nowrap;
                         font-style: normal;
                         color: #666666;
-                        font-size: 14px;
+                        font-size: 12px;
                     }
                 }
                 .radio-wrapper {
@@ -240,10 +280,14 @@ export default {
                     flex-direction: column;
                     margin-left: 20px;
                     .el-radio {
+                        /deep/ .el-radio__label {
+                            font-size: 12px;
+                        }
                         &:last-child {
-                            margin-top: 40px;
+                            margin-top: 20px;
                             /deep/ .el-radio__label {
                                 letter-spacing: 5px;
+                                font-size: 12px;
                                 span {
                                    letter-spacing: 0; 
                                 }

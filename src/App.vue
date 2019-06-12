@@ -28,7 +28,7 @@ export default {
 <style lang="scss">
 @import './assets/style/normalize.css';
 #app {
-  font-family: 'PingFangSC-Regular', 'PingFang SC';
+  font-family: MicrosoftYaHei;
   margin: 0;
   height: 100%;
 }

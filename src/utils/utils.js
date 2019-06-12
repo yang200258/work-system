@@ -37,14 +37,13 @@ const util = {
     //转换工作日
     transformWorkday: function(arr) {
         const days = ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
-        const list = [true, true, true, true, true, true, true]
-        if (arr) {
-            arr.forEach((item, i) => {
-                if (days.indexOf(item) === -1) list[i] = false
+        const obj = { w1: false, w2: false, w3: false, w4: false, w5: false, w6: false, w7: false }
+        if (arr.length) {
+            arr.forEach((item) => {
+                obj[`w${days.indexOf(item)+1}`] = true
             })
         }
-        console.log(list);
-        return list
+        return obj
     }
 }
 

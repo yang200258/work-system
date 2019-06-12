@@ -55,7 +55,7 @@ export default {
             //表头
             sitehead: [{key: 'city',name: '城市'},{key: 'name',name: '地点名称'},{key: 'clockType',name: '打卡设备'},{key: 'clockGroup',name: '应用考勤组'}],
             //操作配置
-            option:[{name: '查看',type:'success',event: 'chooseTable'},{name:'删除',type:'danger',event: 'delTable'},{name: '编辑',type:'primary',event: 'editTable'}],
+            option:[{name: '查看',type:1,event: 'chooseTable'},{name: '编辑',type:1,event: 'editTable'},{name:'删除',type:2,event: 'delTable'}],
             isShowSite: false,
             isDestroy: false,
             // ******************查看考勤地点*****************
@@ -181,18 +181,13 @@ export default {
         setSite: function(obj) {
             let {id='',name,address,city,latitude,longitude} = obj
             this.setSiteInfo({id,name,address,city,latitude,longitude})
-        }
-
+        },
     }
 }
 </script>
 
 <style lang="scss" scoped>
     .clocksite-container{
-        margin: 0 20px;
-        .site {
-
-        }
         .device {
             margin-top: 40px;
             .device-content {

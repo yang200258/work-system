@@ -1,7 +1,8 @@
 import axios from '@/utils/ajax'
 const state = {
+    id: 0,
     name: '',
-    clockOrder: { clockCount: 0, clockTime: [], workDay: [], autorest: false },
+    clockOrder: { clockTimes: 2, clockTime: [], workDay: [], applyFestival: false, clockStartTime: '' },
     clockSite: [],
     clockUserId: [],
     specialDate: [{ date: '', type: '', user: '', workTime: [] }]
@@ -11,20 +12,26 @@ const mutations = {
     setName: (state, data) => {
         state.name = data
     },
+    setId: (state, data) => {
+        state.id = data
+    },
     setClockOrder: (state, data) => {
         state.clockOrder = data
     },
     setClockCount: (state, data) => {
-        state.clockOrder.clockCount = data
+        state.clockOrder.clockTimes = data
     },
     setClockTime: (state, data) => {
         state.clockOrder.clockTime = data
+    },
+    setClockStartTime: (state, data) => {
+        state.clockOrder.clockStartTime = data
     },
     setWorkDay: (state, data) => {
         state.clockOrder.workDay = data
     },
     setAutoRest: (state, data) => {
-        state.clockOrder.autorest = data
+        state.clockOrder.applyFestival = data
     },
     setClockSite: (state, data) => {
         state.clockSite = data
@@ -35,6 +42,47 @@ const mutations = {
 }
 
 const actions = {
+    //新建考勤组
+    addGroup({ commit }, data) {
+        return new Promise((resolve, reject) => {
+            axios({
+                url: '/es/clockGroups/save',
+                method: 'post',
+                data: data
+            }).then(res => {
+                if (res) {
+                    commit('setName', data.name)
+                    commit('setId', res.id)
+                    resolve(res)
+                } else {
+                    reject(res)
+                }
+            }).catch(err => {
+                reject(err)
+            })
+        })
+
+    },
+    //修改考勤组名称
+    editName({ state, commit }, data) {
+        let id = state.id
+        return new Promise((resolve, reject) => {
+            axios({
+                url: '/es/clockGroups/edit',
+                method: 'post',
+                data: { name: data, id }
+            }).then(res => {
+                if (res) {
+                    commit('setName', data)
+                    resolve(res)
+                } else {
+                    reject(res)
+                }
+            }).catch(err => {
+                reject(err)
+            })
+        })
+    },
     //操作考勤组时添加考勤地点数据
     addClockSite({ state, commit }, clockInfo) {
         const list = state.clockSite
@@ -42,14 +90,15 @@ const actions = {
         commit('setClockSite', list)
     },
     //编辑考勤组时获取已添加的考勤地点数据
-    getAddClockSite({ commit }) {
+    getAddClockSite({ commit, state }) {
         return new Promise((resolve, reject) => {
             axios({
-                url: '********',
-                method: 'get',
-                data: {}
+                url: `/es/groupOffices/get`,
+                method: 'post',
+                data: { clockGroupId: state.id }
             }).then(res => {
                 if (res) {
+                    console.log(res);
                     commit('setClockSite', res.content)
                     resolve(res)
                 }

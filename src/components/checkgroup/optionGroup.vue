@@ -3,8 +3,8 @@
         <header class="group-header">
             <div class="name">
                 <p> {{name}}</p>
-                <el-popover placement="bottom" title="修改考勤组名称" width="400" trigger="click">
-                    <el-input v-model="name" clearable @change="changeName"></el-input>
+                <el-popover placement="bottom" title="修改考勤组名称" width="400" trigger="click" v-model="isShowEditName">
+                    <el-input v-model="groupname" clearable @keyup.enter.native="changeName"></el-input>
                     <i class="el-icon-edit" slot="reference"></i>
                 </el-popover>
             </div>
@@ -21,8 +21,13 @@
                         <span>工作时段设置</span>
                     </div>
                     <div class="worktype-content">
-                        <clock-count v-for="(item,i) in countData" :key="i" :countData="item" :clockCount="clockOrder.clockCount" :class="clockOrder.clockCount == i ? 'isActive' : ''"></clock-count>
+                        <clock-count v-for="(item,i) in countData" :key="i" :countData="item" :class="clockOrder.clockCount == i ? 'isActive' : ''"></clock-count>
                     </div>
+                </div>
+                <!-- 每天打卡时间点 -->
+                <div class="clock-start-time">
+                    <span>开始打卡时间点</span>
+                    <el-time-picker v-model="clockStartTime" placeholder="请选择时间" size="mini" format="HH:mm" value-format="HH:mm" @change="changeTime"></el-time-picker>
                 </div>
                 <!-- 工作日设置 -->
                 <div class="day">
@@ -41,7 +46,7 @@
                     <div class="text">
                         <span>节假日设置</span>
                     </div>
-                    <el-checkbox v-model="clockOrder.autorest" class="autorest" @change="changeAutoRest">法定节假日自动排休</el-checkbox>
+                    <el-checkbox v-model="clockOrder.applyFestival" class="autorest" @change="changeAutoRest">法定节假日自动排休</el-checkbox>
                     <span>（说明:勾选后自动在考勤日历应用国家假日办发布的节假日排序计划）</span>
                 </div>
             </div>
@@ -49,28 +54,35 @@
                 <div class="header">
                     <div class="site-header">
                         <p>已选考勤地点</p>
-                        <el-button @click.prevent="createSite">创建</el-button>
+                        <muti-btn :className="'el-icon-circle-plus-outline'" :nameText="'创建'" @click.native="createSite"></muti-btn>
                     </div>
                     <div class="line"></div>
                     <div class="site-content">
-                        <site-tag :siteData="clockSite" @delsite="delsite"></site-tag>
-                    </div>
-                </div>
-                <div class="content">
-                    <div class="content-header">
-                        <p>可选考勤地点</p>
-                        <div class="right-header">
-                            <el-input placeholder="请输入地点名称" v-model="siteName" prefix-icon="el-icon-search"></el-input>
-                            <el-select v-model="city" placeholder="请选择城市" clearable>
-                                <el-option v-for="item in cityOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
-                            </el-select>
+                        <site-tag :siteData="clockSite" @delsite="delsite" v-if="clockSite.length"></site-tag>
+                        <div class="add-header" v-else @click.prevent="isShowAdd = true">
+                            <div class="el-icon-circle-plus-outline"></div>
                         </div>
                     </div>
-                    <div class="content-table">
-                        <table-data :head="siteHead" :tableLoading="loadingSite" :tableData="siteTableData" :totalNumber="recordCount"  :option="option" :format="formatter" @editTable="editTable" @chooseTable="chooseTable" 
-                            :isSelected="false" :currentChange="nextSitePage"></table-data>
-                    </div>
                 </div>
+                <my-dialog :title="'考勤地点列表'" :width="'800px'" :show.sync="isShowAdd"  @close="isShowAdd = false">
+                    <template slot="dialog-content">
+                        <div class="content">
+                            <!-- <div class="content-header">
+                                <p>可选考勤地点</p>
+                                <div class="right-header">
+                                    <el-input placeholder="请输入地点名称" v-model="siteName" prefix-icon="el-icon-search" size="mini"></el-input>
+                                    <el-select v-model="city" placeholder="请选择城市" clearable size="mini">
+                                        <el-option v-for="item in cityOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                                    </el-select>
+                                </div>
+                            </div> -->
+                            <div class="content-table">
+                                <table-data :head="siteHead" :tableLoading="loadingSite" :tableData="siteTableData" :totalNumber="recordCount"  :option="option" :format="formatter" @editTable="editTable" @chooseTable="chooseTable" 
+                                    :isSelected="false" @currentChange="nextSitePage" :data="searchInfo" :formData="formData" @changeMutiSelect="changeMutiSelect" @btnClick="searchSite"></table-data>
+                            </div>
+                        </div>
+                    </template>
+                </my-dialog>
             </div>
             <div class="third" v-if="active === 2">
                 <div class="edit-wrapper">
@@ -135,43 +147,45 @@ import SiteTag from '@/components/checkgroup/siteTag'
 import TableData from '@/components/common/TableData'
 import SelectTree from '@/components/common/SelectTree'
 import SpecialDay from '@/components/checkgroup/specialDay'
+import MutiBtn from '@/components/common/MutiBtn'
+import MyDialog from '@/components/common/MyDialog'
 import utils from '@/utils/utils'
 import {mapState,mapMutations,mapActions} from 'vuex'
 const days = ['周一','周二','周三','周四','周五','周六','周日']
 export default {
     props: {
         status: {type:String,default:'new'},
-        name: {type: String}
     },
     data() {
         return {
-            // name: '海南大厦26层-9点至17点30分',
             active: 0,
             steps: ['班次设置','考勤地点设置','考勤组成员编辑','特殊日期设置'],
+            groupname: '',
+            isShowEditName: false,
             // -----------------工作日设置----------------
             // 设置打卡次数渲染数据
-            countData: [{type:0,text:'两次',clockNum: [{text: '工作时段 ',time: ''},{text: '休息时段',time: ''}]},{type:1,text:'四次',clockNum: [{text: '工作时段1',time: ''},{text: '工作时段2',time: ''}]},
-                            {type:2,text:'六次',clockNum: [{text: '工作时段1',time: ''},{text: '工作时段2',time: ''},{text: '工作时段3',time: ''}]}],
-            // clockCount: 0,          //打卡次数
+            countData: [{type:2,text:'两次',clockNum: [{text: '工作时段 ',time: ''},{text: '休息时段',time: ''}]},{type:4,text:'四次',clockNum: [{text: '工作时段1',time: ''},{text: '工作时段2',time: ''}]},
+                            {type:6,text:'六次',clockNum: [{text: '工作时段1',time: ''},{text: '工作时段2',time: ''},{text: '工作时段3',time: ''}]}],
             // 工作日全选设置
             isIndeterminate: true,
             // workday: [],
             checkAll: false,
-            // autorest: false,
             // 渲染周一至周日
             days:days,
+            clockStartTime: '',
             // --------------------考勤地点设置--------------------------
-            // 地点标签数据
-            // siteData:[{id:2,city: '北京',site: '雍和航星园',clockType: [0,1,2]},{id:3,city: '海口',site: '海南大厦',clockType: [0,1]}],
             //搜索地点标签
+            isShowAdd: false,
+            searchInfo: {},
+            formData: [{type: 'input',label:'name',placeholder:'考勤地点名称'},{type:'mutiSelect',nameText:'城市',options:[]},{type:'button',btnType:'primary',nameText: '搜索'}],
             loadingSite: false,
             recordCount: 0,
             siteName: '',
             city: '',
             cityOptions: [{value:'hainan',label:'海南'}],
-            siteHead: [{key:'city',name: '所在位置'},{key:'site',name: '地点名称'},{key:'clockType',name: '支持打卡方式'}],
+            siteHead: [{key:'city',name: '所在位置'},{key:'OfficeName',name: '地点名称'},{key:'clockType',name: '支持打卡方式'}],
             option: [{name: '查看',type:1,event: 'editTable'},{name: '选择',type:1,event: 'chooseTable'}],
-            siteTableData: [{id:1,city:'海口',site:'北京大厦',clockType:[0,1,2]},{id:2,city:'北京',site:'海口大厦',clockType:[0,1]},{id:2,city:'北京',site:'海口大厦',clockType:[0,2]}],
+            siteTableData: [],
             // ------------------------考勤组成员编辑---------------
             //是否按部门添加考勤组成员
             isSelectPart: false,
@@ -187,7 +201,6 @@ export default {
             // ----------------------------特殊日期------------------------------
             emptyDateText: '还没有添加特殊日期！',
             specialHead: [{key:'date',name: '日期'},{key:'type',name: '设置类型'},{key:'time',name: '上班时段'},{key:'user',name: '设置人'}],
-            // specialDate:[{date:'2018-9-9',type:'休息',time:'',user:'yqqqq'}],
             page:{isPagination:false},
             isWeekend: false,
             // 渲染指定日期数据源
@@ -199,13 +212,21 @@ export default {
             day: '',         //记录点击所选日期
         }
     },
+    components: {
+        ClockCount,SiteTag,TableData,SelectTree,SpecialDay,MutiBtn,MyDialog
+    },
+    mounted() {
+        this.groupname = this.name
+    },
     computed: {
         ...mapState({
+            name: state => state.group.name,
+            id: state => state.group.id,
             clockOrder: state => state.group.clockOrder,
             clockSite: state => state.group.clockSite,
             clockUserId: state => state.group.clockUserId,
             specialDate: state => state.group.specialDate,
-        })
+        }),
     },
     watch: {
         //监听active状态变化获取页面初始数据
@@ -214,8 +235,6 @@ export default {
                 case 0:
                     break;
                 case 1:
-                    //进入下一步时首先获取考勤地点列表
-                    this.getUsefulSite()
                     //编辑时获取已添加考勤地点
                     if(this.status === 'edit') this.getAddClockSite()
                     break
@@ -224,6 +243,9 @@ export default {
                 case 3:
                     break
             }
+        },
+        isShowAdd: function(val) {
+            if(val) this.getUsefulSite()
         }
     },
     methods: {
@@ -231,14 +253,23 @@ export default {
             setWorkDay: 'group/setWorkDay',
             setAutoRest: 'group/setAutoRest',
             setClockSite: 'group/setClockSite',
+            setName: 'group/setName',
+            setClockStartTime: 'group/setClockStartTime'
         }),
         ...mapActions({
             addClockSite: 'group/addClockSite',
-            getAddClockSite: 'group/getAddClockSite'
+            getAddClockSite: 'group/getAddClockSite',
+            editName: 'group/editName'
         }),
         // ***************************修改考勤组名称*******************************
-        changeName: function(val) {
-            this.$emit('changeName',val)
+        changeName: function() {
+            this.editName(this.groupname).then(res=> {
+                this.groupname = this.name
+                this.$message.success(res)
+                this.isShowEditName = false
+            }).catch(err=> {
+                this.$message.error(err)
+            })
         },
         // ***************************点击操作*******************************
         //点击进行下一步
@@ -246,14 +277,14 @@ export default {
             switch(this.active) {
                 case 0:
                     //操作班次编辑
-
+                    this.setSchedual()
+                    this.active++
                     break
                 case 1:
                     //操作考勤地点
-                    
+                    this.active++
                     break
             }
-            this.active++
         },
         //点击进行上一步
         last: function(){
@@ -303,6 +334,34 @@ export default {
             }
         },
         // ***********************考勤班次设置***********************
+            //保存考勤班次设置
+        setSchedual: function() {
+            let clockOrder = this.clockOrder
+            let scheduleItem = []
+            let workDaySet = {}
+            let {applyFestival,clockTimes,clockStartTime} = clockOrder
+            if(clockTimes === 2 && clockOrder.clockTime.length) {
+                scheduleItem.push({startTime: clockOrder.clockTime[0][0],endTime:clockOrder.clockTime[0][1],type:0},{startTime: clockOrder.clockTime[1][0],endTime:clockOrder.clockTime[1][1],type:1})
+            } else if(clockOrder.clockTime.length) {
+                clockOrder.clockTime.forEach(item=> {
+                    scheduleItem.push({startTime: item[0],endTime:item[1],type:0})
+                })
+            }
+            workDaySet = utils.transformWorkday(clockOrder.workDay)
+            this.$axios({
+                url: `/es/schedules/save?clockGroupId=${this.id}`,
+                method: 'post',
+                data: {scheduleItem,workDaySet,applyFestival,clockTimes,clockStartTime}
+            }).then(res=> {
+                if(res) this.$message.success(res)
+            }).catch(err=> {
+                console.log(err)
+            })
+        },
+        //修每天开始打卡时间
+        changeTime: function() {
+            this.setClockStartTime(this.clockStartTime)
+        },
         //全选按钮工作日激活操作
         handleCheckAllChange(val) {
             if(val) this.setWorkDay(this.days)
@@ -323,7 +382,7 @@ export default {
         // ********************************考勤地点设置*******************************
         // 创建考勤地点
         createSite: function() {
-            this.$router.push('create_clock_group')
+            this.$router.push('create_clock_site')
         },
         //删除已选择考勤地点
         delsite: function(id) {
@@ -332,23 +391,26 @@ export default {
             this.setClockSite(data)
         },
         //获取考勤地点列表
-        getUsefulSite: function(name='',city='',page=1,size=20) {
+        getUsefulSite: function(clockGroupId=0,name='',city='',page=1,size=20) {
             this.loadingSite = true
             this.$axios({
-                url: `**?page=${page}&size=${size}`,
-                method: 'get',
-                data: {name,city}
+                url: `/es/groupOffices/_search?page=${page}&size=${size}`,
+                method: 'post',
+                data: {clockGroupId,name,city}
             }).then(res=> {
+                console.log('成功获取考勤组下可选考勤地点',res)
                 if(res) {
                     this.siteTableData = res.content
                     this.recordCount = res.recordCount
-                    this.loadingSite = false
                 }
+                this.loadingSite = false
+            }).catch(err=> {
+                console.log(err);
             })
         },
         //翻页
         nextSitePage: function(val) {
-            this.getUsefulSite(val,20)
+            this.getUsefulSite(this.id,this.searchInfo.name,this.searchInfo.city,val,20)
         },
         //查看可选择考勤地点信息
         editTable: function(scope) {
@@ -363,9 +425,9 @@ export default {
         },
         //搜索考勤地点
         searchSite: function() {
-            const name = this.siteName
-            const city = this.city
-            this.getUsefulSite(name,city,1,20)
+            const name = this.searchInfo.name
+            const city = this.searchInfo.city
+            this.getUsefulSite(this.id,name,city,1,20)
         },
         formatter: function(cellvalue,property) {
             if(property == 'clockType') { 
@@ -373,6 +435,10 @@ export default {
             } else {
                 return cellvalue
             }
+        },
+                    //       ****************************
+        changeMutiSelect: function(val1,val2) {
+            this.searchInfo[val2] = val1
         },
         // ********************************考勤组成员设置*******************************
         //删除考勤组成员
@@ -410,9 +476,8 @@ export default {
             console.log(scope)
         },
         
-    },
-    components: {
-        ClockCount,SiteTag,TableData,SelectTree,SpecialDay
+
+        
     }
 }
 </script>
@@ -420,7 +485,6 @@ export default {
 
 <style lang="scss" scoped>
 $contentLeft: 20px;
-
     .create-group-container {
         .group-header {
             margin: 20px 60px;
@@ -541,6 +605,18 @@ $contentLeft: 20px;
                         }
                     }
                 }
+                .clock-start-time {
+                    display: flex;
+                    align-items: center;
+                    span {
+                        font-size:12px;
+                        color:#666;
+                        display: block;
+                        text-align: center;
+                        width: 50px;
+                        height: 28px;
+                    }
+                }
                 .day {
                     margin-top: 40px;
                     padding-left: $contentLeft;
@@ -605,23 +681,40 @@ $contentLeft: 20px;
                     }
                     .site-content {
                         margin-top: 10px;
-                    }
-                }
-                .content {
-                    .content-header {
-                        display: flex;
-                        align-items: center;
-                        justify-content: space-between;
-                        .right-header {
-                            display: flex;
-                            .el-input {
-                                width: 200px;
+                        .add-header {
+                            height: 100px;
+                            background-color: #eee;
+                            text-align: center;
+                            &:hover {
+                                background-color: #ccc;
+                                cursor: pointer;
+                                .el-icon-circle-plus-outline {
+                                    color: #aaa;
+                                }
                             }
-                            .el-select {
-                                margin-left: 20px;
+                            .el-icon-circle-plus-outline {
+                                font-size: 60px;
+                                line-height: 100px;
+                                color: #ccc;
                             }
                         }
                     }
+                }
+                .content {
+                    // .content-header {
+                    //     display: flex;
+                    //     align-items: center;
+                    //     justify-content: space-between;
+                    //     .right-header {
+                    //         display: flex;
+                    //         .el-input {
+                    //             width: 200px;
+                    //         }
+                    //         .el-select {
+                    //             margin-left: 20px;
+                    //         }
+                    //     }
+                    // }
                     .content-table {
 
                     }

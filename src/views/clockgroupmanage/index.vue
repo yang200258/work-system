@@ -114,7 +114,7 @@ export default {
             'addGroup':'group/addGroup'
         }),
         //获取考勤组数据
-        getGroup: function(page=1,size=20,name='',officeName='',clockType=[],creator='',city='') {
+        getGroup: function(page=1,size=20,name='',officeName='',clockType=[],creator='',city=[]) {
             this.clockGroupLoading = true
             this.$axios({
                 url: `/es/clockGroups/_search?page=${page}&size=${size}`,

@@ -29,7 +29,7 @@ const actions = {
     getInialDevice({ commit }, data) {
         return new Promise((resolve, reject) => {
             axios({
-                url: `/es/offices/getDevice?page=${data.page}&size=${data.size}&officeId=${data.officeId}`,
+                url: `/es/offices/getDevices?page=${data.page}&size=${data.size}&officeId=${data.officeId}`,
                 method: 'post',
             }).then(res => {
                 console.log('获取考勤地点对应已添加设备', res);

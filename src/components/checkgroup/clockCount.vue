@@ -1,7 +1,7 @@
 <template>
     <div class="clock-container">
         <el-radio :label="countData.type" v-model="clockOrder.clockTimes" @change="changeClockCount">{{countData.text}}</el-radio>
-        <time-tag v-for="(item,i) in countData.clockNum" :key="i" :data="item" @changTime="changeTime"></time-tag>
+        <time-tag v-for="(item,i) in countData.clockNum" :key="i" :data="item" @changTime="changeTime" class="time-tag"></time-tag>
     </div>
 </template>
 
@@ -50,13 +50,18 @@ export default {
 
 <style lang="scss" scoped>
     .clock-container {
-        display:grid;
-        grid-template-columns: 1fr 3fr 3fr 3fr;
-        grid-template-rows: 80px;
-        line-height: 80px;
+        display: flex;
+        align-items: center;
         .el-radio {
-            display: flex;
-            align-items: center;
+            margin-right: 98px;
+            height: 54px;
+            line-height: 54px;
+            /deep/ .el-radio__label {
+                font-size: 12px;
+            }
+        }
+        .time-tag {
+            margin-right: 36px;
         }
     }
 </style>

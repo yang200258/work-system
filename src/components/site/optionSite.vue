@@ -66,7 +66,7 @@ export default {
         optionSite: function(id=0) {
             this.siteInfo.id = id
             this.$axios({
-                url: '/es/offices/saveOffice',
+                url: '/es/offices/save',
                 method: 'post',
                 data: this.siteInfo
             }).then(res=> {
@@ -93,9 +93,8 @@ export default {
             }).then(res=> {
                 console.log('添加设备成功',res)
                 if(res) {
-                    // this.$message.success('设备操作成功')
                     this.$axios({
-                        url: '/es/offices/delDevice',
+                        url: '/es/offices/deleteDevices',
                         method: 'post',
                         data: {deviceId:delId,officeId}
                     }).then(delRes=> {

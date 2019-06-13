@@ -3,7 +3,12 @@ const state = {
     id: 0,
     name: '',
     clockOrder: { clockTimes: 2, clockTime: [], workDay: [], applyFestival: false, clockStartTime: '' },
+    initialClockSite: [{ groupOfficeId: 1, officeId: 1, OfficeName: '北京', clockType: [{ type: 0, enable: true }, { type: 1, enable: true }, { type: 4, enable: true }], scope: 10 },
+        { groupOfficeId: 1, officeId: 2, OfficeName: '海口', clockType: [{ type: 0, enable: true }, { type: 4, enable: false }], scope: 20 },
+        { groupOfficeId: 1, officeId: 2, OfficeName: '海口', clockType: [{ type: 0, enable: true }] }
+    ], //初始状态已添加考勤地点（编辑时用到）
     clockSite: [],
+    initialClockUser: [], //初始状态已添加考勤成员（编辑时用到）
     clockUserId: [],
     specialDate: [{ date: '', type: '', user: '', workTime: [] }]
 }
@@ -33,8 +38,14 @@ const mutations = {
     setAutoRest: (state, data) => {
         state.clockOrder.applyFestival = data
     },
+    setInitialClockSite: (state, data) => {
+        state.initialClockSite = data
+    },
     setClockSite: (state, data) => {
         state.clockSite = data
+    },
+    setInitialClockUser: (state, data) => {
+        state.initialClockUser = data
     },
     setClockType: (state, data) => {
         state.clockSite[data.i] = data.item
@@ -99,7 +110,8 @@ const actions = {
             }).then(res => {
                 if (res) {
                     console.log(res);
-                    commit('setClockSite', res.content)
+                    // commit('setClockSite', res.content)
+                    commit('setInitialClockSite', res.content)
                     resolve(res)
                 }
             }).catch(err => {

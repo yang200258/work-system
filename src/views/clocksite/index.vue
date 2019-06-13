@@ -3,47 +3,12 @@
         <clock-site :searchInfo="searchInfo" :siteInfo="siteInfo" :sitehead="sitehead" :option="option" @delTable="delSite" @querySite="querySite" @chooseTable="chooseSite" @nextPage="nextPage"
             @createSite="createSite" @searchSite="searchSite" @editTable="editSite">
         </clock-site>
-        <!-- 查看考勤地点弹窗 -->
-        <my-dialog :title="'考勤地点信息'" :show="isShowSite" :width="'80%'" @close="closeSite" :isCancel="true" :cancelText="'关闭'" :isConfirm="true" :confirmText="'编辑'" @cancel="closeSite" @confirm="goEditSite">
-            <template slot="dialog-content">
-                <div class="site">
-                    <site-info :isShowReset="!isShowSite" :isDestroy="isDestroy"></site-info>
-                </div>
-                <el-divider></el-divider>
-                <div class="device">
-                    <p>打卡设备</p>
-                    <div class="device-content">
-                        <div class="left-device">
-                            <p>蓝牙设备</p>
-                            <div class="tag">
-                                <el-scrollbar style="height: 100%;">
-                                     <div v-for="(item,i) in device" :key="i" v-show="item.type === 0">{{item.name}}-{{item.type == 0 ? '蓝牙设备' : 'WIFI设备'}}</div>
-                                </el-scrollbar>
-                            </div>
-                        </div>
-                        <div class="right-device">
-                            <p>WIFI设备</p>
-                            <div class="tag">
-                                <el-scrollbar style="height: 100%;">
-                                    <div v-for="(item,i) in device" :key="i" v-show="item.type === 1">{{item.name}}-{{item.type == 0 ? '蓝牙设备' : 'WIFI设备'}}</div>
-                                </el-scrollbar>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <el-divider></el-divider>
-                <div class="clockgroup">
-                    <p>已应用考勤组</p>
-                    <p class="group-text" v-for="(item,i) in clockGroup" :key="i">{{item}}</p>
-                </div>
-            </template>
-        </my-dialog>
+        <look-site :show="isShowSite" @close="closeSite" @cancel="closeSite" @confirm="goEditSite"></look-site>
     </div>
 </template>
 <script>
 import ClockSite from '@/components/site/ClockSite'
-import MyDialog from '@/components/common/MyDialog'
-import SiteInfo from '@/components/site/siteInfo'
+import LookSite from '@/components/site/lookSite'
 import {mapMutations} from 'vuex'
 export default {
     data() {
@@ -57,16 +22,15 @@ export default {
             //操作配置
             option:[{name: '查看',type:1,event: 'chooseTable'},{name: '编辑',type:1,event: 'editTable'},{name:'删除',type:2,event: 'delTable'}],
             isShowSite: false,
-            isDestroy: false,
             // ******************查看考勤地点*****************
             //查看考勤组时的设备
-            device: [],
+            // device: [],
             //查看考勤组时的应用考勤组
-            clockGroup: [],
+            // clockGroup: [],
         }
     },
     components: {
-       ClockSite,MyDialog,SiteInfo
+       ClockSite,LookSite
     },
     mounted() {
         this.querySite()
@@ -76,10 +40,11 @@ export default {
             setSiteInfo: 'site/setSiteInfo'
         }),
         //获取考勤地点
-        querySite: function(page=0,size=20) {
+        querySite: function(page=0,size=20,city='',name='') {
             this.$axios({
-                url: `/es/offices?page=${page}&size=${size}`,
-                method: 'get',
+                url: `/es/offices/_search?page=${page}&size=${size}`,
+                method: 'post',
+                data: {city,name}
             }).then(res=> {
                 console.log('获取考勤地点数据',res);
                 if(res) {
@@ -87,7 +52,7 @@ export default {
                     this.siteInfo = {content,recordCount}
                 }
             }).catch(err=> {
-                this.$message.error(err)
+                console.log(err)
             })
         },
         searchSite: function(page=1,size=20) {
@@ -108,27 +73,12 @@ export default {
         //*******************查看考勤地点信息********************* 
         // 查看考勤地点
         chooseSite: function(scope) {
-            let officeId = scope.row.id
-            let [page,size] = [1,20]
-            this.setSite(scope.row)
-            this.clockGroup = scope.row.clockGroup.map(item=> item.name)
+            this.setSiteInfo(scope.row)
             this.isShowSite = true 
-            this.isDestroy = false
-            this.$axios({
-                url: `/es/offices/getDevice?page=${page}&size=${size}&officeId=${officeId}`,
-                method: 'post',
-            }).then(res=> {
-                if(res) {
-                    this.device = res.content
-                }
-            }).catch(err=> {
-                console.log(err);
-            })
         },
         //关闭查看弹框 + 关闭按钮关闭查看弹框
         closeSite: function() {
             this.isShowSite = false
-            this.isDestroy = true
             this.setSiteInfo({})
         },
         //******************删除考勤地点信息************************** */
@@ -170,7 +120,7 @@ export default {
         },
         //翻页
         nextPage: function(val) {
-            this.querySite(val,20)
+            this.querySite(val,20,this.searchInfo.city,this.searchInfo.name)
         },
         //创建考勤地点
         createSite: function() {
@@ -188,57 +138,7 @@ export default {
 
 <style lang="scss" scoped>
     .clocksite-container{
-        .device {
-            margin-top: 40px;
-            .device-content {
-                margin-top: 20px;
-                display: flex;
-                .left-device,.right-device {
-                    padding-left: 40px;
-                    margin-top: 20px;
-                    .tag {
-                        margin-top: 10px;
-                        padding-left: 60px;
-                        height: 200px;
-                        overflow-y: auto;
-                        /deep/ .el-scrollbar__wrap {
-                            overflow-x: hidden!important;
-                        }
-                        .el-scrollbar {
-                            div {
-                                padding: 6px;
-                                background-color: #409EFF;
-                                color: #FFF;
-                                border-radius: 4px;
-                                margin: 10px 0;
-                                width: 200px;
-                                text-align: center;
-                                overflow: hidden;
-                            }
-                        }
-                    }
-                }
-                .right-device {
-                    margin-left: 40px;
-                    border-left: 1px solid #000;
-                    .tag {
-                        overflow-y: auto;
-                        /deep/ .el-scrollbar__wrap {
-                            overflow-x: hidden!important;
-                        }
-                    }
-                    
-                }
-            }
-        }
-        .clockgroup {
-            .group-text {
-                color:#409EFF;
-                display: inline-block;
-                margin-top: 20px;
-                margin-left: 20px;
-            }
-        }
+        
 
     }
 </style>

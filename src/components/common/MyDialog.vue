@@ -2,7 +2,7 @@
     <div class="dialog-container">
         <el-dialog :title="title" :visible.sync="visible" :width="width" :center="center" @close="close" :show="show" custom-class="mydialog">
             <slot name="dialog-content"></slot>
-            <span slot="footer" class="dialog-footer">
+            <span slot="footer" class="dialog-footer" v-if="isOption">
                 <el-button :size="size" v-if="isCancel" @click="cancel">{{cancelText}}</el-button>
                 <el-button :size="size" v-if="isConfirm" type="primary" @click="confirm">{{confirmText}}</el-button>
             </span>
@@ -21,7 +21,8 @@ export default {
         cancelText: {type: String,default: '取消'},
         isConfirm: {type: Boolean,default: true},
         confirmText: {type: String,default: '保存'},
-        size: {type:String,default: 'small'}
+        size: {type:String,default: 'small'},
+        isOption: {type:Boolean,default: true}
     },
     data() {
         return {

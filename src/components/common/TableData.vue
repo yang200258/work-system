@@ -163,9 +163,13 @@ export default {
                 }
             }
             .page {
-                position: absolute;
-                right: 48px;
+                // position: absolute;
+                // float: right;
+                // right: 48px;
+                display: flex;
+                justify-content: flex-end;
                 margin-top: 20px;
+                margin-right: 48px;
                 .el-pagination__total {
                     font-size: 12px;
                 }

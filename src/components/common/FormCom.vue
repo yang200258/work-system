@@ -1,6 +1,7 @@
 <template>
     <div class="form-container">
         <div class="form-wrapper" v-for="(item,i) in formData" :key="i">
+            <p v-if="item.type === 'text'">{{item.nameText}}</p>
             <el-input v-if="item.type === 'input'" :placeholder="item.placeholder" v-model="data[item.label]" :size="size" clearable></el-input>
             <select-tree v-if="item.type === 'selectTree'" :nameText="item.nameText" :loadNode="loadNode" :id.sync="data[item.label]" :tipText="item.tipText"></select-tree>
             <muti-select v-if="item.type === 'mutiSelect'" :nameText="item.nameText" :options="item.options" @changeMutiSelect="changeMutiSelect($event,item.label)"></muti-select>

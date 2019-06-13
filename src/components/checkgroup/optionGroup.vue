@@ -20,15 +20,18 @@
                         <span>打卡次数</span>
                         <span>工作时段设置</span>
                     </div>
+                    <el-divider></el-divider>
                     <div class="worktype-content">
-                        <clock-count v-for="(item,i) in countData" :key="i" :countData="item" :class="clockOrder.clockCount == i ? 'isActive' : ''"></clock-count>
+                        <clock-count v-for="(item,i) in countData" :key="i" :countData="item" :class="clockOrder.clockTimes == (i+1)*2 ? 'isActive' : ''"></clock-count>
                     </div>
                 </div>
+                <el-divider></el-divider>
                 <!-- 每天打卡时间点 -->
                 <div class="clock-start-time">
-                    <span>开始打卡时间点</span>
+                    <span>每天开始打卡时间点</span>
                     <el-time-picker v-model="clockStartTime" placeholder="请选择时间" size="mini" format="HH:mm" value-format="HH:mm" @change="changeTime"></el-time-picker>
                 </div>
+                <el-divider></el-divider>
                 <!-- 工作日设置 -->
                 <div class="day">
                     <div class="text">
@@ -41,71 +44,62 @@
                         <el-checkbox :indeterminate="isIndeterminate" v-model="checkAll" @change="handleCheckAllChange">全选</el-checkbox>
                     </div>
                 </div>
+                <el-divider></el-divider>
                 <!-- 节假日设置 -->
                 <div class="rest">
-                    <div class="text">
-                        <span>节假日设置</span>
-                    </div>
+                    <span>节假日设置</span>
                     <el-checkbox v-model="clockOrder.applyFestival" class="autorest" @change="changeAutoRest">法定节假日自动排休</el-checkbox>
                     <span>（说明:勾选后自动在考勤日历应用国家假日办发布的节假日排序计划）</span>
                 </div>
+                <el-divider></el-divider>
             </div>
             <div class="second" v-if="active === 1">
                 <div class="header">
                     <div class="site-header">
                         <p>已选考勤地点</p>
-                        <muti-btn :className="'el-icon-circle-plus-outline'" :nameText="'创建'" @click.native="createSite"></muti-btn>
-                    </div>
-                    <div class="line"></div>
-                    <div class="site-content">
-                        <site-tag :siteData="clockSite" @delsite="delsite" v-if="clockSite.length"></site-tag>
-                        <div class="add-header" v-else @click.prevent="isShowAdd = true">
-                            <div class="el-icon-circle-plus-outline"></div>
+                        <div class="btn">
+                            <muti-btn :className="'el-icon-circle-plus-outline'" :nameText="'添加'" @click.native="isShowAdd = true"></muti-btn>
+                            <muti-btn :className="'el-icon-circle-plus-outline'" :nameText="'创建'" @click.native="createSite"></muti-btn>
                         </div>
                     </div>
+                    <div class="site-content">
+                        <site-tag :siteData="initialClockSite" @delsite="delsite"></site-tag>
+                    </div>
                 </div>
-                <my-dialog :title="'考勤地点列表'" :width="'800px'" :show.sync="isShowAdd"  @close="isShowAdd = false">
+                <my-dialog :title="'考勤地点列表'" :width="'800px'" :show.sync="isShowAdd"  @close="isShowAdd = false" :isOption="false">
                     <template slot="dialog-content">
                         <div class="content">
-                            <!-- <div class="content-header">
-                                <p>可选考勤地点</p>
-                                <div class="right-header">
-                                    <el-input placeholder="请输入地点名称" v-model="siteName" prefix-icon="el-icon-search" size="mini"></el-input>
-                                    <el-select v-model="city" placeholder="请选择城市" clearable size="mini">
-                                        <el-option v-for="item in cityOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
-                                    </el-select>
-                                </div>
-                            </div> -->
                             <div class="content-table">
-                                <table-data :head="siteHead" :tableLoading="loadingSite" :tableData="siteTableData" :totalNumber="recordCount"  :option="option" :format="formatter" @editTable="editTable" @chooseTable="chooseTable" 
-                                    :isSelected="false" @currentChange="nextSitePage" :data="searchInfo" :formData="formData" @changeMutiSelect="changeMutiSelect" @btnClick="searchSite"></table-data>
+                                <table-data :head="siteHead" :tableLoading="loadingSite" :tableData="siteTableData" :totalNumber="recordCount"  :option="option" :format="formatter" @editTable="editTable"
+                                    @chooseTable="chooseTable" :isSelected="false" @currentChange="nextSitePage" :data="searchInfo" :formData="formData" @changeMutiSelect="changeMutiSelect" 
+                                    @btnClick="searchSite" :isMutiOption="false">
+                                </table-data>
                             </div>
                         </div>
                     </template>
                 </my-dialog>
+                <look-site :show="isShowSite" @close="closeSite" @cancel="closeSite" @confirm="goEditSite"></look-site>
             </div>
             <div class="third" v-if="active === 2">
                 <div class="edit-wrapper">
-                    <el-row>
-                        <el-button size="mini" plain @click.prevent="isSelectPart = !isSelectPart">按部门添加</el-button> 
-                        <el-input placeholder="输入名称搜索" suffix-icon="el-icon-search" size="mini"></el-input>
-                        <select-tree v-if="isSelectPart" class="select-depart"></select-tree>
-                    </el-row>
-                    <el-row>
-                        <table-data :head="head" :tableData="users" :tableLoading="loadingUser" :isSelected="false" :option="userOption" :totalNumber="totalUser" :emptyText="emptyText">
-                            <template #special="{scope: scope}">
-                                <img v-if="scope.column.property == 'avater'" :src="scope.row.avater" style="max-width: 40px;border-radius: 50%;">
-                            </template>
-                            <template #option="{scope: scope}">
-                                <img src="@/assets/images/del.png" class="delImg" @click.prevent="delUser(scope)">
-                            </template>
-                        </table-data>
-                    </el-row>
+                    <table-data :head="head" :tableData="users" :tableLoading="loadingUser" :isSelected="false" :option="userOption" :totalNumber="totalUser" :emptyText="emptyText"
+                                :data="searchUserInfo" :formData="formUserData" @changeMutiSelect="changeMutiSelect" @btnClick="isSelectPart = !isSelectPart">
+                        <template #special="{scope: scope}">
+                            <img v-if="scope.column.property == 'avater'" :src="scope.row.avater" style="max-width: 40px;border-radius: 50%;">
+                        </template>
+                        <template #option="{scope: scope}">
+                            <img src="@/assets/images/del.png" class="delImg" @click.prevent="delUser(scope)">
+                        </template>
+                    </table-data>
+                    <select-tree v-if="isSelectPart" class="select-depart"></select-tree>
                 </div>
             </div>
             <div class="fourth" v-if="active === 3">
                 <div class="left-cal">
-                    <p>请在下方日历选择日期进行设置</p>
+                    <div class="head">
+                        <p>请在下方日历选择日期进行设置</p>
+                        <el-divider></el-divider>
+                    </div>
                     <el-calendar class="calendar">
                         <template #dateCell="{date, data}">
                             <div :class="data.isSelected ? 'isSelected':''" class="dateinfo" @click.prevent="setDate($event,date,data)">{{data.day.split('-')[2]}}</div>
@@ -116,12 +110,12 @@
                     </div>
                 </div>
                 <div class="right-cal">
-                    <div class="right-head">
+                    <div class="head">
                         <p>已设置特殊日期</p>
-                        <hr>
+                        <el-divider></el-divider>
                     </div>
                     <div class="right-content">
-                        <table-data :head="specialHead" :tableData="specialDate" :page="page" :isSelected="false" :emptyText="emptyDateText">
+                        <table-data :head="specialHead" :tableData="specialDate" :page="page" :isSelected="false" :emptyText="emptyDateText" :isSearch="false">
                             <template #option="{scope}">
                                 <p style="color:red;cursor:pointer;" @click.prevent="delTime(scope)">删除</p>
                             </template>
@@ -149,6 +143,7 @@ import SelectTree from '@/components/common/SelectTree'
 import SpecialDay from '@/components/checkgroup/specialDay'
 import MutiBtn from '@/components/common/MutiBtn'
 import MyDialog from '@/components/common/MyDialog'
+import LookSite from '@/components/site/lookSite'
 import utils from '@/utils/utils'
 import {mapState,mapMutations,mapActions} from 'vuex'
 const days = ['周一','周二','周三','周四','周五','周六','周日']
@@ -158,7 +153,7 @@ export default {
     },
     data() {
         return {
-            active: 0,
+            active: 1,
             steps: ['班次设置','考勤地点设置','考勤组成员编辑','特殊日期设置'],
             groupname: '',
             isShowEditName: false,
@@ -176,18 +171,21 @@ export default {
             // --------------------考勤地点设置--------------------------
             //搜索地点标签
             isShowAdd: false,
+            isShowSite: false,
             searchInfo: {},
-            formData: [{type: 'input',label:'name',placeholder:'考勤地点名称'},{type:'mutiSelect',nameText:'城市',options:[]},{type:'button',btnType:'primary',nameText: '搜索'}],
+            formData: [{type:'text',nameText:'可选考勤地点'},{type: 'input',label:'name',placeholder:'考勤地点名称'},{type:'mutiSelect',nameText:'城市',options:[]},{type:'button',btnType:'primary',nameText: '搜索'}],
             loadingSite: false,
             recordCount: 0,
             siteName: '',
             city: '',
             cityOptions: [{value:'hainan',label:'海南'}],
-            siteHead: [{key:'city',name: '所在位置'},{key:'OfficeName',name: '地点名称'},{key:'clockType',name: '支持打卡方式'}],
+            siteHead: [{key:'city',name: '所在位置'},{key:'officeName',name: '地点名称'},{key:'clockType',name: '支持打卡方式'}],
             option: [{name: '查看',type:1,event: 'editTable'},{name: '选择',type:1,event: 'chooseTable'}],
             siteTableData: [],
             // ------------------------考勤组成员编辑---------------
             //是否按部门添加考勤组成员
+            searchUserInfo: {},
+            formUserData: [{type:'button',btnType:'plain',nameText:'按部门添加'},{type:'input',placeholder:'输入名称搜索',label:'name'}],
             isSelectPart: false,
             head: [{key:'avater',name: '头像'},{key:'username',name: '用户账号'},{key:'name',name: '姓名'},{key:'mobile',name: '手机号'},{key:'email',name: '邮箱'},{key:'hisgroup',name: '历史考勤组'},
                     {key:'organ',name: '组织'}],
@@ -213,7 +211,7 @@ export default {
         }
     },
     components: {
-        ClockCount,SiteTag,TableData,SelectTree,SpecialDay,MutiBtn,MyDialog
+        ClockCount,SiteTag,TableData,SelectTree,SpecialDay,MutiBtn,MyDialog,LookSite
     },
     mounted() {
         this.groupname = this.name
@@ -223,9 +221,11 @@ export default {
             name: state => state.group.name,
             id: state => state.group.id,
             clockOrder: state => state.group.clockOrder,
+            initialClockSite: state => state.group.initialClockSite,
             clockSite: state => state.group.clockSite,
             clockUserId: state => state.group.clockUserId,
             specialDate: state => state.group.specialDate,
+            siteInfo: state => state.site.siteInfo,
         }),
     },
     watch: {
@@ -239,6 +239,8 @@ export default {
                     if(this.status === 'edit') this.getAddClockSite()
                     break
                 case 2:
+                    //编辑时获取已添加考勤组成员
+                    if(this.status === 'edit') this.getAddClockUser()
                     break
                 case 3:
                     break
@@ -254,7 +256,8 @@ export default {
             setAutoRest: 'group/setAutoRest',
             setClockSite: 'group/setClockSite',
             setName: 'group/setName',
-            setClockStartTime: 'group/setClockStartTime'
+            setClockStartTime: 'group/setClockStartTime',
+            setSiteInfo: 'site/setSiteInfo'
         }),
         ...mapActions({
             addClockSite: 'group/addClockSite',
@@ -278,11 +281,10 @@ export default {
                 case 0:
                     //操作班次编辑
                     this.setSchedual()
-                    this.active++
                     break
                 case 1:
                     //操作考勤地点
-                    this.active++
+                    this.setGroupSite()
                     break
             }
         },
@@ -353,7 +355,10 @@ export default {
                 method: 'post',
                 data: {scheduleItem,workDaySet,applyFestival,clockTimes,clockStartTime}
             }).then(res=> {
-                if(res) this.$message.success(res)
+                if(res) {
+                    this.$message.success(res)
+                    this.active++
+                }
             }).catch(err=> {
                 console.log(err)
             })
@@ -391,12 +396,12 @@ export default {
             this.setClockSite(data)
         },
         //获取考勤地点列表
-        getUsefulSite: function(clockGroupId=0,name='',city='',page=1,size=20) {
+        getUsefulSite: function(name='',city='',page=1,size=20) {
             this.loadingSite = true
             this.$axios({
                 url: `/es/groupOffices/_search?page=${page}&size=${size}`,
                 method: 'post',
-                data: {clockGroupId,name,city}
+                data: {name,city}
             }).then(res=> {
                 console.log('成功获取考勤组下可选考勤地点',res)
                 if(res) {
@@ -408,26 +413,62 @@ export default {
                 console.log(err);
             })
         },
-        //翻页
-        nextSitePage: function(val) {
-            this.getUsefulSite(this.id,this.searchInfo.name,this.searchInfo.city,val,20)
-        },
-        //查看可选择考勤地点信息
-        editTable: function(scope) {
-            //根据对应地点跳转至查看考勤地点页面******目前不知道是否弹窗还是页面
-            console.log(scope)
-        },
-        //选择考勤地点---将对应信息添加至已选择项
-        chooseTable: function(scope) {
-            let list = this.clockSite
-            list.push(scope.row)
-            this.setClockSite(list)
-        },
         //搜索考勤地点
         searchSite: function() {
             const name = this.searchInfo.name
             const city = this.searchInfo.city
-            this.getUsefulSite(this.id,name,city,1,20)
+            this.getUsefulSite(name,city,1,20)
+        },
+        //翻页
+        nextSitePage: function(val) {
+            this.getUsefulSite(this.id,this.searchInfo.name,this.searchInfo.city,val,20)
+        },
+        //查看考勤地点信息
+        editTable: function(scope) {
+            //根据对应地点跳转至查看考勤地点页面*
+            this.setSiteInfo(scope.row)
+            this.isShowSite = true 
+        },
+        //通过查看考勤地点页面进入编辑
+        goEditSite: function() {
+            this.isShowSite = false
+            this.$router.push({
+                name: 'edit_clock_site',
+                params: {
+                    officeId: this.siteInfo.id
+                }    
+            })
+        },
+        //关闭查看弹框 + 关闭按钮关闭查看弹框
+        closeSite: function() {
+            this.isShowSite = false
+            this.setSiteInfo({})
+        },
+        //选择考勤地点---将对应信息添加至已选择项
+        chooseTable: function(scope) {
+            let initial = this.initialClockSite
+            let list = this.clockSite
+            list.push(scope.row)
+            this.setClockSite(list)
+        },
+        //设置考勤组对应考勤地点（final）
+        setGroupSite: function() {
+            let clockGroupId  = this.id
+            let officeId = this.clockSite.map(item=> item.id)
+            // 设置打卡方式数据-***********
+            this.$axios({
+                url: '****',
+                method: 'post',
+                data: {clockGroupId,officeId}
+            }).then(res=> {
+                if(res) {
+                    this.$message.success(res)
+                    this.active++  
+                } 
+            }).catch(err=> {
+                console.log(err)
+            })
+
         },
         formatter: function(cellvalue,property) {
             if(property == 'clockType') { 
@@ -436,11 +477,15 @@ export default {
                 return cellvalue
             }
         },
-                    //       ****************************
+        //****************************
         changeMutiSelect: function(val1,val2) {
             this.searchInfo[val2] = val1
         },
         // ********************************考勤组成员设置*******************************
+        //编辑时获取已添加考勤组成员
+        getAddClockUser: function() {
+
+        },
         //删除考勤组成员
         delUser: function(scope) {
             console.log(scope);
@@ -484,33 +529,34 @@ export default {
 
 
 <style lang="scss" scoped>
-$contentLeft: 20px;
+// @deep: ~'>>>';
+$contentLeft: 15px;
     .create-group-container {
+        color: #666;
         .group-header {
-            margin: 20px 60px;
+            border-top: 1px solid #D5DDE9;
+            padding: 0  38px 0px 45px;
             .name {
-                height: 40px;
                 display: flex;
                 align-items: center;
+                margin: 20px 10px 18px 0;
+                color: #666666;
                 p {
                     white-space: nowrap;
                     font-weight: 400;
-                    font-style: normal;
-                    font-size: 20px;
-                    color: #999999;
-                    margin-right: 10px;
+                    font-size:14px;
                 }
                 .el-icon-edit {
                     cursor: pointer;
-                    color: #999999;
+                    color: #666666;
                     &:hover {
                         color: #1989FA;
+                        font-weight: 700;
                     }
                 }
                 
             }
             .el-steps {
-                margin-top: 20px;
                 //编辑状态时的step样式
                 .step-edit {
                     &.isSet {
@@ -541,64 +587,67 @@ $contentLeft: 20px;
                 .step2 {
                     /deep/ .el-step__head {
                         .el-step__line {
-                            border-bottom: 2px dashed #999;
+                            border-bottom: 2px dashed #E5EAEF;
                             background-color: #fff;
                             top: 9px;
                         }
                     }
                 }
                 .step3 {
-                    &.isSet {
-                        &.step-edit {
-                            /deep/ .el-step__title {
-                                background-color: #ff0000;
-                            }
-                        }
-                    }
+                    // &.isSet {
+                    //     &.step-edit {
+                    //         /deep/ .el-step__title {
+                    //             background-color: #ff0000;
+                    //         }
+                    //     }
+                    // }
                     /deep/ .el-step__main {
                         .el-step__title {
-                            width:120px;
-                            border-radius: 2px;
+                            // width:120px;
+                            // border-radius: 2px;
                             position: relative;
                             right: 50px;
                             cursor: pointer;
-                            background:#ffc7c7;
-                            text-align: center;
+                            // text-align: center;
                             margin: auto 0;
-                            color: #fff;
-                            &:hover {
-                                background-color: #ff0000;
-                            }
+                            // color: #fff;
+                            // &:hover {
+                            //     background-color: #ff0000;
+                            // }
                         }
                         
+                    }
+                }
+                .el-step {
+                    /deep/ .el-step__main {
+                        .el-step__title {
+                            font-size: 14px;
+                        }
                     }
                 }
             }
         }
         .create-content {
-            margin:40px 80px;
-            padding: 40px;
+            margin: 40px 25px 40px 30px;
             .first {
                 .worktype {
                     .worktype-header {
-                        display: grid;
-                        grid-template-columns: 1fr 1fr;
-                        grid-template-rows: 50px;
-                        line-height: 50px;
                         padding-left: $contentLeft;
                         span {
-                                font-weight: 650;
-                                font-style: normal;
-                                font-size: 14px;
-                                color: rgb(51, 51, 51);
+                            font-weight: 700;
+                            font-style: normal;
+                            font-size: 12px;
+                            color: #666666;
+                            margin-right: 98px;
                         }
                     }
+                    .el-divider {
+                        margin:12px 0 10px 0;
+                    }
                     .worktype-content {
-                        &:first-child {
-                            color: red;
-                        }
                         .clock-container {
                             padding-left: $contentLeft;
+                            height: 54px;
                         }
                         .isActive {
                             background-color: #e4e4e4;
@@ -612,31 +661,42 @@ $contentLeft: 20px;
                         font-size:12px;
                         color:#666;
                         display: block;
-                        text-align: center;
-                        width: 50px;
-                        height: 28px;
+                        text-align: left;
+                        line-height: 18px;
+                        width: 60px;
+                        height: 30px;
+                        padding-left: 15px;
+                        margin-right: 86px;
                     }
                 }
+                .el-divider {
+                    margin: 20px 0;
+                }
                 .day {
-                    margin-top: 40px;
                     padding-left: $contentLeft;
                     display: flex;
                     .text {
-                        margin-right: 60px;
+                        margin-right: 86px;
                         span {
-                            font-weight: 650;
-                            font-style: normal;
-                            font-size: 14px;
-                            color: #333333;
+                            font-size: 12px;
+                            color: #666;
                         }
                     }
                     .workday {
                         display: flex;
                         .el-checkbox-group {
                             display: flex;
+                            /deep/ .el-checkbox__label {
+                                color: #666;
+                                font-size: 12px;
+                            }
                         }
                         &>.el-checkbox {
-                            margin-left: 20px;
+                            margin-left: 62px;
+                            /deep/ .el-checkbox__label {
+                                color: #666;
+                                font-size: 12px;
+                            }
                         }
                     }
                 }
@@ -644,27 +704,18 @@ $contentLeft: 20px;
                     padding-left: $contentLeft;
                     display: flex;
                     align-items: center;
-                    margin-top: 40px;
-                    font-style: normal;
-                    .text {
-                        margin-right: 60px;
-                        span {
-                            font-weight: 650;
-                            font-size: 14px;
-                            color: #333333;
-                        }
+                    span {
+                        font-size: 12px;
+                        color: #666;
+                        display: block;
+                        margin-right: 86px;
                     }
                     .autorest {
                         /deep/ .el-checkbox__label {
                             text-decoration: underline;
+                            font-size: 12px;
+                            color: #666;
                         }
-                    }
-                    span {
-                        font-size: 14px;
-                        font-weight: 400;
-                        color: #666666;
-                        vertical-align : bottom;
-                        line-height: 1;
                     }
                 }
             }
@@ -674,48 +725,24 @@ $contentLeft: 20px;
                        display: flex;
                        align-items: center;
                        justify-content: space-between;
-                    }
-                    .line {
-                        height: 1px;
-                        background-color:#ddd;
+                       padding-left: $contentLeft;
+                       p {
+                           font-size: 12px;
+                       }
+                       .btn {
+                           display: flex;
+                           align-items: center;
+                       }
                     }
                     .site-content {
-                        margin-top: 10px;
-                        .add-header {
-                            height: 100px;
-                            background-color: #eee;
-                            text-align: center;
-                            &:hover {
-                                background-color: #ccc;
-                                cursor: pointer;
-                                .el-icon-circle-plus-outline {
-                                    color: #aaa;
-                                }
-                            }
-                            .el-icon-circle-plus-outline {
-                                font-size: 60px;
-                                line-height: 100px;
-                                color: #ccc;
-                            }
-                        }
+                        margin-top: 30px;
                     }
                 }
-                .content {
-                    // .content-header {
-                    //     display: flex;
-                    //     align-items: center;
-                    //     justify-content: space-between;
-                    //     .right-header {
-                    //         display: flex;
-                    //         .el-input {
-                    //             width: 200px;
-                    //         }
-                    //         .el-select {
-                    //             margin-left: 20px;
-                    //         }
-                    //     }
-                    // }
-                    .content-table {
+                /deep/ .el-dialog {
+                    .el-dialog__body {
+                        // padding: 0;
+                        padding-left: 10px;
+                        padding-right: 4px;
 
                     }
                 }
@@ -724,51 +751,48 @@ $contentLeft: 20px;
                 // 编辑考勤组成员中表格距离顶部样式
                 .edit-wrapper {
                     position: relative;
-                    .el-row {
-                        &:first-child {
-                            display: flex;
-                            align-items: center;
-                            .el-input {
-                                width: 200px;
-                                margin-left: 40px;
-                            }
-                            .select-depart {
-                                position: absolute ;
-                                top: 40px; 
-                                z-index:999
-                            }
-                        }
-                        &:last-child {
-                            margin-top: 20px;
-                            /deep/ .el-table__empty-block {
-                                margin: 100px 0;
-                                span {
-                                    color: #bcbcc9;
-                                    font-size: 28px;
-                                }
+                    .select-depart {
+                        position: absolute ;
+                        top: 40px; 
+                        z-index:999
+                    }
+                    &:last-child {
+                        /deep/ .el-table__empty-block {
+                            margin: 100px 0;
+                            span {
+                                color: #bcbcc9;
+                                font-size: 28px;
                             }
                         }
-                        .delImg {
-                            width: 30px;
-                        }
+                    }
+                    .delImg {
+                        width: 30px;
                     }
                 }
             }
             .fourth {
                 display: flex;
-                .left-cal {
-                    >p {
-                        white-space: nowrap;
-                        font-weight: 650;
-                        font-style: normal;
-                        color: #666666;
-                        font-size: 14px;
+                padding-left: 15px;
+                .left-cal,.right-cal {
+                    .head {
+                        p {
+                            white-space: nowrap;
+                            font-weight: 700;
+                            color: #666666;
+                            font-size: 12px;
+                        }
+                        .el-divider {
+                            margin: 12px 0 20px 0;
+                        }
                     }
+                }
+                .left-cal {
                     margin-right: 20px;
                     .calendar {
-                        width: 600px;
-                        height: 600px;
-                        /deep/ .el-calendar-table {
+                        min-width: 400px;
+                        width: 500px;
+                        /deep/ .el-calendar__body {
+                         .el-calendar-table {
                             .el-calendar-table__row {
                                 .el-calendar-day {
                                     padding: 0;
@@ -785,32 +809,22 @@ $contentLeft: 20px;
                                 }
                             }
                         }
+                        }
+                        
                     }
                     .set-special {
                         position: absolute;
                         background-color: #fff;
-                        // box-shadow:0px 3px 3px #c8c8c8 ;
                         .special-wrapper {
                             &:last-child {
                                 margin-top: 10px;
                             }
                         }
                     }
-                    
                 }
                 .right-cal {
                     width: 40%;
                     min-width: 500px;
-                    .right-head {
-                        p {
-                            white-space: nowrap;
-                            font-weight: 650;
-                            font-style: normal;
-                            color: #666666;
-                            font-size: 14px;
-                            margin-bottom: 10px;
-                        }
-                    }
                     .right-content {
                         /deep/ .el-table__empty-block {
                                 margin: 100px 0;

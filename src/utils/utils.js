@@ -11,7 +11,7 @@ const util = {
     filterClockType: function(arr) {
         if (arr) {
             const list = []
-            const value = ['蓝牙', 'WIFI', 'GPS']
+            const value = ['蓝牙', 'WIFI', '', '', 'GPS']
             arr.forEach(item => {
                 list.push(value[item])
             })

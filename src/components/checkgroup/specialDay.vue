@@ -1,13 +1,15 @@
 <template>
     <div class="specialday-container">
-        <el-popover placement="right" width="600"  trigger="click" v-model="visible">
+        <el-popover placement="right" width="900"  trigger="click" v-model="visible">
             <div class="popover-container">
                 <div class="set-work-rest" v-if="setData.type !== 1" style="font-size:18px;text-align:center;">
-                    <p class="text">确定修改{{formatDay}}为{{setData.type === 0?'上班日':'休息日'}}？？</p><br>
-                    <p class="text">本设置将覆盖该日以前的特殊设置</p>
+                    <p class="text" style="text-align:left;font-size:12px;color: #666">确定修改{{formatDay}}为{{setData.type === 0?'上班日':'休息日'}}？本设置将覆盖该日以前的特殊设置</p>
+                    <!-- <p class="text" style="text-align:center;font-size:12px">本设置将覆盖该日以前的特殊设置</p> -->
+                    <el-input type="textarea" :rows="3" placeholder="请输入原因" v-model="reason" style="margin-top:12px;"></el-input>
                 </div>
                 <div class="set-time" v-if="setData.type == 1">
-                    <time-tag :time="timeTagData"></time-tag>
+                    <clock-count-times></clock-count-times>
+                    <el-input type="textarea" :rows="3" placeholder="请输入原因" v-model="reason" style="margin-top:12px;"></el-input>
                 </div>
             </div>
             <div style="text-align: center;margin: 30px;" class="option">
@@ -20,34 +22,35 @@
 </template>
 
 <script>
-import TimeTag from './timeTag'
+import ClockCountTimes from '@/components/checkgroup/clockCountTimes'
+import utils from '@/utils/utils'
 export default {
     props: {
         setData: {type:Object},
         day: {type:String},
-        // timeTagData: {type:Array}
     },
     data() {
         return {
             visible: false,
-            timeTagData: [{worktime:['00:00','23:59'],quit: false,key: new Date(),here: false}],
+            reason: ''
         }
     },
     components: {
-        TimeTag
+        ClockCountTimes
     },
     watch: {
-        visible: function(val) {
-            if(!val) this.timeTagData = [{worktime:['00:00','23:59'],quit: false,key: new Date(),here: false}]
-        }
     },
     methods: {
         submitSet: function() {
+            if(utils.isStringEmpty(this.reason)) return this.$message.error('理由不能为空！')
             this.visible = false
-            this.$emit('submitSet',this.timeTagData)
+            this.$emit('submitSet',this.reason,this.setData.type)
+            this.reason = ''
         },
         cancelSet: function() {
             this.visible = false
+            this.$emit('cancelSet')
+            
         }
     },
     computed: {
@@ -58,6 +61,15 @@ export default {
     }
 }
 </script>
+
+<style lang="scss" scoped>
+.specialday-container {
+    .text {
+        font-size: 12px;
+    }
+}
+</style>
+
 
 
 

@@ -67,9 +67,7 @@ export default {
             let equip = this.equips
             equip.push(device)
             this.setEquips(equip)
-            this.addEquips.forEach(item=> {
-                if(item.id !== device.id) list.push(item)
-            })
+            this._.remove(this.addEquips,item => item.id !==device.id )
             this.setAddEquips(list)
         }
     }

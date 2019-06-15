@@ -8,38 +8,41 @@
         <div class="add-header" v-if="!siteData.length">
             <p>暂未添加考勤地点</p>
         </div>
-        <div class="sitetag-wrapper" v-for="(item,i) in siteData" :key="i">
-            <div class="sitetag-content">
-                <div class="name">
-                    <a @click.prevent="goSiteInfo" v-if="item.city || item.OfficeName">{{item.city}}-{{item.OfficeName}}</a>
-                </div>
-                <div class="clock-type" v-if="!isEdit">
-                    <span v-if="item.clockType.includes(0)" style="margin-left:0;">蓝牙</span>
-                    <span v-if="item.clockType.includes(1)">WIFI</span>
-                    <span v-if="item.clockType.includes(2)">
-                        GPS <span v-if="item.scope">{{item.scope}}米</span>
-                    </span>
-                </div>
-                <div class="clock-box">
-                    <div class="clock-style" v-show="isEdit" v-for="(t,i) in item.clockType" :key="i" >
-                        <!-- <el-checkbox-group v-model="item.clockType" @change="changeClockType">
-                            <el-checkbox v-for="type in item.clockType" :key="type" :label="type">{{val[i]}}</el-checkbox>
-                        </el-checkbox-group> -->
-                        <el-checkbox v-model="t.enable">{{val[t.type]}}</el-checkbox>
-                        <el-input v-if="t.type == 4 && t.enable" v-model="item.scope" placeholder="打卡范围100米" size="mini" clearable></el-input>
+        <div class="wrapper-site">
+            <el-scrollbar style="height:100%">
+                <div class="sitetag-wrapper" v-for="(item,index) in siteData" :key="index">
+                    <div class="sitetag-content">
+                        <div class="name">
+                            <a @click.prevent="goSiteInfo" v-if="item.city || item.officeName">{{item.city}}-{{item.officeName}}</a>
+                        </div>
+                        <div class="clock-type" v-if="!isEdit">
+                            <span v-if="item.clockType.includes(0)" style="margin-left:0;">蓝牙</span>
+                            <span v-if="item.clockType.includes(1)">WIFI</span>
+                            <span v-if="item.clockType.includes(2)">
+                                GPS <span v-if="item.scope">{{item.scope}}米</span>
+                            </span>
+                        </div>
+                        <div class="clock-box">
+                            <div class="clock-style" v-show="isEdit" v-for="(t,i) in item.clockType" :key="i" >
+                                <el-checkbox v-model="t.enable" @change="changeClockType($event,index,i)">{{val[t.type]}}</el-checkbox>
+                                <el-input v-if="t.type == 4 && t.enable" v-model="item.scope" placeholder="打卡范围100米" size="mini" clearable @change="changScope($event,index)"></el-input>
+                            </div>
+                        </div>
+                        <div class="option" v-if="isEdit">
+                            <muti-btn :className="'el-icon-remove-outline'" :nameText="'删除'" style="color:#FB424E;font-weight:400" @click.native="delsite(item.officeId)"></muti-btn>
+                        </div>
                     </div>
+                    <el-divider></el-divider>
                 </div>
-                <div class="option" v-if="isEdit">
-                    <muti-btn :className="'el-icon-remove-outline'" :nameText="'删除'" style="color:#FB424E;font-weight:400" @click.native="delsite(item.id)"></muti-btn>
-                </div>
-            </div>
-            <el-divider></el-divider>
+            </el-scrollbar>
         </div>
+        
     </div>
 </template>
 
 <script>
 import MutiBtn from '@/components/common/MutiBtn'
+import {mapMutations} from 'vuex'
 export default {
     props: {
         siteData: {type: Array},
@@ -55,16 +58,22 @@ export default {
         MutiBtn
     },
     methods: {
+        ...mapMutations({
+            setScope: 'group/setScope'
+        }),
         delsite: function(id) {
           this.$emit('delsite',id)
         },
         goSiteInfo: function() {
             
         },
-        changeClockType: function(val) {
-            console.log(val)
-            return
+        changeClockType: function(val1,val2,val3) {
+            console.log(val1,val2,val3)
+            this.$emit('changeClockType',val1,val2,val3)
         },
+        changScope: function(val,t) {
+            this.setScope({val,t})
+        }
     },
 
 }
@@ -97,75 +106,79 @@ export default {
             text-align: center;
             font-weight: 200;
         }
-        .sitetag-wrapper {
-            .sitetag-content {
-                display: flex;
-                align-items: center;
-                padding-left: 15px;
-                .name {
-                    width: 180px;
-                    
-                    a {
-                        color: #409EFF;
-                        font-size: 12px;
-                        cursor: pointer;
-                    }
-                }
-                .clock-type {
-                    font-size: 12px;
-                    >span {
-                        margin-left: 20px;
-                    }
-                }
-                .clock-box {
-                    width: 400px;
-                    height: 28px;
+        .wrapper-site {
+            height: 400px;
+            overflow-y: auto;
+            /deep/ .el-scrollbar__wrap {
+                overflow-x: hidden!important;
+            }
+            .sitetag-wrapper {
+                .sitetag-content {
                     display: flex;
                     align-items: center;
-                    &:nth-child(2) {
-                        .el-checkbox {
-                            margin-right: 4px;
+                    padding-left: 15px;
+                    .name {
+                        width: 180px;
+                        overflow: hidden;
+                        // text-overflow: ellipsis;
+                        a {
+                            color: #409EFF;
+                            font-size: 12px;
+                            cursor: pointer;
                         }
                     }
-                    .clock-style {
+                    .clock-type {
+                        font-size: 12px;
+                        >span {
+                            margin-left: 20px;
+                        }
+                    }
+                    .clock-box {
+                        width: 400px;
+                        height: 28px;
                         display: flex;
                         align-items: center;
-                        margin-right: 10px;
-                        /deep/ .el-checkbox {
-                            // display: grid;
-                            // grid-template-columns: 60px 60px 60px;
-                            // .el-checkbox {
-                                // margin-right: 0;
+                        &:nth-child(2) {
+                            .el-checkbox {
+                                margin-right: 4px;
+                            }
+                        }
+                        .clock-style {
+                            display: flex;
+                            align-items: center;
+                            margin-right: 10px;
+                            /deep/ .el-checkbox {
                                 .el-checkbox__label {
                                     font-size: 12px;
                                 }
-                            // }
-                        }
-                        .el-input {
-                            width: 150px;
-                        }
-                        
-                    }
-                }
-                
-                .option {
-                    display: flex;
-                    align-items: center;
-                    .el-icon-delete {
-                        cursor: pointer;
-                        color: #000;
-                        font-size: 18px;
-                        font-weight: 700;
-                        &:hover {
-                            color: #409EFF;
+                            }
+                            .el-input {
+                                width: 150px;
+                            }
+                            
                         }
                     }
+                    
+                    .option {
+                        display: flex;
+                        align-items: center;
+                        .el-icon-delete {
+                            cursor: pointer;
+                            color: #000;
+                            font-size: 18px;
+                            font-weight: 700;
+                            &:hover {
+                                color: #409EFF;
+                            }
+                        }
+                    }
                 }
-            }
-            .el-divider {
-                margin: 10px 0;
+                .el-divider {
+                    margin: 10px 0;
+                }
             }
         }
+        
         
         
     }

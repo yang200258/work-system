@@ -1,7 +1,7 @@
 <template>
     <div class="clockgroup-manage">
         <section class="clockgroup-content">
-            <table-data :head="head" :tableData="clockGroupData" :tableLoading="clockGroupLoading" :option="option" @chooseTable="getClockGroup" @editTable="editClockGroup" @delTable="delClockGroup" 
+            <table-data :head="head" :tableData="clockGroupData" :tableLoading="clockGroupLoading" :totalNumber="groupNumber" :option="option" @chooseTable="getClockGroup" @editTable="editClockGroup" @delTable="delClockGroup" 
                 :format="format" :data="searchInfo" :formData="formItem" @btnClick="search" @changeMutiSelect="changeMutiSelect" :mutiItem="mutiItem" @showCreate="showCreate" @mutiTime="mutiTime"
                 @specialDate="specialDate" @currentChange="nextGroup">
             </table-data>
@@ -42,7 +42,7 @@
                         <span>每天{{groupInfo.clockCount}}次打卡</span>
                     </div>
                     <div class="order-content" slot="info-tag">
-                        <time-tag v-for="(item,i) in workDayShow" :key="i" :data="item" :readonly="true" :size="'mini'"></time-tag>
+                        <time-tag v-for="(item,i) in workDayShow" :key="i" :text="item.text" :time="item.time" :readonly="true" :size="'mini'"></time-tag>
                     </div>
                 </info-tag>
                 <info-tag :text="'工作日设置'" :info="workday"></info-tag>
@@ -77,11 +77,12 @@ export default {
                         {label:'creator',placeholder:'创建人',type:'input'},{label:'city',nameText:'所在城市',type:'mutiSelect',options:[]},
                         {type:'button',btnType:'primary',nameText:'搜索'}],
             // -------------------------考勤组展示-------------------------
-            head:[{key: 'name',name:'考勤组名称'},{key: 'siteType',name:'考勤地点/打卡方式'},{key: 'counttime',name:'打卡次数/作息时段'},{key: 'type',name:'班次类型'},{key: 'city',name:'所在城市'},
+            head:[{key: 'name',name:'考勤组名称'},{key: 'siteType',name:'考勤地点/打卡方式'},{key: 'counttime',name:'打卡次数/作息时段'},{key: 'scheduleType',name:'班次类型'},{key: 'city',name:'所在城市'},
                     {key: 'creator',name:'创建人'},{key: 'updateTime',name:'更新时间'},{key: 'workDay',name:'工作日设置'}],
             clockGroupData: [],
             clockGroupLoading: false,
             option:[{name: '查看',type:1,event: 'chooseTable'},{name: '编辑',type:1,event: 'editTable'},{name:'删除',type:2,event: 'delTable'}],
+            groupNumber: 0,
             // --------------创建考勤组-------------------
             isShowCreate: false,
             type: 1,
@@ -108,7 +109,8 @@ export default {
     components: {TableData,MyDialog,InfoTag,SiteTag,TimeTag,SpecialDateTag},
     methods: {
         ...mapMutations({
-            setName: 'group/setName'
+            setName: 'group/setName',
+            setId: 'group/setId'
         }),
         ...mapActions({
             'addGroup':'group/addGroup'
@@ -122,12 +124,13 @@ export default {
                 data: {name,officeName,clockType,creator,city}
             }).then(res=> {
                 if(res) {
-                    this.clockGroupData = res
+                    console.log('获取考勤组数据',res)
+                    this.clockGroupData = res.content
+                    this.groupNumber = res.recordCount
                     this.clockGroupLoading = false
                 }
             }).catch(err=> {
                 console.log(err)
-                this.clockGroupLoading = false
             })
         },
         //翻页
@@ -177,6 +180,8 @@ export default {
         },
         //编辑考勤组--------------------------------------
         editClockGroup: function(scope) {
+            this.setId(scope.row.clockGroupId)
+            this.setName(scope.row.name)
             this.$router.push({
                 name: 'edit_clock_group',
                 params: {
@@ -187,14 +192,13 @@ export default {
         //删除考勤组---------------------------------------
         delClockGroup: function(scope) {
             this.$axios({
-                url: '/es/clockGroups/delete',
+                url: `/es/clockGroups/delete?id=${scope.row.clockGroupId}`,
                 method: 'post',
-                data: {id: scope.row.id}
             }).then(res => {
                 this.$message.success(res)
                 this.getGroup()
             }).catch(err=> {
-                this.$message.error(err)
+                console.log(err)
             })
         },
         //调整考勤组数据展示**************
@@ -243,8 +247,12 @@ export default {
             if(property == 'clockCount') {
                 return cellvalue
             } 
+            if(property == 'scheduleType') {
+                let list = ['固定班次','排班制']
+                return list[cellvalue]
+            }
             else {
-                return cellvalue
+                return cellvalue ? cellvalue : '无'
             }
         },
         changeMutiSelect: function(val1,val2) {

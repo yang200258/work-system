@@ -98,6 +98,12 @@ service.interceptors.response.use(
                         type: 'error'
                     })
                     break
+                case 500:
+                    Message({
+                        message: error.response.data.msg || `服务器错误！错误代码：${error.response.data.code}`,
+                        type: 'error'
+                    })
+                    break
                 default:
                     Message({
                         message: `服务器错误！错误代码：${error.response.status}`,

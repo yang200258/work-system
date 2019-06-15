@@ -9,27 +9,17 @@
                 </el-popover>
             </div>
             <el-steps :active="active" :finish-status="status === 'new' ? 'success' : ''">
-                <el-step v-for="(item,i) in steps" :key="i" :title="item" :class="['step' + i, active === i ? 'isSet':'',status === 'edit' ? 'step-edit' : '']"  @click.native="setSpecialDate(i)"></el-step>
+                <el-step v-for="(item,i) in steps" :key="i" :title="item" :class="['step' + i, active === i ? 'isSet':'',status === 'edit' ? 'step-edit' : '']"  @click.native="goSpecialDate(i)"></el-step>
             </el-steps>
         </header>
         <section class="create-content">
             <div class="first" v-if="active == 0">
-                <!-- 打卡次数及时间设置 -->
-                <div class="worktype">
-                    <div class="worktype-header">
-                        <span>打卡次数</span>
-                        <span>工作时段设置</span>
-                    </div>
-                    <el-divider></el-divider>
-                    <div class="worktype-content">
-                        <clock-count v-for="(item,i) in countData" :key="i" :countData="item" :class="clockOrder.clockTimes == (i+1)*2 ? 'isActive' : ''"></clock-count>
-                    </div>
-                </div>
+                <clock-count-times ></clock-count-times>
                 <el-divider></el-divider>
                 <!-- 每天打卡时间点 -->
                 <div class="clock-start-time">
                     <span>每天开始打卡时间点</span>
-                    <el-time-picker v-model="clockStartTime" placeholder="请选择时间" size="mini" format="HH:mm" value-format="HH:mm" @change="changeTime"></el-time-picker>
+                    <el-time-picker v-model="clockOrder.clockStartTime" placeholder="请选择时间" size="mini" format="HH:mm" value-format="HH:mm" @change="changeTime"></el-time-picker>
                 </div>
                 <el-divider></el-divider>
                 <!-- 工作日设置 -->
@@ -38,7 +28,7 @@
                         <span>工作日设置</span>
                     </div>
                     <div class="workday">
-                        <el-checkbox-group v-model="clockOrder.workDay" @change="handleCheckedCitiesChange">
+                        <el-checkbox-group v-model="clockOrder.workDaySet" @change="handleCheckedCitiesChange">
                             <el-checkbox v-for="day in days" :label="day" :key="day"></el-checkbox>
                         </el-checkbox-group>
                         <el-checkbox :indeterminate="isIndeterminate" v-model="checkAll" @change="handleCheckAllChange">全选</el-checkbox>
@@ -63,7 +53,7 @@
                         </div>
                     </div>
                     <div class="site-content">
-                        <site-tag :siteData="initialClockSite" @delsite="delsite"></site-tag>
+                        <site-tag :siteData="clockSite" @delsite="delsite" @changeClockType="changeClockType"></site-tag>
                     </div>
                 </div>
                 <my-dialog :title="'考勤地点列表'" :width="'800px'" :show.sync="isShowAdd"  @close="isShowAdd = false" :isOption="false">
@@ -82,7 +72,7 @@
             </div>
             <div class="third" v-if="active === 2">
                 <div class="edit-wrapper">
-                    <table-data :head="head" :tableData="users" :tableLoading="loadingUser" :isSelected="false" :option="userOption" :totalNumber="totalUser" :emptyText="emptyText"
+                    <table-data :head="head" :tableData="clockUser" :tableLoading="loadingUser" :isSelected="false" :option="userOption" :totalNumber="totalUser" :emptyText="emptyText"
                                 :data="searchUserInfo" :formData="formUserData" @changeMutiSelect="changeMutiSelect" @btnClick="isSelectPart = !isSelectPart">
                         <template #special="{scope: scope}">
                             <img v-if="scope.column.property == 'avater'" :src="scope.row.avater" style="max-width: 40px;border-radius: 50%;">
@@ -106,7 +96,7 @@
                         </template>
                     </el-calendar>
                     <div class="set-special" v-show="isSetSpecial" ref="setSpecial">
-                        <special-day class="special-wrapper" v-for="(item,i) in specialtime" :key="i" :setData="item" @submitSet="submitSet" :day="day"></special-day>
+                        <special-day class="special-wrapper" v-for="(item,i) in specialtime" :key="i" :setData="item" @submitSet="submitSet" :day="day" @cancelSet="cancelSet"></special-day>
                     </div>
                 </div>
                 <div class="right-cal">
@@ -115,7 +105,7 @@
                         <el-divider></el-divider>
                     </div>
                     <div class="right-content">
-                        <table-data :head="specialHead" :tableData="specialDate" :page="page" :isSelected="false" :emptyText="emptyDateText" :isSearch="false">
+                        <table-data :head="specialHead" :tableData="specialDate" :page="page" :isSelected="false" :emptyText="emptyDateText" :isSearch="false" :format="formatDate">
                             <template #option="{scope}">
                                 <p style="color:red;cursor:pointer;" @click.prevent="delTime(scope)">删除</p>
                             </template>
@@ -136,7 +126,7 @@
 </template>
 
 <script>
-import ClockCount from '@/components/checkgroup/clockCount'
+import ClockCountTimes from '@/components/checkgroup/clockCountTimes'
 import SiteTag from '@/components/checkgroup/siteTag'
 import TableData from '@/components/common/TableData'
 import SelectTree from '@/components/common/SelectTree'
@@ -153,14 +143,11 @@ export default {
     },
     data() {
         return {
-            active: 1,
+            active: 0,
             steps: ['班次设置','考勤地点设置','考勤组成员编辑','特殊日期设置'],
             groupname: '',
             isShowEditName: false,
             // -----------------工作日设置----------------
-            // 设置打卡次数渲染数据
-            countData: [{type:2,text:'两次',clockNum: [{text: '工作时段 ',time: ''},{text: '休息时段',time: ''}]},{type:4,text:'四次',clockNum: [{text: '工作时段1',time: ''},{text: '工作时段2',time: ''}]},
-                            {type:6,text:'六次',clockNum: [{text: '工作时段1',time: ''},{text: '工作时段2',time: ''},{text: '工作时段3',time: ''}]}],
             // 工作日全选设置
             isIndeterminate: true,
             // workday: [],
@@ -187,9 +174,7 @@ export default {
             searchUserInfo: {},
             formUserData: [{type:'button',btnType:'plain',nameText:'按部门添加'},{type:'input',placeholder:'输入名称搜索',label:'name'}],
             isSelectPart: false,
-            head: [{key:'avater',name: '头像'},{key:'username',name: '用户账号'},{key:'name',name: '姓名'},{key:'mobile',name: '手机号'},{key:'email',name: '邮箱'},{key:'hisgroup',name: '历史考勤组'},
-                    {key:'organ',name: '组织'}],
-            
+            head: [{key:'name',name: '姓名'},{key:'username',name: '用户账号'},{key:'mobile',name: '手机号'},{key:'hisgroup',name: '历史考勤组'},{key:'organ',name: '组织'}],
             userOption:[],
             //考勤组成员信息
             users: [],
@@ -198,7 +183,7 @@ export default {
             emptyText: '还没有添加考勤组成员！',
             // ----------------------------特殊日期------------------------------
             emptyDateText: '还没有添加特殊日期！',
-            specialHead: [{key:'date',name: '日期'},{key:'type',name: '设置类型'},{key:'time',name: '上班时段'},{key:'user',name: '设置人'}],
+            specialHead: [{key:'date',name: '日期'},{key:'type',name: '设置类型'},{key:'scheduleItem',name: '上班时段'},{key:'reason',name:'原因'},{key:'operator',name: '设置人'}],
             page:{isPagination:false},
             isWeekend: false,
             // 渲染指定日期数据源
@@ -211,10 +196,19 @@ export default {
         }
     },
     components: {
-        ClockCount,SiteTag,TableData,SelectTree,SpecialDay,MutiBtn,MyDialog,LookSite
+        SiteTag,TableData,SelectTree,SpecialDay,MutiBtn,MyDialog,LookSite,ClockCountTimes
     },
     mounted() {
         this.groupname = this.name
+        //初次进入页面清除时间数据，
+        this.clearCountData()
+        this.initialData()
+        //编辑时获取已设置考勤班次
+        if(this.status === 'edit')   {
+            this.getClockSchedual().then(res=> {
+                this.setEditClockOrder(res)
+            })
+        }
     },
     computed: {
         ...mapState({
@@ -224,6 +218,7 @@ export default {
             initialClockSite: state => state.group.initialClockSite,
             clockSite: state => state.group.clockSite,
             clockUserId: state => state.group.clockUserId,
+            initialDate: state => state.group.initialDate,
             specialDate: state => state.group.specialDate,
             siteInfo: state => state.site.siteInfo,
         }),
@@ -233,16 +228,21 @@ export default {
         active: function(val) {
             switch(val) {
                 case 0:
-                    break;
+                    console.log(156156154);
+                    break
                 case 1:
                     //编辑时获取已添加考勤地点
                     if(this.status === 'edit') this.getAddClockSite()
                     break
                 case 2:
-                    //编辑时获取已添加考勤组成员
-                    if(this.status === 'edit') this.getAddClockUser()
+                    //编辑时获取已添加考勤组成员及组织机构树
+                    if(this.status === 'edit') {
+                        this.getAddClockUser()
+                    } 
                     break
                 case 3:
+                    //编辑时获取已添加考勤组特殊日期
+                    if(this.status === 'edit') this.getInitialDate()
                     break
             }
         },
@@ -257,12 +257,23 @@ export default {
             setClockSite: 'group/setClockSite',
             setName: 'group/setName',
             setClockStartTime: 'group/setClockStartTime',
-            setSiteInfo: 'site/setSiteInfo'
+            setSiteInfo: 'site/setSiteInfo',
+            setInitialClockSite: 'group/setInitialClockSite',
+            setClockType: 'group/setClockType',
+            setSpecialDates:'group/setSpecialDates',
+            setClockTime: 'group/setClockTime',
+            setClockCount: 'group/setClockCount',
+            setCountData: 'group/setCountData',
+            setClockOrder: 'group/setClockOrder',
+            clearCountData: 'group/clearCountData',
+            initialData: 'group/initialData',
         }),
         ...mapActions({
             addClockSite: 'group/addClockSite',
             getAddClockSite: 'group/getAddClockSite',
-            editName: 'group/editName'
+            editName: 'group/editName',
+            getInitialDate: 'group/getInitialDate',
+            getClockSchedual: 'group/getClockSchedual'
         }),
         // ***************************修改考勤组名称*******************************
         changeName: function() {
@@ -301,7 +312,7 @@ export default {
             this.active--
         },
         //设置特殊日期及编辑是点击跳转
-        setSpecialDate: function(i) {
+        goSpecialDate: function(i) {
             if(this.status === 'new' && i === 3) {
                 this.active = 3
             } 
@@ -315,6 +326,8 @@ export default {
                     break
                 case 3:
                     //操作特殊日期
+                        //提交特殊日期接口
+                    this.setSpecialDate()
                     break
             }
         },
@@ -323,9 +336,11 @@ export default {
             switch(this.active) {
                 case 0:
                     //保存班次编辑
+                    this.setSchedual()
                     break
                 case 1:
                     //保存考勤地点
+                    this.setGroupSite()
                     break
                 case 2:
                     //保存考勤组成员
@@ -339,24 +354,21 @@ export default {
             //保存考勤班次设置
         setSchedual: function() {
             let clockOrder = this.clockOrder
-            let scheduleItem = []
+            let clockGroupId = this.id
             let workDaySet = {}
-            let {applyFestival,clockTimes,clockStartTime} = clockOrder
-            if(clockTimes === 2 && clockOrder.clockTime.length) {
-                scheduleItem.push({startTime: clockOrder.clockTime[0][0],endTime:clockOrder.clockTime[0][1],type:0},{startTime: clockOrder.clockTime[1][0],endTime:clockOrder.clockTime[1][1],type:1})
-            } else if(clockOrder.clockTime.length) {
-                clockOrder.clockTime.forEach(item=> {
-                    scheduleItem.push({startTime: item[0],endTime:item[1],type:0})
-                })
-            }
-            workDaySet = utils.transformWorkday(clockOrder.workDay)
+            let {applyFestival,clockTimes,clockStartTime,scheduleItem} = clockOrder
+            workDaySet = utils.transformWorkday(clockOrder.workDaySet)
             this.$axios({
-                url: `/es/schedules/save?clockGroupId=${this.id}`,
+                url: `/es/regularSchedules/save`,
                 method: 'post',
-                data: {scheduleItem,workDaySet,applyFestival,clockTimes,clockStartTime}
+                data: {clockGroupId,scheduleItem,workDaySet,applyFestival,clockTimes,clockStartTime}
             }).then(res=> {
                 if(res) {
-                    this.$message.success(res)
+                    this.$message.success({
+                        msg: res,
+                        duration: 2000
+                    })
+                    this.setClockOrder({})
                     this.active++
                 }
             }).catch(err=> {
@@ -364,13 +376,13 @@ export default {
             })
         },
         //修每天开始打卡时间
-        changeTime: function() {
-            this.setClockStartTime(this.clockStartTime)
+        changeTime: function(val) {
+            this.setClockStartTime(val)
         },
         //全选按钮工作日激活操作
         handleCheckAllChange(val) {
             if(val) this.setWorkDay(this.days)
-            this.clockOrder.workDay = val ? days : []
+            this.clockOrder.workDaySet = val ? days : []
             this.isIndeterminate = false;
         },
         //全部选择工作日激活操作
@@ -384,6 +396,33 @@ export default {
         changeAutoRest: function(val) {
             this.setAutoRest(val)
         },
+        //编辑考勤班次时设置state/clockOrder
+        setEditClockOrder: function(obj) {
+            let scheduleItem = obj.scheduleItem
+            let time = []
+            let times = []
+            if(obj.clockTimes === 2) {
+                scheduleItem.forEach(item=> {
+                    if(item.type) {
+                        time[0] = item.startTime
+                        time[1] = item.endTime
+                        times.push({text: '休息时段',time:time})
+                    } else {
+                        time[0] = item.startTime
+                        time[1] = item.endTime
+                        times.push({text: '工作时段',time:time})
+                    }
+                })
+            } else {
+                scheduleItem.forEach(item=> {
+                    time[0] = item.startTime
+                    time[1] = item.endTime
+                    times.push({text: '工作时段',time:time})
+                })
+            }
+            this.setWorkDay(utils.filterWorkDay(obj.workDaySet))
+            this.setCountData({i: obj.clockTimes,data: times})
+        },
         // ********************************考勤地点设置*******************************
         // 创建考勤地点
         createSite: function() {
@@ -392,8 +431,12 @@ export default {
         //删除已选择考勤地点
         delsite: function(id) {
             const list = this.clockSite
-            let data = this._.dropWhile(list,item=> item.id == id)
+            let data = this._.remove(list,function(o) {return o.officeId !== id})
             this.setClockSite(data)
+        },
+        //编辑已选考勤地点打卡方式
+        changeClockType: function(val,t,i) {
+            this.setClockType({val,t,i})
         },
         //获取考勤地点列表
         getUsefulSite: function(name='',city='',page=1,size=20) {
@@ -446,20 +489,46 @@ export default {
         },
         //选择考勤地点---将对应信息添加至已选择项
         chooseTable: function(scope) {
-            let initial = this.initialClockSite
-            let list = this.clockSite
-            list.push(scope.row)
-            this.setClockSite(list)
+            let site = scope.row
+            let sitePresent = this.clockSite
+            let id = site.officeId
+            let initialId = this._.intersection(sitePresent.map(item => item.officeId))
+            if(initialId.indexOf(id) !== -1) {
+                this.$message.warning('考勤地点已存在，无法重复添加')
+                return
+            }
+            let list = []
+            site.clockType.forEach(item=> {
+                list.push({type:item,enable:true})
+            })
+            site.clockType = list
+            sitePresent.push(site)
+            this.setClockSite(sitePresent)
         },
-        //设置考勤组对应考勤地点（final）
+        //设置考勤组对应考勤地点（final）包含编辑及新增
+            /* eslint-disable */
         setGroupSite: function() {
             let clockGroupId  = this.id
-            let officeId = this.clockSite.map(item=> item.id)
-            // 设置打卡方式数据-***********
+            let obj = utils.addDelArr(this.initialClockSite,this.clockSite,'officeId')
+            const addOffices = []
+            obj.addArr.forEach(item=> {
+                let {city,officeName,...addItem} = item
+                if(!item.scope) {
+                    addItem.scope = 0
+                } else
+                addItem.scope = item.scope ? parseInt(item.scope) : 0
+                addOffices.push(addItem)
+            })
+            obj.editArr.forEach(item=> {
+                let {city,officeName,groupOfficeId,...editItem} = item
+                if(!item.scope) editItem.scope = 0
+                addOffices.push(editItem)
+            })
+            const delOffices = obj.delArr.map(item => item.groupOfficeId)
             this.$axios({
-                url: '****',
+                url: '/es/groupOffices/set',
                 method: 'post',
-                data: {clockGroupId,officeId}
+                data: {clockGroupId,addOffices,delOffices}
             }).then(res=> {
                 if(res) {
                     this.$message.success(res)
@@ -482,13 +551,8 @@ export default {
             this.searchInfo[val2] = val1
         },
         // ********************************考勤组成员设置*******************************
-        //编辑时获取已添加考勤组成员
-        getAddClockUser: function() {
-
-        },
         //删除考勤组成员
         delUser: function(scope) {
-            console.log(scope);
             this.users = this._.dropWhile(this.users, (item)=> {return item.id === scope.row.id})
         },
         // ********************************考勤组特殊日期设置*******************************
@@ -500,8 +564,8 @@ export default {
             } else {
                 this.isSetSpecial = true
             }
-            this.$refs.setSpecial.style.top = ($event.screenY - $event.offsetY) + 'px'
-            this.$refs.setSpecial.style.left = ($event.screenX - $event.offsetX + $event.target.clientWidth) + 'px'
+            this.$refs.setSpecial.style.top = ($event.pageY - $event.offsetY) + 'px'
+            this.$refs.setSpecial.style.left = ($event.pageX - $event.offsetX + $event.target.clientWidth) + 'px'
             if(data.type == 'current-month') {
                 let week = date.toString().split(' ')[0]
                 if(week == 'Sat' || week == 'Sun') {
@@ -513,16 +577,68 @@ export default {
             this.clickDay = data.day
         },
         //特殊日期保存
-        submitSet: function(timeTagData) {
-            console.log(timeTagData,this.day)
+        submitSet: function(reason,type) {
+            let dates = this.specialDate
+            if(dates.map(item=>item.date).indexOf(this.day) !== -1) {
+                this.$message.error('不可重复添加日期！')
+                this.isSetSpecial = false
+                return 
+            } 
+            let data = type === 1 ? {date:this.day,reason,type,scheduleItem:this.clockOrder.scheduleItem}  : {date:this.day,reason,type,scheduleItem:[]}
+            dates.push(data)
+            this.setSpecialDates(dates)
+            this.isSetSpecial = false
+        },
+        //点击取消隐藏设置框
+        cancelSet: function() {
+            this.setClockTime([])
+            this.isSetSpecial = false
         },
         //删除考勤时间
         delTime: function(scope) {
-            console.log(scope)
+            let dates = this.specialDate
+            let data = this._.remove(dates,item => item.date !== scope.row.date )
+            this.setSpecialDates(data)
         },
-        
-
-        
+        //提交特殊日期接口******------
+        setSpecialDate: function() {
+            let clockGroupId = this.id
+            let obj = utils.addDelArr(this.initialDate,this.specialDate,'id')
+            let addSchedualItem = obj.addArr
+            let delSchedualItemId = obj.delArr.map(item=> item.id)
+            this.$axios({
+                url: '',
+                method: 'post',
+                data: {clockGroupId,addSchedualItem,delSchedualItemId}
+            }).then(res=> {
+                if(res) {
+                    this.$message.success(res)
+                    this.$router.push('clock_group_manage')
+                }
+            }).catch(err=> {
+                console.log(err)
+            })
+        },
+        //过滤特殊日期类型
+        formatDate: function(cellValue,property) {
+            let val = ['上班','调整时间','休息']
+            switch(property) {
+                case 'type':
+                    return val[cellValue]
+                    break
+                case 'scheduleItem':
+                    const list = []
+                    if(cellValue) {
+                        cellValue.forEach(item=> {
+                            list.push(!item.type ? `工作时段：${item.startTime}-${item.endTime}` : `休息时段：${item.startTime}-${item.endTime}`)
+                        })
+                    }
+                    return cellValue ? list.join('<br>') : '无'
+                    break
+                default:
+                    return cellValue ? cellValue : '无'
+            }
+        }
     }
 }
 </script>
@@ -630,30 +746,6 @@ $contentLeft: 15px;
         .create-content {
             margin: 40px 25px 40px 30px;
             .first {
-                .worktype {
-                    .worktype-header {
-                        padding-left: $contentLeft;
-                        span {
-                            font-weight: 700;
-                            font-style: normal;
-                            font-size: 12px;
-                            color: #666666;
-                            margin-right: 98px;
-                        }
-                    }
-                    .el-divider {
-                        margin:12px 0 10px 0;
-                    }
-                    .worktype-content {
-                        .clock-container {
-                            padding-left: $contentLeft;
-                            height: 54px;
-                        }
-                        .isActive {
-                            background-color: #e4e4e4;
-                        }
-                    }
-                }
                 .clock-start-time {
                     display: flex;
                     align-items: center;
@@ -807,6 +899,7 @@ $contentLeft: 15px;
                                 .is-selected {
                                     color: #1989FA;
                                 }
+                                
                             }
                         }
                         }
@@ -815,6 +908,7 @@ $contentLeft: 15px;
                     .set-special {
                         position: absolute;
                         background-color: #fff;
+                        z-index: 99;
                         .special-wrapper {
                             &:last-child {
                                 margin-top: 10px;
@@ -838,7 +932,6 @@ $contentLeft: 15px;
             }
         }
         .create-footer {
-            margin: 20px;
             display: flex;
             justify-content: center;
         }

@@ -1,6 +1,6 @@
 <template>
     <div class="edit-group-container">
-        <option-group :status="'edit'" :name="name" @changeName="changeName"></option-group>
+        <option-group :status="'edit'" @changeName="changeName"></option-group>
     </div>
 </template>
 

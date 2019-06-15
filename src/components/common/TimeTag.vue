@@ -15,12 +15,12 @@ export default {
     },
     data() {
         return {
-            time: ''
+            
         }
     },
     methods: {
-        changTime: function() {
-            this.$emit('changTime',this.data)
+        changTime: function(val) {
+            this.$emit('changTime',val,this.text)
         }
     }
 }

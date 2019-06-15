@@ -1,4 +1,24 @@
+import _ from 'lodash'
 const util = {
+    /**
+     * 判断数组初始状态及终止状态对应新增及删除元素及更改后的遗留初始元素
+     * @param {Array} initial 
+     * @param {Array} final 
+     * @param {String} id  识别根据何字段区分
+     * @description 应用于考勤设备、考勤组、考勤地点等接口提交
+     */
+    addDelArr: function(initial, final, id) {
+        let addArr = _.differenceBy(final, initial, id)
+        let delArr = _.differenceBy(initial, final, id)
+        let editArr = _.intersectionBy(final, initial, id)
+        return { addArr, delArr, editArr }
+    },
+    //判断字符串是否为空
+    isStringEmpty: function(s) {
+        if (s == '') return true
+        const reg = /^[ ]+$/
+        return reg.test(s)
+    },
     //处理时间格式
     filterDate: function(date) {
         if (!date) return ''
@@ -19,17 +39,16 @@ const util = {
         } else {
             return '无'
         }
-
     },
     //根据给出数组返回工作日
-    filterWorkDay: function(arr) {
+    filterWorkDay: function(obj) {
         const days = ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
         const list = []
-        if (arr) {
-            arr.forEach((item, i) => {
-                if (item) list.push(days[i])
+        if (obj) {
+            days.forEach((item, i) => {
+                if (obj[`w${i+1}`]) list.push(item)
             })
-            return list.join(';')
+            return list
         } else {
             return '无'
         }
@@ -44,7 +63,7 @@ const util = {
             })
         }
         return obj
-    }
+    },
 }
 
 

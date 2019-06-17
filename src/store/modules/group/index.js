@@ -1,4 +1,5 @@
 import axios from '@/utils/ajax'
+import utils from '@/utils/utils'
 const state = {
     id: 0,
     name: '',
@@ -73,6 +74,9 @@ const mutations = {
     initialData: (state) => {
         state.clockOrder = { clockTimes: 2, scheduleItem: [], workDaySet: [], applyFestival: false, clockStartTime: '' }
         state.initialClockSite = state.clockSite = state.initialClockUser = state.initialDate = state.clockUserId = state.specialDate = []
+    },
+    clearDate: (state) => {
+        state.initialData = state.specialDate = []
     }
 }
 
@@ -178,12 +182,34 @@ const actions = {
     getInitialDate({ commit, state }) {
         return new Promise((resolve, reject) => {
             axios({
-                url: `/es/schedules/getSpecialDates?clockGroupId=${state.id}`,
+                url: `/es/specialDate/get?clockGroupId=${state.id}`,
                 method: 'post',
             }).then(res => {
                 if (res) {
-                    commit('setInitialDate', res)
-                    commit('setSpecialDate', res)
+                    console.log('获取考勤组特殊日期成功', res)
+                    commit('setInitialDate', [...res])
+                    commit('setSpecialDates', res)
+                    resolve(res)
+                }
+            }).catch(err => {
+                reject(err)
+            })
+        })
+    },
+    //提交特殊日期设置
+    submitSpecialDate({ state }, clockGroupId) {
+        return new Promise((resolve, reject) => {
+            console.log(state.initialDate, state.specialDate)
+            let obj = utils.addDelArr(state.initialDate, state.specialDate, 'date')
+            let addSpecialDate = obj.editArr.concat(obj.addArr)
+            let delSpecialDate = obj.delArr.map(item => item.specialDateId)
+            console.log(obj);
+            axios({
+                url: '/es/specialDate/set',
+                method: 'post',
+                data: { clockGroupId, addSpecialDate, delSpecialDate }
+            }).then(res => {
+                if (res) {
                     resolve(res)
                 }
             }).catch(err => {

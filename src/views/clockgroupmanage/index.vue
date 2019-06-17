@@ -3,7 +3,7 @@
         <section class="clockgroup-content">
             <table-data :head="head" :tableData="clockGroupData" :tableLoading="clockGroupLoading" :totalNumber="groupNumber" :option="option" @chooseTable="getClockGroup" @editTable="editClockGroup" @delTable="delClockGroup" 
                 :format="format" :data="searchInfo" :formData="formItem" @btnClick="search" @changeMutiSelect="changeMutiSelect" :mutiItem="mutiItem" @showCreate="showCreate" @mutiTime="mutiTime"
-                @specialDate="specialDate" @currentChange="nextGroup">
+                @specialDate="showSpecialDate" @currentChange="nextGroup" @selectionChange="mutiSelect">
             </table-data>
         </section>
         <!-- 创建考勤组名称弹窗 -->
@@ -53,6 +53,13 @@
                 </info-tag>
             </template>
         </my-dialog>
+        <!-- 批量修改考勤时间 -->
+        <my-dialog :title="'批量修改上班时间'" :width="'80%'" :show.sync="isShowMutiTime" :confirmText="'提交'" @close="closeMutiTime" @confirm="submintMutiTime">
+            <clock-count-times slot="dialog-content"></clock-count-times>
+        </my-dialog>
+        <my-dialog :title="'批量修改特殊日期'" :width="'80%'" :show.sync="isShowSpecialDate" :confirmText="'提交'" @close="closeSpecialDate" @confirm="submitMutiSpecialDate">
+            <special-dates slot="dialog-content" :status="'muti'"></special-dates>
+        </my-dialog>
     </div>
 </template>
 
@@ -63,14 +70,16 @@ import InfoTag from '@/components/checkgroup/infoTag'
 import SiteTag from '@/components/checkgroup/siteTag'
 import TimeTag from '@/components/common/TimeTag'
 import SpecialDateTag from '@/components/checkgroup/specialDateTag'
+import ClockCountTimes from '@/components/checkgroup/clockCountTimes'
+import SpecialDates from '@/components/checkgroup/specialDates'
 import utils from '@/utils/utils'
 import {mapState,mapMutations,mapActions} from 'vuex'
 export default {
     data() {
         return {
-            mutiItem: {left: [{className:'el-icon-edit-outline',nameText:'批量考勤班次编辑',event:'mutiTime'},{className:'el-icon-date',nameText:'批量特殊日期设置',event:'specialDate'}],
+            mutiItem: {left: [{className:'el-icon-edit-outline',nameText:'修改上班时间',event:'mutiTime'},{className:'el-icon-date',nameText:'特殊日期设置',event:'specialDate'}],
                         right: [{nameText:'创建考勤组',className:'el-icon-circle-plus-outline',event: 'showCreate'}]},
-            // ----------------------搜索考勤组--------------------
+            // ----------------------搜索考勤组---------------------------
             searchInfo: {},
             formItem: [{type:'input',placeholder: '考勤组名称',label: 'name'},{label:'officeName',placeholder:'考勤地点',type:'input'},
                         {label:'type',nameText:'打卡方式',type:'mutiSelect',options:[{label:'蓝牙',value:0},{label:'WIFI',value:1},{label:'GPS',value:2}]},
@@ -83,6 +92,12 @@ export default {
             clockGroupLoading: false,
             option:[{name: '查看',type:1,event: 'chooseTable'},{name: '编辑',type:1,event: 'editTable'},{name:'删除',type:2,event: 'delTable'}],
             groupNumber: 0,
+            // --------------批量操作考勤组-------------------
+            isShowMutiTime: false,       //是否显示修改时间界面
+            ids: [],
+            // --------------批量操作特殊日期-------------------
+            isShowSpecialDate: false,
+
             // --------------创建考勤组-------------------
             isShowCreate: false,
             type: 1,
@@ -103,17 +118,22 @@ export default {
     },
     computed: {
         ...mapState({
-            // name: state=> state.group.name,
+            clockOrder: state => state.group.clockOrder,
+            specialDate: state => state.group.specialDate,
         })
     },
-    components: {TableData,MyDialog,InfoTag,SiteTag,TimeTag,SpecialDateTag},
+    components: {TableData,MyDialog,InfoTag,SiteTag,TimeTag,SpecialDateTag,ClockCountTimes,SpecialDates},
     methods: {
         ...mapMutations({
             setName: 'group/setName',
-            setId: 'group/setId'
+            setId: 'group/setId',
+            setClockOrder: 'group/setClockOrder',
+            clearCountData: 'group/clearCountData',
+            clearDate: 'group/clearDate',
         }),
         ...mapActions({
-            'addGroup':'group/addGroup'
+            'addGroup':'group/addGroup',
+            submitSpecialDate: 'group/submitSpecialDate',
         }),
         //获取考勤组数据
         getGroup: function(page=1,size=20,name='',officeName='',clockType=[],creator='',city=[]) {
@@ -217,11 +237,43 @@ export default {
         //批量操作考勤组------------------------------------------
             //修改考勤时间
         mutiTime: function() {
-
+            this.isShowMutiTime = true
         },
-            //修改特殊日期
-        specialDate: function() {
-
+            //关闭修改考勤时间界面
+        closeMutiTime: function() {
+            this.isShowMutiTime = false
+        },
+            //提交修改时间
+        submintMutiTime: function() {
+            let clockGroupId = this.ids.map(item=> item.clockGroupId)
+            let {clockTimes,scheduleItem} = this.clockOrder
+            this.$axios({
+                url: '/es/regularSchedules/editWorkTime',
+                method: 'post',
+                data: {clockGroupId,clockTimes,scheduleItem}
+            }).then(res=> {
+                if(res) {
+                    this.$message.success(res)
+                    this.isShowMutiTime = false
+                }
+            })
+        },
+            //显示修改特殊日期界面
+        showSpecialDate: function() {
+            this.setClockOrder({clockTimes: 2})
+            this.clearCountData()
+            this.clearDate()
+            this.isShowSpecialDate = true
+        },
+            //提交修改特殊日期
+        submitMutiSpecialDate: function() {
+            this.submitSpecialDate(this.ids).then(res=> {
+                this.$message.success(res)
+                this.isShowSpecialDate = false
+            })
+        },
+        closeSpecialDate: function() {
+            this.isShowSpecialDate = false
         },
         //****************格式化表格数据 */
         format: function(cellvalue,property) {
@@ -238,8 +290,8 @@ export default {
                 })
                 return list.join('<br>')
             } 
-            if(property == 'workday') {
-                return utils.filterWorkDay(cellvalue)
+            if(property == 'workDay') {
+                return cellvalue && cellvalue.length ? cellvalue.join(';') : '无'
             } 
             if(property == 'workType') {
                 return this.workType[cellvalue]
@@ -257,7 +309,10 @@ export default {
         },
         changeMutiSelect: function(val1,val2) {
             this.searchInfo[val2] = val1
-        }
+        },
+        mutiSelect: function(val) {
+            this.ids = val.map(item=> item.clockGroupId)
+        },
     }
 }
 </script>

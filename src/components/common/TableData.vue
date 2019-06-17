@@ -15,7 +15,7 @@
         </div>
         <div class="table-container">
             <el-table  v-loading="tableLoading" element-loading-text="拼命加载中" element-loading-spinner="el-icon-loading" :default-sort="tableSort" :empty-text="emptyText"
-            :data="tableData" @selection-change="selectionChange" :highlight-current-row="true" :header-cell-class-name="'title'">
+            :data="tableData" @selection-change="selectionChange" :highlight-current-row="true" :header-cell-class-name="'title'" :height="height">
                 <el-table-column type="selection" align="left" v-if="isSelected"> </el-table-column>
                 <el-table-column v-for="(item,index) in head" :prop="item.key" :label="item.name" :key="index" align="left" :show-overflow-tooltip="true"> 
                     <template slot-scope="scope">
@@ -44,6 +44,7 @@ import MutiBtn from './MutiBtn'
 export default {
     /* eslint-disable */
     props: {
+        height: {type:Number},
         //表格上方搜索区
         isSearch: {type:Boolean,default: true},
         data: {type: Object},
@@ -127,6 +128,7 @@ export default {
                 display: flex;
                 align-items: center;
                 .el-checkbox {
+                    width: 84px;
                     .el-checkbox__label {
                         font-size:12px;
                     }
@@ -142,6 +144,18 @@ export default {
         }
         .table-container {
             padding: 0 32px;
+            .el-table {
+                // 滚动条的宽度
+                /deep/ .el-table__body-wrapper::-webkit-scrollbar {
+                    height: 2px; // 纵向滚动条 必写
+                    width: 6px;
+                }
+                // 滚动条的滑块
+                /deep/ .el-table__body-wrapper::-webkit-scrollbar-thumb {
+                    background-color: #eee;
+                    border-radius: 3px;
+                }
+            }
             .title {
                 font-weight: 700;
                 color: black;

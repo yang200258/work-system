@@ -8,7 +8,7 @@
         <el-divider></el-divider>
         <div class="worktype-content" v-for="(item,i) in countData" :key="i" :class="clockOrder.clockTimes == (i+1)*2 ? 'isActive' : ''">
             <el-radio :label="item.type" v-model="clockOrder.clockTimes" @change="changeClockCount">{{item.text}}</el-radio>
-            <time-tag v-for="(item,i) in item.clockNum" :key="i" :data="item" @changTime="changeTime($event,i,item.type,item.text)" class="time-tag" ></time-tag>
+            <time-tag v-for="(t,i) in item.clockNum" :key="i" :data="t" @changTime="changeTime($event,i,t.type,t.text)" class="time-tag" ></time-tag>
         </div>
     </div>
 </template>
@@ -22,9 +22,6 @@ export default {
     },
     data() {
         return {
-            // 设置打卡次数渲染数据
-            // countData: [{type:2,text:'两次',clockNum: [{text: '工作时段 ',time: ''},{text: '休息时段',time: ''}]},{type:4,text:'四次',clockNum: [{text: '工作时段1',time: ''},{text: '工作时段2',time: ''}]},
-            //                 {type:6,text:'六次',clockNum: [{text: '工作时段1',time: ''},{text: '工作时段2',time: ''},{text: '工作时段3',time: ''}]}],
             list: []
         }
     },
@@ -71,7 +68,6 @@ export default {
                 list.push(obj)
                 this.setClockTime(list)
             }
-            // this.countData[type/2-1].clockNum[i].time = time
         }
     }
 }

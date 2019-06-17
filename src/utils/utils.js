@@ -8,6 +8,7 @@ const util = {
      * @description 应用于考勤设备、考勤组、考勤地点等接口提交
      */
     addDelArr: function(initial, final, id) {
+        console.log(initial, final, id);
         let addArr = _.differenceBy(final, initial, id)
         let delArr = _.differenceBy(initial, final, id)
         let editArr = _.intersectionBy(final, initial, id)

@@ -85,33 +85,7 @@
                 </div>
             </div>
             <div class="fourth" v-if="active === 3">
-                <div class="left-cal">
-                    <div class="head">
-                        <p>请在下方日历选择日期进行设置</p>
-                        <el-divider></el-divider>
-                    </div>
-                    <el-calendar class="calendar">
-                        <template #dateCell="{date, data}">
-                            <div :class="data.isSelected ? 'isSelected':''" class="dateinfo" @click.prevent="setDate($event,date,data)">{{data.day.split('-')[2]}}</div>
-                        </template>
-                    </el-calendar>
-                    <div class="set-special" v-show="isSetSpecial" ref="setSpecial">
-                        <special-day class="special-wrapper" v-for="(item,i) in specialtime" :key="i" :setData="item" @submitSet="submitSet" :day="day" @cancelSet="cancelSet"></special-day>
-                    </div>
-                </div>
-                <div class="right-cal">
-                    <div class="head">
-                        <p>已设置特殊日期</p>
-                        <el-divider></el-divider>
-                    </div>
-                    <div class="right-content">
-                        <table-data :head="specialHead" :tableData="specialDate" :page="page" :isSelected="false" :emptyText="emptyDateText" :isSearch="false" :format="formatDate">
-                            <template #option="{scope}">
-                                <p style="color:red;cursor:pointer;" @click.prevent="delTime(scope)">删除</p>
-                            </template>
-                        </table-data>
-                    </div>
-                </div>
+                <special-dates></special-dates>
             </div>
         </section>
         <footer class="create-footer" v-if="status === 'new'">
@@ -130,7 +104,7 @@ import ClockCountTimes from '@/components/checkgroup/clockCountTimes'
 import SiteTag from '@/components/checkgroup/siteTag'
 import TableData from '@/components/common/TableData'
 import SelectTree from '@/components/common/SelectTree'
-import SpecialDay from '@/components/checkgroup/specialDay'
+import SpecialDates from '@/components/checkgroup/specialDates'
 import MutiBtn from '@/components/common/MutiBtn'
 import MyDialog from '@/components/common/MyDialog'
 import LookSite from '@/components/site/lookSite'
@@ -196,7 +170,7 @@ export default {
         }
     },
     components: {
-        SiteTag,TableData,SelectTree,SpecialDay,MutiBtn,MyDialog,LookSite,ClockCountTimes
+        SiteTag,TableData,SelectTree,SpecialDates,MutiBtn,MyDialog,LookSite,ClockCountTimes
     },
     mounted() {
         this.groupname = this.name
@@ -218,7 +192,6 @@ export default {
             initialClockSite: state => state.group.initialClockSite,
             clockSite: state => state.group.clockSite,
             clockUserId: state => state.group.clockUserId,
-            initialDate: state => state.group.initialDate,
             specialDate: state => state.group.specialDate,
             siteInfo: state => state.site.siteInfo,
         }),
@@ -228,7 +201,6 @@ export default {
         active: function(val) {
             switch(val) {
                 case 0:
-                    console.log(156156154);
                     break
                 case 1:
                     //编辑时获取已添加考勤地点
@@ -273,7 +245,8 @@ export default {
             getAddClockSite: 'group/getAddClockSite',
             editName: 'group/editName',
             getInitialDate: 'group/getInitialDate',
-            getClockSchedual: 'group/getClockSchedual'
+            getClockSchedual: 'group/getClockSchedual',
+            submitSpecialDate: 'group/submitSpecialDate',
         }),
         // ***************************修改考勤组名称*******************************
         changeName: function() {
@@ -327,7 +300,10 @@ export default {
                 case 3:
                     //操作特殊日期
                         //提交特殊日期接口
-                    this.setSpecialDate()
+                    this.submitSpecialDate([this.id]).then(res=> {
+                        this.$message.success(res)
+                        this.$router.push('clock_group_manage')
+                    })
                     break
             }
         },
@@ -347,6 +323,10 @@ export default {
                     break
                 case 3:
                     //保存特殊日期
+                    this.submitSpecialDate([this.id]).then(res=> {
+                        this.$message.success(res)
+                        this.getInitialDate()
+                    })
                     break
             }
         },
@@ -364,12 +344,10 @@ export default {
                 data: {clockGroupId,scheduleItem,workDaySet,applyFestival,clockTimes,clockStartTime}
             }).then(res=> {
                 if(res) {
-                    this.$message.success({
-                        msg: res,
-                        duration: 2000
-                    })
-                    this.setClockOrder({})
-                    this.active++
+                    this.$message.success(res)
+                    this.setClockOrder({clockTimes: 2})
+                    this.clearCountData()
+                    if(this.status !== 'edit') this.active++
                 }
             }).catch(err=> {
                 console.log(err)
@@ -555,90 +533,6 @@ export default {
         delUser: function(scope) {
             this.users = this._.dropWhile(this.users, (item)=> {return item.id === scope.row.id})
         },
-        // ********************************考勤组特殊日期设置*******************************
-        //点击某一日期后弹出设置时间的操作
-        setDate: function($event,date,data){
-            this.day = data.day
-            if(data.day == this.clickDay) {
-                this.isSetSpecial = !this.isSetSpecial
-            } else {
-                this.isSetSpecial = true
-            }
-            this.$refs.setSpecial.style.top = ($event.pageY - $event.offsetY) + 'px'
-            this.$refs.setSpecial.style.left = ($event.pageX - $event.offsetX + $event.target.clientWidth) + 'px'
-            if(data.type == 'current-month') {
-                let week = date.toString().split(' ')[0]
-                if(week == 'Sat' || week == 'Sun') {
-                    this.specialtime = [{buttonText:'设置为上班日',type:0},{buttonText:'调整上班时间',type:1}]
-                } else {
-                    this.specialtime = [{buttonText:'设置为休息日',type:2},{buttonText:'调整上班时间',type:1}]
-                }
-            }
-            this.clickDay = data.day
-        },
-        //特殊日期保存
-        submitSet: function(reason,type) {
-            let dates = this.specialDate
-            if(dates.map(item=>item.date).indexOf(this.day) !== -1) {
-                this.$message.error('不可重复添加日期！')
-                this.isSetSpecial = false
-                return 
-            } 
-            let data = type === 1 ? {date:this.day,reason,type,scheduleItem:this.clockOrder.scheduleItem}  : {date:this.day,reason,type,scheduleItem:[]}
-            dates.push(data)
-            this.setSpecialDates(dates)
-            this.isSetSpecial = false
-        },
-        //点击取消隐藏设置框
-        cancelSet: function() {
-            this.setClockTime([])
-            this.isSetSpecial = false
-        },
-        //删除考勤时间
-        delTime: function(scope) {
-            let dates = this.specialDate
-            let data = this._.remove(dates,item => item.date !== scope.row.date )
-            this.setSpecialDates(data)
-        },
-        //提交特殊日期接口******------
-        setSpecialDate: function() {
-            let clockGroupId = this.id
-            let obj = utils.addDelArr(this.initialDate,this.specialDate,'id')
-            let addSchedualItem = obj.addArr
-            let delSchedualItemId = obj.delArr.map(item=> item.id)
-            this.$axios({
-                url: '',
-                method: 'post',
-                data: {clockGroupId,addSchedualItem,delSchedualItemId}
-            }).then(res=> {
-                if(res) {
-                    this.$message.success(res)
-                    this.$router.push('clock_group_manage')
-                }
-            }).catch(err=> {
-                console.log(err)
-            })
-        },
-        //过滤特殊日期类型
-        formatDate: function(cellValue,property) {
-            let val = ['上班','调整时间','休息']
-            switch(property) {
-                case 'type':
-                    return val[cellValue]
-                    break
-                case 'scheduleItem':
-                    const list = []
-                    if(cellValue) {
-                        cellValue.forEach(item=> {
-                            list.push(!item.type ? `工作时段：${item.startTime}-${item.endTime}` : `休息时段：${item.startTime}-${item.endTime}`)
-                        })
-                    }
-                    return cellValue ? list.join('<br>') : '无'
-                    break
-                default:
-                    return cellValue ? cellValue : '无'
-            }
-        }
     }
 }
 </script>
@@ -710,13 +604,6 @@ $contentLeft: 15px;
                     }
                 }
                 .step3 {
-                    // &.isSet {
-                    //     &.step-edit {
-                    //         /deep/ .el-step__title {
-                    //             background-color: #ff0000;
-                    //         }
-                    //     }
-                    // }
                     /deep/ .el-step__main {
                         .el-step__title {
                             // width:120px;
@@ -863,72 +750,7 @@ $contentLeft: 15px;
                 }
             }
             .fourth {
-                display: flex;
-                padding-left: 15px;
-                .left-cal,.right-cal {
-                    .head {
-                        p {
-                            white-space: nowrap;
-                            font-weight: 700;
-                            color: #666666;
-                            font-size: 12px;
-                        }
-                        .el-divider {
-                            margin: 12px 0 20px 0;
-                        }
-                    }
-                }
-                .left-cal {
-                    margin-right: 20px;
-                    .calendar {
-                        min-width: 400px;
-                        width: 500px;
-                        /deep/ .el-calendar__body {
-                         .el-calendar-table {
-                            .el-calendar-table__row {
-                                .el-calendar-day {
-                                    padding: 0;
-                                    .dateinfo {
-                                        width: 100%;
-                                        height: 100%;
-                                        display: flex;
-                                        align-items: center;
-                                        justify-content: center;
-                                    }
-                                }
-                                .is-selected {
-                                    color: #1989FA;
-                                }
-                                
-                            }
-                        }
-                        }
-                        
-                    }
-                    .set-special {
-                        position: absolute;
-                        background-color: #fff;
-                        z-index: 99;
-                        .special-wrapper {
-                            &:last-child {
-                                margin-top: 10px;
-                            }
-                        }
-                    }
-                }
-                .right-cal {
-                    width: 40%;
-                    min-width: 500px;
-                    .right-content {
-                        /deep/ .el-table__empty-block {
-                                margin: 100px 0;
-                                span {
-                                    color: #bcbcc9;
-                                    font-size: 28px;
-                                }
-                            }
-                    }
-                }
+                height: 620px;
             }
         }
         .create-footer {

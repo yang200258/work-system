@@ -13,13 +13,13 @@
                 <div class="sitetag-wrapper" v-for="(item,index) in siteData" :key="index">
                     <div class="sitetag-content">
                         <div class="name">
-                            <a @click.prevent="goSiteInfo" v-if="item.city || item.officeName">{{item.city}}-{{item.officeName}}</a>
+                            <p @click.prevent="goSiteInfo" v-if="item.officeName">{{item.officeName}}</p>
                         </div>
                         <div class="clock-type" v-if="!isEdit">
                             <span v-if="item.clockType.includes(0)" style="margin-left:0;">蓝牙</span>
                             <span v-if="item.clockType.includes(1)">WIFI</span>
-                            <span v-if="item.clockType.includes(2)">
-                                GPS <span v-if="item.scope">{{item.scope}}米</span>
+                            <span v-if="item.clockType.includes(4)">
+                                GPS( <span v-if="item.gpsScope">{{item.gpsScope}}米)</span>
                             </span>
                         </div>
                         <div class="clock-box">
@@ -45,7 +45,7 @@ import MutiBtn from '@/components/common/MutiBtn'
 import {mapMutations} from 'vuex'
 export default {
     props: {
-        siteData: {type: Array},
+        siteData: {type: Array,default: () => []},
         isEdit: {type: Boolean,default: true}
     },
     data() {
@@ -107,7 +107,7 @@ export default {
             font-weight: 200;
         }
         .wrapper-site {
-            height: 400px;
+            // height: 400px;
             overflow-y: auto;
             /deep/ .el-scrollbar__wrap {
                 overflow-x: hidden!important;
@@ -120,17 +120,17 @@ export default {
                     .name {
                         width: 180px;
                         overflow: hidden;
-                        // text-overflow: ellipsis;
-                        a {
-                            color: #409EFF;
-                            font-size: 12px;
-                            cursor: pointer;
-                        }
+                        white-space: nowrap;
+                        text-overflow: ellipsis;
+                        color: #409EFF;
+                        font-size: 12px;
+                        cursor: pointer;
                     }
                     .clock-type {
                         font-size: 12px;
+                        white-space: nowrap;
                         >span {
-                            margin-left: 20px;
+                            margin-right: 20px;
                         }
                     }
                     .clock-box {

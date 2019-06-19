@@ -29,20 +29,22 @@
             <template slot="dialog-content" class="show-clockgroup-content">
                 <info-tag :text="'考勤组名称'" :info="groupInfo.name"></info-tag>
                 <info-tag :text="'考勤组成员'">
-                    <p slot="info-tag">共有<span style="color:#409EFF;text-decoration: underline;cursor:pointer">{{groupInfo.users}}</span>个成员</p>
+                    <p slot="info-tag">共有
+                        <span style="color:#409EFF;text-decoration: underline;cursor:pointer;padding:0 6px;" @click.prevent="showUsers">{{groupInfo.userNum}}</span>
+                    个成员</p>
                 </info-tag>
                 <info-tag :text="'考勤地点'">
                     <div class="site-content" slot="info-tag">
-                        <site-tag :siteData="groupInfo.clockType" :isEdit="false"></site-tag>
+                        <site-tag :siteData="groupInfo.officeAndClockTypes" :isEdit="false"></site-tag>
                     </div>
                 </info-tag>
                 <info-tag :text="'班次信息'">
                     <div class="order-head" slot="info-tag">
                         <span>{{workType[groupInfo.workType]}}</span>
-                        <span>每天{{groupInfo.clockCount}}次打卡</span>
+                        <span>每天{{groupInfo.clockTimes}}次打卡</span>
                     </div>
                     <div class="order-content" slot="info-tag">
-                        <time-tag v-for="(item,i) in workDayShow" :key="i" :text="item.text" :time="item.time" :readonly="true" :size="'mini'"></time-tag>
+                        <time-tag v-for="(item,i) in workDayShow" :key="i" :data="item" :readonly="true" :size="'mini'"></time-tag>
                     </div>
                 </info-tag>
                 <info-tag :text="'工作日设置'" :info="workday"></info-tag>
@@ -82,11 +84,11 @@ export default {
             // ----------------------搜索考勤组---------------------------
             searchInfo: {},
             formItem: [{type:'input',placeholder: '考勤组名称',label: 'name'},{label:'officeName',placeholder:'考勤地点',type:'input'},
-                        {label:'type',nameText:'打卡方式',type:'mutiSelect',options:[{label:'蓝牙',value:0},{label:'WIFI',value:1},{label:'GPS',value:2}]},
+                        {label:'type',nameText:'打卡方式',type:'mutiSelect',options:[{label:'蓝牙',value:0},{label:'WIFI',value:1},{label:'GPS',value:4}]},
                         {label:'creator',placeholder:'创建人',type:'input'},{label:'city',nameText:'所在城市',type:'mutiSelect',options:[]},
                         {type:'button',btnType:'primary',nameText:'搜索'}],
             // -------------------------考勤组展示-------------------------
-            head:[{key: 'name',name:'考勤组名称'},{key: 'siteType',name:'考勤地点/打卡方式'},{key: 'counttime',name:'打卡次数/作息时段'},{key: 'scheduleType',name:'班次类型'},{key: 'city',name:'所在城市'},
+            head:[{key: 'name',name:'考勤组名称'},{key: 'officeAndClockTypes',name:'考勤地点/打卡方式'},{key: 'counttime',name:'打卡次数/作息时段'},{key: 'scheduleType',name:'班次类型'},{key: 'city',name:'所在城市'},
                     {key: 'creator',name:'创建人'},{key: 'updateTime',name:'更新时间'},{key: 'workDay',name:'工作日设置'}],
             clockGroupData: [],
             clockGroupLoading: false,
@@ -120,6 +122,7 @@ export default {
         ...mapState({
             clockOrder: state => state.group.clockOrder,
             specialDate: state => state.group.specialDate,
+            countData: state => state.group.countData,
         })
     },
     components: {TableData,MyDialog,InfoTag,SiteTag,TimeTag,SpecialDateTag,ClockCountTimes,SpecialDates},
@@ -132,8 +135,10 @@ export default {
             clearDate: 'group/clearDate',
         }),
         ...mapActions({
-            'addGroup':'group/addGroup',
+            addGroup:'group/addGroup',
             submitSpecialDate: 'group/submitSpecialDate',
+            getAddClockUser: 'group/getAddClockUser',
+            getInitialDate: 'group/getInitialDate',
         }),
         //获取考勤组数据
         getGroup: function(page=1,size=20,name='',officeName='',clockType=[],creator='',city=[]) {
@@ -185,11 +190,21 @@ export default {
             this.getGroup(1,20,name,office,type,creator,city)
         },
         //查看考勤组------------------------------------
-        getClockGroup: function(scope) {
+        async getClockGroup(scope) {
             this.groupInfo = scope.row
+            await this.getAddClockUser(scope.row.clockGroupId).then(res=> {
+                this.groupInfo.userNum = res ? res.length : 0
+            })
             this.showWorkDayType(this.groupInfo)
-            this.workday = utils.filterWorkDay(this.groupInfo.workday)
+            this.workday = this.groupInfo.workDay.join(';')
+            await this.getInitialDate(scope.row.clockGroupId).then(res=> {
+                this.groupInfo.specialDate = res 
+            })
             this.isShowSee = true
+        },
+        //展示考勤组用户
+        showUsers: function() {
+            
         },
         //编辑考勤组
         goEdit: function() {
@@ -223,20 +238,25 @@ export default {
         },
         //调整考勤组数据展示**************
         showWorkDayType: function(val) {
-            switch(val.clockCount) {
+            let time = val.scheduleItems
+            switch(val.clockTimes) {
                 case 2:
-                    this.workDayShow = [{text:'工作时段',time: val.clockTime[0]},{text:'休息时段',time: val.clockTime[1]}]
+                    this.workDayShow = [{text:'工作时段',time: [time[0].startTime,time[0].endTime]},{text:'休息时段',time: [time[1].startTime,time[1].endTime]}]
                     break
                 case 4:
-                    this.workDayShow = [{text:'工作时段1',time: val.clockTime[0]},{text:'工作时段2',time: val.clockTime[1]}]
+                    this.workDayShow = [{text:'工作时段1',time: [time[0].startTime,time[0].endTime]},{text:'工作时段2',time: [time[1].startTime,time[1].endTime]}]
                     break
                 case 6:
-                    this.workDayShow = [{text:'工作时段1',time: val.clockTime[0]},{text:'工作时段2',time: val.clockTime[1]},{text:'工作时段3',time: val.clockTime[2]}]
+                    this.workDayShow = [{text:'工作时段1',time: [time[0].startTime,time[0].endTime]},{text:'工作时段2',time: [time[1].startTime,time[1].endTime]},
+                            {text:'工作时段3',time: [time[2].startTime,time[2].endTime]}]
             }
         },
         //批量操作考勤组------------------------------------------
             //修改考勤时间
         mutiTime: function() {
+            this.clearCountData()
+            this.setClockOrder({clockTimes: 2})
+            this.clearDate()
             this.isShowMutiTime = true
         },
             //关闭修改考勤时间界面
@@ -246,7 +266,8 @@ export default {
             //提交修改时间
         submintMutiTime: function() {
             let clockGroupId = this.ids.map(item=> item.clockGroupId)
-            let {clockTimes,scheduleItem} = this.clockOrder
+            let {clockTimes} = this.clockOrder
+            let scheduleItem = utils.dealTimeData(this.countData,this.clockOrder.clockTimes)
             this.$axios({
                 url: '/es/regularSchedules/editWorkTime',
                 method: 'post',
@@ -276,32 +297,41 @@ export default {
             this.isShowSpecialDate = false
         },
         //****************格式化表格数据 */
-        format: function(cellvalue,property) {
-            if(property == 'clockType') {
-                let [site,clockType,district,list] = ['','','',[]]
-                cellvalue.forEach(item=> {
-                    site = item.site
-                    clockType = utils.filterClockType(item.clockType)
-                    if(item.gpsDistrict) {
-                        district = item.gpsDistrict
-                    }
-                    let siteInfo = (item.gpsDistrict) ? `<span style="white-space:nowrap;">${site} / ${clockType}(${district}米)</span>` : `<span style="white-space:nowrap;">${site} / ${clockType}</span>`
-                    list.push(siteInfo)
-                })
-                return list.join('<br>')
-            } 
+        format: function(cellvalue,property,row) {
             if(property == 'workDay') {
                 return cellvalue && cellvalue.length ? cellvalue.join(';') : '无'
-            } 
-            if(property == 'workType') {
-                return this.workType[cellvalue]
-            } 
-            if(property == 'clockCount') {
-                return cellvalue
             } 
             if(property == 'scheduleType') {
                 let list = ['固定班次','排班制']
                 return list[cellvalue]
+            }
+            if(property == 'city') {
+                return cellvalue && cellvalue.length ? cellvalue.join(';') : '无'
+            }
+            if(property == 'officeAndClockTypes') {
+                const value = ['蓝牙', 'WIFI', '', '', 'GPS']
+                const list = []
+                if(cellvalue && cellvalue.length) {
+                    cellvalue.forEach(item=> {
+                        list.push(item.officeName + '/' + value[item.clockType])
+                    })
+                }
+                return cellvalue && cellvalue.length ? list.join('<br>') : '无'
+            }
+            if(property == 'counttime') {
+                const list = []
+                if(row.scheduleItems && row.scheduleItems.length) {
+                    row.scheduleItems.forEach(item=> {
+                        list.push([item.startTime,item.endTime])
+                    })
+                }
+                if(row.clockTimes === 2) {
+                    return `${row.clockTimes} / 工作时间：${list[0][0]}-${list[0][1]}；休息时间：${list[1][0]}-${list[1][1]}`
+                } else if(row.clockTimes === 6) {
+                    return `${row.clockTimes} / ${list[0].join('-')}；${list[1].join('-')}；${list[2].join('-')}`
+                }else if(row.clockTimes === 4) {
+                    return `${row.clockTimes} / ${list[0].join('-')}；${list[1].join('-')}`
+                }
             }
             else {
                 return cellvalue ? cellvalue : '无'

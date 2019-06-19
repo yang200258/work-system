@@ -14,6 +14,17 @@ const util = {
         let editArr = _.intersectionBy(final, initial, id)
         return { addArr, delArr, editArr }
     },
+    //考勤组中根据countData处理打卡时间
+    dealTimeData: function(countData, count) {
+        let obj = {}
+        let list = []
+        let datas = countData[count / 2 - 1].clockNum
+        datas.forEach(item => {
+            obj = item.text.indexOf('休息时段') > -1 ? { startTime: item.time[0], endTime: item.time[1], type: 1 } : { startTime: item.time[0], endTime: item.time[1], type: 0 }
+            list.push(obj)
+        })
+        return list
+    },
     //判断字符串是否为空
     isStringEmpty: function(s) {
         if (s == '') return true

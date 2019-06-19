@@ -20,7 +20,7 @@ export default {
     },
     methods: {
         changTime: function(val) {
-            this.$emit('changTime',val,this.text)
+            this.$emit('changTime',val)
         }
     }
 }

@@ -42,6 +42,7 @@ Vue.use(Loading.directive);
 Vue.prototype.$loading = Loading.service;
 Vue.prototype.$msgbox = MessageBox
 Vue.prototype.$message = Message
+Vue.prototype.$confirm = MessageBox.confirm;
 
 
 export default Vue

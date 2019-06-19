@@ -8,7 +8,7 @@
         <el-divider></el-divider>
         <div class="worktype-content" v-for="(item,i) in countData" :key="i" :class="clockOrder.clockTimes == (i+1)*2 ? 'isActive' : ''">
             <el-radio :label="item.type" v-model="clockOrder.clockTimes" @change="changeClockCount">{{item.text}}</el-radio>
-            <time-tag v-for="(t,i) in item.clockNum" :key="i" :data="t" @changTime="changeTime($event,i,t.type,t.text)" class="time-tag" ></time-tag>
+            <time-tag v-for="(t,i) in item.clockNum" :key="i" :data="t" @changTime="changeTime($event,i)" class="time-tag" ></time-tag>
         </div>
     </div>
 </template>
@@ -22,7 +22,6 @@ export default {
     },
     data() {
         return {
-            list: []
         }
     },
     mounted() {
@@ -40,33 +39,19 @@ export default {
     methods: {
         ...mapMutations({
             setClockCount: 'group/setClockCount',
-            setClockTime: 'group/setClockTime',
+            setCountData: 'group/setCountData',
+            clearCountData: 'group/clearCountData',
             
         }),
         //更换次数时清除其余次数上的时间数据
         changeClockCount: function(val) {
-            this.setClockTime([])
             this.setClockCount(val)
-            this.list = []
-            this.countData.forEach(item=> {
-                if(item.type !== val) {
-                    item.clockNum.forEach(t=> {
-                        t.time = ''
-                    })
-                }
-            })
+            this.clearCountData()
         },
-        changeTime: function(time,i,type,text) {
+        changeTime: function(time,index) {
+            let clockTimes = this.clockOrder.clockTimes
             if(time) {
-                let list = this.list
-                let obj = {}
-                if(this.clockOrder.clockTimes === 2) {
-                    obj = text.indexOf('工作时段') > -1 ? {startTime:time[0],endTime:time[1],type:0} : {startTime:time[0],endTime:time[1],type:1}
-                } else {
-                    obj = {startTime:time[0],endTime:time[1],type:0}
-                }
-                list.push(obj)
-                this.setClockTime(list)
+                this.setCountData({i:clockTimes/2-1,t:index,data:time})
             }
         }
     }

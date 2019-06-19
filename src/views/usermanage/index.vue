@@ -65,7 +65,6 @@ export default {
         },
         //异步加载机构数据
         loadNode: function(node,resolve) {
-            console.log(node)
             if (node.level === 0) {
                 return resolve(this.rootNode)
             } else {

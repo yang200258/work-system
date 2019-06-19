@@ -20,10 +20,8 @@
                 <el-divider></el-divider>
             </div>
             <div class="right-content">
-                <table-data :head="specialHead" :tableData="specialDate" :page="page" :isSelected="false" :emptyText="emptyDateText" :isSearch="false" :format="formatDate" :height="500">
-                    <template #option="{scope}">
-                        <p style="color:red;cursor:pointer;" @click.prevent="delTime(scope)">删除</p>
-                    </template>
+                <table-data :head="specialHead" :option="option" :tableData="specialDate" :page="page" :isSelected="false" :emptyText="emptyDateText" :isSearch="false" :format="formatDate" 
+                :height="500" @delTable="delTime" :tableRowClassName="selectedDates">
                 </table-data>
             </div>
         </div>
@@ -33,6 +31,7 @@
 <script>
 import SpecialDay from '@/components/checkgroup/specialDay'
 import TableData from '@/components/common/TableData'
+import utils from '@/utils/utils'
 import {mapState,mapMutations} from 'vuex'
 export default {
     data() {
@@ -46,7 +45,8 @@ export default {
             // 特殊日期数据
             isSetSpecial: false,
             clickDay: '',   //储存上次点击的日期判断是否需要显示isSetSpecial为false
-            status: {type:String,default: ''}
+            status: {type:String,default: ''},
+            option: [{name: '删除',event: 'delTable',type:2}],
         }
     },
     components:{
@@ -57,12 +57,13 @@ export default {
         ...mapState({
             specialDate: state => state.group.specialDate,
             clockOrder: state => state.group.clockOrder,
-            initialDate: state => state.group.initialDate
+            initialDate: state => state.group.initialDate,
+            countData: state => state.group.countData,
         }),
     },
     methods: {
         ...mapMutations({
-            setClockTime: 'group/setClockTime',
+            // setClockTime: 'group/setClockTime',
             setSpecialDates: 'group/setSpecialDates',
             setClockOrder: 'group/setClockOrder',
             clearCountData: 'group/clearCountData',
@@ -75,9 +76,7 @@ export default {
             } else {
                 this.isSetSpecial = true
             }
-            console.log($event)
             let userAgent = navigator.userAgent
-            console.log(userAgent);
             if(userAgent.indexOf('Trident') > -1 && this.status !== 'muti') {
                 this.$refs.setSpecial.style.top = ($event.pageY - $event.offsetY) + 'px'
                 this.$refs.setSpecial.style.left = ($event.pageX - $event.offsetX + $event.target.clientWidth) + 'px' 
@@ -103,7 +102,8 @@ export default {
                 this.isSetSpecial = false
                 return 
             } 
-            let data = type === 0 ? {date:this.day,reason,type,scheduleItem:this.clockOrder.scheduleItem,clockTimes:this.clockOrder.clockTimes,specialDateId: 0}  
+            let scheduleItem = utils.dealTimeData(this.countData,this.clockOrder.clockTimes)
+            let data = type === 0 ? {date:this.day,reason,type,scheduleItem:scheduleItem,clockTimes:this.clockOrder.clockTimes,specialDateId: 0}  
                                         : {specialDateId: 0,date:this.day,reason,type,scheduleItem:[],clockTimes:0}
             dates.push(data)
             this.setSpecialDates(dates)
@@ -111,7 +111,6 @@ export default {
         },
         //点击取消隐藏设置框
         cancelSet: function() {
-            this.setClockTime([])
             this.isSetSpecial = false
         },
         //过滤特殊日期类型
@@ -133,6 +132,9 @@ export default {
                 default:
                     return cellValue ? cellValue : '无'
             }
+        },
+        selectedDates: function({row}) {
+            if(this.initialDate.map(item=>item.date).indexOf(row.date) > -1) return 'success-row'
         },
         //删除考勤时间
         delTime: function(scope) {

@@ -7,7 +7,7 @@
         <div class="muti-option" v-if="isMutiOption">
             <div class="left-option">
                 <el-checkbox v-model="isShowSelected" v-if="isSelected">已选中{{selectCount}}项</el-checkbox>
-                <muti-btn v-for="(item,i) in mutiItem.left" :key="i" :className="item.className" :nameText="item.nameText" @click.native="mutiOption(item)"></muti-btn>
+                <muti-btn v-show="selectCount > 1" v-for="(item,i) in mutiItem.left" :key="i" :className="item.className" :nameText="item.nameText" @click.native="mutiOption(item)"></muti-btn>
             </div>
             <div class="right-option">
                 <muti-btn v-for="(item,i) in mutiItem.right" :key="i" :className="item.className" :nameText="item.nameText" @click.native="mutiOption(item)"></muti-btn>
@@ -15,12 +15,12 @@
         </div>
         <div class="table-container">
             <el-table  v-loading="tableLoading" element-loading-text="拼命加载中" element-loading-spinner="el-icon-loading" :default-sort="tableSort" :empty-text="emptyText"
-            :data="tableData" @selection-change="selectionChange" :highlight-current-row="true" :header-cell-class-name="'title'" :height="height">
+            :data="tableData" @selection-change="selectionChange" :highlight-current-row="true" :header-cell-class-name="'title'" :height="height" :row-class-name="tableRowClassName">
                 <el-table-column type="selection" align="left" v-if="isSelected"> </el-table-column>
                 <el-table-column v-for="(item,index) in head" :prop="item.key" :label="item.name" :key="index" align="left" :show-overflow-tooltip="true"> 
                     <template slot-scope="scope">
                         <slot name="special" :scope="scope">
-                            <span v-html="format(scope.row[scope.column.property],scope.column.property)">{{scope.row[scope.column.property]}}</span>
+                            <span v-html="format(scope.row[scope.column.property],scope.column.property,scope.row)">{{scope.row[scope.column.property]}}</span>
                         </slot>
                     </template>
                 </el-table-column>
@@ -45,6 +45,8 @@ export default {
     /* eslint-disable */
     props: {
         height: {type:Number},
+        //特殊标注区
+        tableRowClassName: {type: Function,default: function() {}},
         //表格上方搜索区
         isSearch: {type:Boolean,default: true},
         data: {type: Object},
@@ -144,6 +146,9 @@ export default {
         }
         .table-container {
             padding: 0 32px;
+            .el-table .success-row {
+                color: #409eff;
+            }
             .el-table {
                 // 滚动条的宽度
                 /deep/ .el-table__body-wrapper::-webkit-scrollbar {
@@ -152,8 +157,10 @@ export default {
                 }
                 // 滚动条的滑块
                 /deep/ .el-table__body-wrapper::-webkit-scrollbar-thumb {
-                    background-color: #eee;
-                    border-radius: 3px;
+                    background-color: rgba(144,147,153,.3);
+                    border-radius: inherit;
+                    cursor: pointer;
+                    transition: .3s background-color;
                 }
             }
             .title {

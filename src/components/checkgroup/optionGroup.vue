@@ -71,17 +71,20 @@
                 <look-site :show="isShowSite" @close="closeSite" @cancel="closeSite" @confirm="goEditSite"></look-site>
             </div>
             <div class="third" v-if="active === 2">
-                <div class="edit-wrapper">
+                <div class="left-third">
+                    <p style="font-size: 14px;font-weight:700;">请选择编辑成员</p>
+                    <el-input placeholder="请输入名称" v-model="userName" clearable size="mini" @keyup.enter.native="searchUser">
+                        <i slot="suffix" class="el-input__icon el-icon-search" @click.prevent="searchUser"></i>
+                    </el-input>
+                    <el-scrollbar style="height: 100%">
+                        <el-tree ref="tree" :props="props" :load="loadNode" lazy show-checkbox expand-on-click-node @check-change="selectUser" highlight-current check-on-click-node
+                        node-key="id" @setCheckedNodes="setCheckedUser" @node-expand="nodeExpand"></el-tree>
+                    </el-scrollbar>
+                </div>
+                <div class="right-third">
                     <table-data :head="head" :tableData="clockUser" :tableLoading="loadingUser" :isSelected="false" :option="userOption" :totalNumber="totalUser" :emptyText="emptyText"
-                                :data="searchUserInfo" :formData="formUserData" @changeMutiSelect="changeMutiSelect" @btnClick="isSelectPart = !isSelectPart">
-                        <template #special="{scope: scope}">
-                            <img v-if="scope.column.property == 'avater'" :src="scope.row.avater" style="max-width: 40px;border-radius: 50%;">
-                        </template>
-                        <template #option="{scope: scope}">
-                            <img src="@/assets/images/del.png" class="delImg" @click.prevent="delUser(scope)">
-                        </template>
+                        :isSearch="false" @delTable="delUser" :format="formatUser" :height="500" :page="{isPagenation:false}" :tableRowClassName="selectedUser">
                     </table-data>
-                    <select-tree v-if="isSelectPart" class="select-depart"></select-tree>
                 </div>
             </div>
             <div class="fourth" v-if="active === 3">
@@ -103,7 +106,6 @@
 import ClockCountTimes from '@/components/checkgroup/clockCountTimes'
 import SiteTag from '@/components/checkgroup/siteTag'
 import TableData from '@/components/common/TableData'
-import SelectTree from '@/components/common/SelectTree'
 import SpecialDates from '@/components/checkgroup/specialDates'
 import MutiBtn from '@/components/common/MutiBtn'
 import MyDialog from '@/components/common/MyDialog'
@@ -144,45 +146,39 @@ export default {
             option: [{name: '查看',type:1,event: 'editTable'},{name: '选择',type:1,event: 'chooseTable'}],
             siteTableData: [],
             // ------------------------考勤组成员编辑---------------
+            //tree数据
+            props: {label: 'name',children:'children',isLeaf: 'leaf'},
+            rootNode: [],
+            userName: '',
             //是否按部门添加考勤组成员
-            searchUserInfo: {},
-            formUserData: [{type:'button',btnType:'plain',nameText:'按部门添加'},{type:'input',placeholder:'输入名称搜索',label:'name'}],
-            isSelectPart: false,
-            head: [{key:'name',name: '姓名'},{key:'username',name: '用户账号'},{key:'mobile',name: '手机号'},{key:'hisgroup',name: '历史考勤组'},{key:'organ',name: '组织'}],
-            userOption:[],
+            head: [{key:'name',name: '姓名'},{key:'username',name: '用户账号'},{key:'mobile',name: '手机号'},{key:'hisgroup',name: '当前考勤组'},{key:'organ',name: '组织'}],
+            userOption:[{name: '删除',event: 'delTable',type:2}],
             //考勤组成员信息
             users: [],
             loadingUser: false,
             totalUser: 0,
             emptyText: '还没有添加考勤组成员！',
-            // ----------------------------特殊日期------------------------------
-            emptyDateText: '还没有添加特殊日期！',
-            specialHead: [{key:'date',name: '日期'},{key:'type',name: '设置类型'},{key:'scheduleItem',name: '上班时段'},{key:'reason',name:'原因'},{key:'operator',name: '设置人'}],
-            page:{isPagination:false},
-            isWeekend: false,
-            // 渲染指定日期数据源
-            specialtime: [],
-            // 特殊日期数据
-            timeData: {date: '',time: [{worktime:['00:00','23:59'],quit: true,key: new Date(),here: true}]},
-            isSetSpecial: false,
-            clickDay: '',   //储存上次点击的日期判断是否需要显示isSetSpecial为false
-            day: '',         //记录点击所选日期
+            
         }
     },
     components: {
-        SiteTag,TableData,SelectTree,SpecialDates,MutiBtn,MyDialog,LookSite,ClockCountTimes
+        SiteTag,TableData,SpecialDates,MutiBtn,MyDialog,LookSite,ClockCountTimes
     },
     mounted() {
         this.groupname = this.name
-        //初次进入页面清除时间数据，
-        this.clearCountData()
-        this.initialData()
         //编辑时获取已设置考勤班次
         if(this.status === 'edit')   {
             this.getClockSchedual().then(res=> {
-                this.setEditClockOrder(res)
+               this.setEditClockOrder(res)
             })
         }
+        //初次进入页面清除时间数据，
+        this.clearCountData()
+        this.initialData()
+        //获取初始机构树
+        this.getDepartUser().then(res=> {
+             this.rootNode = this.dealOrganUser(res.organizations,res.users,1)
+        })
     },
     computed: {
         ...mapState({
@@ -191,9 +187,11 @@ export default {
             clockOrder: state => state.group.clockOrder,
             initialClockSite: state => state.group.initialClockSite,
             clockSite: state => state.group.clockSite,
-            clockUserId: state => state.group.clockUserId,
+            clockUser: state => state.group.clockUser,
             specialDate: state => state.group.specialDate,
             siteInfo: state => state.site.siteInfo,
+            initialClockUser: state => state.group.initialClockUser,
+            countData: state => state.group.countData,
         }),
     },
     watch: {
@@ -207,20 +205,28 @@ export default {
                     if(this.status === 'edit') this.getAddClockSite()
                     break
                 case 2:
+                    // TODO: 未知bug，点击选择考勤地点时考勤用户被赋值
+                    this.setClockUser([])
+                    this.setInitialClockUser([])
                     //编辑时获取已添加考勤组成员及组织机构树
                     if(this.status === 'edit') {
-                        this.getAddClockUser()
+                        this.getAddClockUser(this.id).then(res=> {
+                            this.setCheckedUser(res)
+                        })
                     } 
                     break
                 case 3:
+                    // TODO: 未知bug，点击选择考勤地点时考勤用户被赋值
+                    this.setInitialDate([])
+                    this.setSpecialDates([])
                     //编辑时获取已添加考勤组特殊日期
-                    if(this.status === 'edit') this.getInitialDate()
+                    if(this.status === 'edit') this.getInitialDate(this.id)
                     break
             }
         },
         isShowAdd: function(val) {
             if(val) this.getUsefulSite()
-        }
+        },
     },
     methods: {
         ...mapMutations({
@@ -233,31 +239,23 @@ export default {
             setInitialClockSite: 'group/setInitialClockSite',
             setClockType: 'group/setClockType',
             setSpecialDates:'group/setSpecialDates',
-            setClockTime: 'group/setClockTime',
             setClockCount: 'group/setClockCount',
             setCountData: 'group/setCountData',
             setClockOrder: 'group/setClockOrder',
             clearCountData: 'group/clearCountData',
             initialData: 'group/initialData',
+            setClockUser: 'group/setClockUser',
+            setInitialClockUser: 'group/setInitialClockUser',
+            setInitialDate: 'group/setInitialDate',
         }),
         ...mapActions({
-            addClockSite: 'group/addClockSite',
             getAddClockSite: 'group/getAddClockSite',
             editName: 'group/editName',
             getInitialDate: 'group/getInitialDate',
             getClockSchedual: 'group/getClockSchedual',
             submitSpecialDate: 'group/submitSpecialDate',
+            getAddClockUser: 'group/getAddClockUser'
         }),
-        // ***************************修改考勤组名称*******************************
-        changeName: function() {
-            this.editName(this.groupname).then(res=> {
-                this.groupname = this.name
-                this.$message.success(res)
-                this.isShowEditName = false
-            }).catch(err=> {
-                this.$message.error(err)
-            })
-        },
         // ***************************点击操作*******************************
         //点击进行下一步
         next: function() {
@@ -274,28 +272,14 @@ export default {
         },
         //点击进行上一步
         last: function(){
-            switch(this.active) {
-                case 1:
-                    //操作考勤地点
-                    break
-                case 2:
-                    //操作考勤组成员
-                    break
-            }
             this.active--
-        },
-        //设置特殊日期及编辑是点击跳转
-        goSpecialDate: function(i) {
-            if(this.status === 'new' && i === 3) {
-                this.active = 3
-            } 
-            if(this.status === 'edit') this.active = i
         },
         //后两步的提交按钮
         submit: function() {
             switch(this.active) {
                 case 2:
                     //操作考勤组成员
+                    this.saveGroupUser()
                     break
                 case 3:
                     //操作特殊日期
@@ -306,6 +290,16 @@ export default {
                     })
                     break
             }
+        },
+        // ***************************修改考勤组名称*******************************
+        changeName: function() {
+            this.editName(this.groupname).then(res=> {
+                this.groupname = this.name
+                this.$message.success(res)
+                this.isShowEditName = false
+            }).catch(err=> {
+                this.$message.error(err)
+            })
         },
         // *************************保存编辑考勤组*******************
         saveEdit: function() {
@@ -320,12 +314,13 @@ export default {
                     break
                 case 2:
                     //保存考勤组成员
+                    this.saveGroupUser()
                     break
                 case 3:
                     //保存特殊日期
                     this.submitSpecialDate([this.id]).then(res=> {
                         this.$message.success(res)
-                        this.getInitialDate()
+                        this.getInitialDate(this.id)
                     })
                     break
             }
@@ -336,7 +331,8 @@ export default {
             let clockOrder = this.clockOrder
             let clockGroupId = this.id
             let workDaySet = {}
-            let {applyFestival,clockTimes,clockStartTime,scheduleItem} = clockOrder
+            let {applyFestival,clockTimes,clockStartTime} = clockOrder
+            let scheduleItem = utils.dealTimeData(this.countData,clockTimes)
             workDaySet = utils.transformWorkday(clockOrder.workDaySet)
             this.$axios({
                 url: `/es/regularSchedules/save`,
@@ -375,31 +371,39 @@ export default {
             this.setAutoRest(val)
         },
         //编辑考勤班次时设置state/clockOrder
-        setEditClockOrder: function(obj) {
+        setEditClockOrder(obj) {
             let scheduleItem = obj.scheduleItem
+            let clockTimes = this.clockOrder.clockTimes
+            let times = this.formatCountData(clockTimes,scheduleItem)
+            this.setWorkDay(utils.filterWorkDay(obj.workDaySet))
+            this.setCountData({i: obj.clockTimes/2-1,data: times})
+        },
+         //格式化获取到的countData数据
+        formatCountData: function(clockTimes, scheduleItem) {
             let time = []
             let times = []
-            if(obj.clockTimes === 2) {
-                scheduleItem.forEach(item=> {
-                    if(item.type) {
+            if (clockTimes === 2) {
+                scheduleItem.forEach(item => {
+                    if (item.type) {
                         time[0] = item.startTime
                         time[1] = item.endTime
-                        times.push({text: '休息时段',time:time})
+                        times.push({ text: '休息时段', time: time })
                     } else {
                         time[0] = item.startTime
                         time[1] = item.endTime
-                        times.push({text: '工作时段',time:time})
+                        times.push({ text: '工作时段', time: time })
                     }
                 })
             } else {
-                scheduleItem.forEach(item=> {
-                    time[0] = item.startTime
-                    time[1] = item.endTime
-                    times.push({text: '工作时段',time:time})
-                })
+                if (scheduleItem && scheduleItem.length) {
+                    scheduleItem.forEach((item, i) => {
+                        time[0] = item.startTime
+                        time[1] = item.endTime
+                        times.push({ text: `工作时段${i+1}`, time: time })
+                    })
+                }
             }
-            this.setWorkDay(utils.filterWorkDay(obj.workDaySet))
-            this.setCountData({i: obj.clockTimes,data: times})
+            return times
         },
         // ********************************考勤地点设置*******************************
         // 创建考勤地点
@@ -510,7 +514,7 @@ export default {
             }).then(res=> {
                 if(res) {
                     this.$message.success(res)
-                    this.active++  
+                    if(this.status !== 'edit') this.active++
                 } 
             }).catch(err=> {
                 console.log(err)
@@ -529,9 +533,109 @@ export default {
             this.searchInfo[val2] = val1
         },
         // ********************************考勤组成员设置*******************************
+        //获取机构及人员
+        async getDepartUser(oid=1) {
+            return await this.$axios({url: `/sys/organization-with-users?oid=${oid}`,method: 'get'})
+        },
+        //异步加载部门或人员数据（点击节点）
+        async loadNode(node,resolve) {
+            if(node.level === 0) {
+                return resolve(this.rootNode)
+            } else {
+                let list = []
+                await this.getDepartUser(node.data.id).then(res => {
+                    let data = this.dealOrganUser(res.organizations,res.users,node.data.id)
+                    return resolve(data)
+                })
+            }
+            this.setCheckedUser(this.clockUser)
+        },
+        //处理获取机构树后机构和用户
+        /**
+         * @id 需要删除的id
+         */
+        dealOrganUser: function(organs,users,id) {
+            let list = []
+            let data = []
+            if(users && users.length) {
+                users.forEach(item=> {
+                    item.leaf = true
+                })
+            }
+            if(organs && organs.length) {
+                data = this._.dropWhile(organs,function(o) {return o.id == id })
+            } 
+            list = data.concat(users)
+            return list
+        },
+        //选中状态变化时的事件
+        selectUser: function(data, checked) {
+            let list = this.clockUser
+            if(!data.leaf && !checked) return
+            if(data.leaf) {
+                checked ? this._.findIndex(list,item => item.id == data.id) === -1 ? list.push(data) : '' 
+                        : (list = this._.remove(list,item=> item.id !== data.id))
+                this.setClockUser(list)
+            }
+        },
         //删除考勤组成员
         delUser: function(scope) {
-            this.users = this._.dropWhile(this.users, (item)=> {return item.id === scope.row.id})
+            let list = this.clockUser
+            let id = scope.row.id
+            let data = this._.remove(list, item => item.id !== id)
+            this.setClockUser(data)
+            this.setCheckedUser(data)
+        },
+        //搜索考勤组成员
+        searchUser: function() {
+            console.log(this.userName)
+        },
+        //节点展开回调
+        nodeExpand: function() {
+            this.setCheckedUser(this.clockUser)
+        },
+        //根据考勤组操作同步已选考勤组数据至树
+        setCheckedUser: function(user) {
+            this.$refs.tree.setCheckedNodes(user)
+        },
+        //编辑时保存考勤组成员设置
+        saveGroupUser: function() {
+            let clockGroupId = this.id
+            let obj = utils.addDelArr(this.initialClockUser,this.clockUser,'id')
+            let addUserId = obj.addArr ? obj.addArr.map(item=> item.id ) : []
+            let deleteUserId = obj.delArr ? obj.delArr.map(item=> item.id) : []
+            this.$axios({
+                url: '/es/groupUsers/set',
+                method: 'post',
+                data: {clockGroupId,addUserId,deleteUserId}
+            }).then(res=> {
+                if(res) {
+                    this.$confirm(`${res}，是否继续设置特殊日期？`, '', {
+                        confirmButtonText: '是',
+                        cancelButtonText: '否',
+                        type: 'success'
+                    }).then(() => {
+                        this.active++
+                    }).catch(() => {
+                        this.$router.push('clock_group_manage')
+                    })
+                }
+            })
+        },
+        //格式化考勤组成员数据
+        formatUser: function(val,property) {
+            return val ? val : '无'
+        },
+        selectedUser: function({row, rowIndex}) {
+            if(this.initialClockUser.map(item=>item.id).indexOf(row.id) > -1) return 'success-row'
+        },
+        // ********************************考勤组特殊日期设置*******************************
+         //设置特殊日期及编辑时点击跳转
+        goSpecialDate: function(i) {
+            if(this.status === 'new' && i === 3) {
+                this.active = 3
+            } 
+            if(this.status === 'edit') this.active = i
         },
     }
 }
@@ -580,13 +684,11 @@ $contentLeft: 15px;
                         margin-top: 4px;
                         .el-step__title {
                             width:120px;
-                            background:#a7d2f9;
+                            background-color:#a7d2f9;
                             border-radius: 2px;
                             color: #fff;
                             cursor: pointer;
                             text-align: center;
-                            position: relative;
-                            right: 50px;
                             &:hover {
                                 background-color: #409eff;
                             }
@@ -606,17 +708,8 @@ $contentLeft: 15px;
                 .step3 {
                     /deep/ .el-step__main {
                         .el-step__title {
-                            // width:120px;
-                            // border-radius: 2px;
-                            position: relative;
-                            right: 50px;
                             cursor: pointer;
-                            // text-align: center;
                             margin: auto 0;
-                            // color: #fff;
-                            // &:hover {
-                            //     background-color: #ff0000;
-                            // }
                         }
                         
                     }
@@ -727,25 +820,37 @@ $contentLeft: 15px;
                 }
             }
             .third {
+                display: grid;
+                grid-template-columns: 400px auto;
+                .left-third {
+                    height: 468px;
+                    margin: 0 auto;
+                    margin-top: 16px;
+                    /deep/ .el-scrollbar__wrap {
+                        overflow-x: hidden!important;
+                    }
+                    p {
+                        font-size: 14px;
+                        font-weight: 700;
+                        display: block;
+                        margin-bottom: 4px;
+                    }
+                    .el-input {
+                        width: 200px;
+                    }
+                    .el-tree {
+                        margin-top: 20px;
+                        overflow-y: auto;
+                        overflow-x: hidden;
+                    }
+                }
                 // 编辑考勤组成员中表格距离顶部样式
-                .edit-wrapper {
-                    position: relative;
-                    .select-depart {
-                        position: absolute ;
-                        top: 40px; 
-                        z-index:999
-                    }
-                    &:last-child {
-                        /deep/ .el-table__empty-block {
-                            margin: 100px 0;
-                            span {
-                                color: #bcbcc9;
-                                font-size: 28px;
-                            }
+                .right-third {
+                    /deep/ .el-table__empty-block {
+                        span {
+                            color: #bcbcc9;
+                            font-size: 28px;
                         }
-                    }
-                    .delImg {
-                        width: 30px;
                     }
                 }
             }

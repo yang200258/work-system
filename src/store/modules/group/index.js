@@ -3,7 +3,7 @@ import utils from '@/utils/utils'
 const state = {
     id: 0,
     name: '',
-    clockOrder: { clockTimes: 2, scheduleItem: [], workDaySet: [], applyFestival: false, clockStartTime: '' },
+    clockOrder: { clockTimes: 2, workDaySet: [], applyFestival: false, clockStartTime: '' },
     initialClockSite: [], //初始状态已添加考勤地点（编辑时用到）
     clockSite: [],
     initialClockUser: [], //初始状态已添加考勤成员（编辑时用到）
@@ -28,9 +28,9 @@ const mutations = {
     setClockCount: (state, data) => {
         state.clockOrder.clockTimes = data
     },
-    setClockTime: (state, data) => {
-        state.clockOrder.scheduleItem = data
-    },
+    // setClockTime: (state, data) => {
+    //     state.clockOrder.scheduleItem = data
+    // },
     setClockStartTime: (state, data) => {
         state.clockOrder.clockStartTime = data
     },
@@ -49,6 +49,9 @@ const mutations = {
     setInitialClockUser: (state, data) => {
         state.initialClockUser = data
     },
+    setClockUser: (state, data) => {
+        state.clockUser = data
+    },
     setClockType: (state, data) => {
         state.clockSite[data.t].clockType[data.i].enable = data.val
     },
@@ -62,7 +65,12 @@ const mutations = {
         state.specialDate = data
     },
     setCountData: (state, data) => {
-        state.countData[data.i / 2 - 1].clockNum = data.data
+        if (typeof(data.t) === 'number') {
+            state.countData[data.i].clockNum[data.t].time = data.data
+        } else {
+            state.countData[data.i].clockNum = data.data
+        }
+
     },
     clearCountData: (state) => {
         state.countData.forEach(item => {
@@ -72,11 +80,11 @@ const mutations = {
         })
     },
     initialData: (state) => {
-        state.clockOrder = { clockTimes: 2, scheduleItem: [], workDaySet: [], applyFestival: false, clockStartTime: '' }
-        state.initialClockSite = state.clockSite = state.initialClockUser = state.initialDate = state.clockUserId = state.specialDate = []
+        state.clockOrder = { clockTimes: 2, workDaySet: [], applyFestival: false, clockStartTime: '' }
+        state.initialClockSite = state.clockSite = state.initialClockUser = state.initialDate = state.clockUser = state.specialDate = []
     },
     clearDate: (state) => {
-        state.initialData = state.specialDate = []
+        state.initialDate = state.specialDate = []
     }
 }
 
@@ -141,24 +149,17 @@ const actions = {
             })
         })
     },
-    //操作考勤组时添加考勤地点数据
-    addClockSite({ state, commit }, clockInfo) {
-        const list = state.clockSite
-        list.push(clockInfo)
-        commit('setClockSite', list)
-    },
     //编辑考勤组时获取已添加的考勤地点数据
     getAddClockSite({ commit, state }) {
         return new Promise((resolve, reject) => {
             axios({
-                url: `/es/groupOffices/get`,
+                url: `/es/groupOffices/get?clockGroupId=${state.id}`,
                 method: 'post',
-                data: { clockGroupId: state.id }
             }).then(res => {
                 console.log('成功获取考勤地点信息', res);
                 if (res) {
-                    commit('setClockSite', res.content)
-                    commit('setInitialClockSite', res.content)
+                    commit('setClockSite', res)
+                    commit('setInitialClockSite', [...res])
                     resolve(res)
                 }
             }).catch(err => {
@@ -167,22 +168,25 @@ const actions = {
         })
     },
     //编辑时获取已添加考勤组成员
-    getAddClockUser({ commit, state }) {
-        return new Promise((resolve, reject) => {
-            axios({
-                url: '/es/groupUsers/get',
-                method: 'post',
-                data: { clockGroupId: state.id }
-            }).then(res => {
-
-            })
+    async getAddClockUser({ commit }, data) {
+        return axios({
+            url: `/es/groupUsers/_search?clockGroupId=${data}`,
+            method: 'post',
+        }).then(res => {
+            if (res) {
+                commit('setInitialClockUser', [...res])
+                commit('setClockUser', res)
+                return res
+            }
+        }).catch(err => {
+            return err
         })
     },
     //编辑特殊日期时获取初始状态特殊日期
-    getInitialDate({ commit, state }) {
+    getInitialDate({ commit, state }, data) {
         return new Promise((resolve, reject) => {
             axios({
-                url: `/es/specialDate/get?clockGroupId=${state.id}`,
+                url: `/es/specialDate/get?clockGroupId=${data}`,
                 method: 'post',
             }).then(res => {
                 if (res) {

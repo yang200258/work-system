@@ -9,7 +9,7 @@
                 {{item.date}}
             </div>
             <div class="setting">
-                <span>{{item.setting}}</span>
+                <span>{{val[item.type]}}</span>
             </div>
         </div>
     </div>
@@ -22,7 +22,7 @@ export default {
     },
     data() {
         return {
-
+            val: ['调整时间', '上班', '休息']
         }
     }
 }

@@ -21,8 +21,8 @@
     ></el-tree>
     </el-scrollbar>
     <div class="trriger" slot="reference">
-      <p style="margin-right:10px">{{nameText}}:</p>
-      <p style="margin-right:4px">{{tipText}}</p>
+      <p style="margin-right:10px" v-if="nameText">{{nameText}}:</p>
+      <p style="margin-right:4px" v-if="nameText">{{tipText}}</p>
       <div class="iconfont icon-sanjiao"></div>
     </div>
   </el-popover>

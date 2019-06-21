@@ -205,7 +205,7 @@ const actions = {
         return new Promise((resolve, reject) => {
             console.log(state.initialDate, state.specialDate)
             let obj = utils.addDelArr(state.initialDate, state.specialDate, 'date')
-            let addSpecialDate = obj.editArr.concat(obj.addArr)
+            let addSpecialDate = obj.addArr
             let delSpecialDate = obj.delArr.map(item => item.specialDateId)
             console.log(obj);
             axios({

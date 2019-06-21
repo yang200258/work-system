@@ -52,21 +52,21 @@ module.exports = {
     // 对内部的 webpack 配置（比如修改、增加Loader选项）(链式操作)
     chainWebpack: config => {
         // 移除 prefetch 插件
-        // config.plugins.delete('prefetch')
-        // if (config.build.bundleAnalyzerReport) {
-        // 增加分析报告
-        // config
-        //     .plugin('webpack-bundle-analyzer')
-        //     .use(require('webpack-bundle-analyzer').BundleAnalyzerPlugin)
-        // }
-        // 或者
-        // 修改它的选项：
-        // config.plugin('prefetch').tap(options => {
-        //     options[0].fileBlacklist = options[0].fileBlacklist || []
-        //     options[0].fileBlacklist.push(/myasyncRoute(.)+?\.js$/)
-        //     return options
-        // })
-        //修改url-loader上传限制
+        config.plugins.delete('prefetch')
+            // if (config.build.bundleAnalyzerReport) {
+            // 增加分析报告
+            // config
+            //     .plugin('webpack-bundle-analyzer')
+            //     .use(require('webpack-bundle-analyzer').BundleAnalyzerPlugin)
+            // }
+            // 或者
+            // 修改它的选项：
+            // config.plugin('prefetch').tap(options => {
+            //         options[0].fileBlacklist = options[0].fileBlacklist || []
+            //         options[0].fileBlacklist.push(/myasyncRoute(.)+?\.js$/)
+            //         return options
+            //     })
+            //修改url-loader上传限制
         config.module
             .rule('images')
             .use('url-loader')
@@ -84,8 +84,8 @@ module.exports = {
         sourceMap: false,
         //向 CSS 相关的 loader 传递选项(支持 css-loader postcss-loader sass-loader less-loader stylus-loader)
         loaderOptions: {
-            css: {},
-            less: {}
+            // css: {},
+            // less: {}
         }
     },
     // 所有 webpack-dev-server 的选项都支持

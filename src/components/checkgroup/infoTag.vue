@@ -28,6 +28,8 @@ export default {
 
 <style lang="scss" scoped>
     .infotag-container {
+        font-size: 12px;
+        color: #666;
         display: flex;
         flex-direction: column;
         .infotag-content {
@@ -38,14 +40,12 @@ export default {
                 span {
                     white-space: nowrap;
                     font-weight: 400;
-                    font-size: 14px;
+                    
                     display: block;
                     text-align: right;
                 }
             }
             .infotag-right {
-                font-size: 14px;
-                color: #999999;
                 margin-left: 20px;
                 overflow: hidden;
             }

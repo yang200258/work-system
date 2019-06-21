@@ -4,14 +4,18 @@
             <p>日期</p>
             <p>设置</p>
         </div>
-        <div class="specialtag-content" v-for="(item,i) in data" :key="i">
-            <div class="date">
-                {{item.date}}
+        <el-scrollbar style="height:100%">
+            <div class="specialtag-content">
+                <div class="speciate-wrapper" v-for="(item,i) in data" :key="i">
+                    <div class="date">
+                        {{item.date}}
+                    </div>
+                    <div class="setting">
+                        <span>{{val[item.type]}}</span>
+                    </div>
+                </div>
             </div>
-            <div class="setting">
-                <span>{{val[item.type]}}</span>
-            </div>
-        </div>
+        </el-scrollbar>
     </div>
 </template>
 
@@ -37,27 +41,34 @@ export default {
             display: grid;
             grid-template-columns: 200px 100px;
             p {
-                color: #606266;
+                color: #9CA5B0;
                 &:first-child {
                     min-width: 200px;
                 }
             }
         }
         .specialtag-content {
-            width: 300px;
-            display: grid;
-            grid-template-columns: 200px 100px;
-            height: 40px;
-            border-bottom: 1px dashed #ccc;
-            line-height: 50px;
-            .date {
-                min-width: 200px;
-                a {
-                    color: #409EFF;
-                    font-size: 14px;
-                    cursor: pointer;
+            max-height: 140px;
+            .speciate-wrapper {
+                width: 300px;
+                display: grid;
+                grid-template-columns: 200px 100px;
+                height: 40px;
+                border-bottom: 1px dashed #ccc;
+                line-height: 50px;
+                .date {
+                    min-width: 200px;
+                    a {
+                        color: #409EFF;
+                        font-size: 14px;
+                        cursor: pointer;
+                    }
                 }
             }
+            /deep/ .el-scrollbar__wrap {
+                overflow-x: hidden!important;
+            }
+            
         }
     }
 </style>

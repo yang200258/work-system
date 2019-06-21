@@ -1,6 +1,6 @@
 <template>
     <div class="siteinfo-container">
-        <p>选择地址</p>
+        <!-- <p>选择地址</p> -->
         <map-gao class="gao-map" :isShowReset="isShowReset" :isDestroy="isDestroy"> </map-gao>
     </div>
 </template>
@@ -33,7 +33,7 @@ export default {
         color: #ccc;
     }
     .gao-map {
-        margin-top: 20px;
+        // margin-top: 20px;
         width: 100%;
         height: 100%;
     }

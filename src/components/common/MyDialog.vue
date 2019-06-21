@@ -2,6 +2,9 @@
     <div class="dialog-container">
         <el-dialog :title="title" :visible.sync="visible" :width="width" :center="center" @close="close" :show="show" custom-class="mydialog">
             <slot name="dialog-content"></slot>
+            <el-dialog :width="width" :title="innerTitle" :visible.sync="innerVisible" :innerShow="innerShow" @close="closeInner" append-to-body>
+                <slot name="innerDialog-content"></slot>
+            </el-dialog>
             <span slot="footer" class="dialog-footer" v-if="isOption">
                 <el-button :size="size" v-if="isCancel" @click="cancel">{{cancelText}}</el-button>
                 <el-button :size="size" v-if="isConfirm" type="primary" @click="confirm">{{confirmText}}</el-button>
@@ -22,16 +25,22 @@ export default {
         isConfirm: {type: Boolean,default: true},
         confirmText: {type: String,default: '保存'},
         size: {type:String,default: 'small'},
-        isOption: {type:Boolean,default: true}
+        isOption: {type:Boolean,default: true},
+        innerTitle:{type: String},
+        innerShow: {type:Boolean}
     },
     data() {
         return {
-            visible: this.show
+            visible: this.show,
+            innerVisible: this.innerShow
         }
     },
     watch: {
        show() {
            this.visible = this.show
+       },
+       innerShow() {
+           this.innerVisible = this.innerShow
        }
     },
     methods: {
@@ -43,6 +52,9 @@ export default {
         },
         close: function() {
             this.$emit('close',false)
+        },
+        closeInner: function() {
+            this.$emit('closeInner',false)
         }
     }
 }
@@ -76,7 +88,5 @@ export default {
                 }
             }
         }
-        
-        
     }
 </style>

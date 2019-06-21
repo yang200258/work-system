@@ -138,6 +138,10 @@ export default {
         },
         //删除考勤时间
         delTime: function(scope) {
+            let now = new Date()
+            let day = new Date(utils.filterDate(now).replace(/[/]/g,"-"))
+            let option = new Date(scope.row.date)
+            if(option < day) return this.$message.error('操作历史日期请联系管理员')
             let data = this._.remove(this.specialDate,item => item.date !== scope.row.date )
             this.setSpecialDates(data)
         },

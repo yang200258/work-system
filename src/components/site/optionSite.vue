@@ -153,7 +153,7 @@ export default {
 
 <style lang="scss" scoped>
     .optionsite-container {
-        padding: 0 40px;
+        padding: 0 60px;
         display: flex;
         flex-direction: column;
         .footer {

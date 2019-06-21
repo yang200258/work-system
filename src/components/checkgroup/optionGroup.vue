@@ -73,11 +73,11 @@
             <div class="third" v-if="active === 2">
                 <div class="left-third">
                     <p style="font-size: 14px;font-weight:700;">请选择编辑成员</p>
-                    <el-input placeholder="请输入名称" v-model="userName" clearable size="mini" @keyup.enter.native="searchUser">
+                    <el-input placeholder="请输入用户姓名" v-model="userName" clearable size="mini" @keyup.enter.native="searchUser">
                         <i slot="suffix" class="el-input__icon el-icon-search" @click.prevent="searchUser"></i>
                     </el-input>
                     <el-scrollbar style="height: 100%">
-                        <el-tree ref="tree" :props="props" :load="loadNode" lazy show-checkbox expand-on-click-node @check-change="selectUser" highlight-current check-on-click-node
+                        <el-tree v-loading="searchLoading" ref="tree" :props="props" :load="loadNode" lazy show-checkbox expand-on-click-node @check-change="selectUser" highlight-current check-on-click-node
                         node-key="id" @setCheckedNodes="setCheckedUser" @node-expand="nodeExpand"></el-tree>
                     </el-scrollbar>
                 </div>
@@ -150,6 +150,7 @@ export default {
             props: {label: 'name',children:'children',isLeaf: 'leaf'},
             rootNode: [],
             userName: '',
+            searchLoading: false,   //搜索user时状态
             //是否按部门添加考勤组成员
             head: [{key:'name',name: '姓名'},{key:'username',name: '用户账号'},{key:'mobile',name: '手机号'},{key:'hisgroup',name: '当前考勤组'},{key:'organ',name: '组织'}],
             userOption:[{name: '删除',event: 'delTable',type:2}],
@@ -471,7 +472,8 @@ export default {
         },
         //选择考勤地点---将对应信息添加至已选择项
         chooseTable: function(scope) {
-            let site = scope.row
+            // eslint-disable-next-line
+            let {latitude,longitude,clockGroup,...site} = scope.row
             let sitePresent = this.clockSite
             let id = site.officeId
             let initialId = this._.intersection(sitePresent.map(item => item.officeId))
@@ -588,7 +590,17 @@ export default {
         },
         //搜索考勤组成员
         searchUser: function() {
-            console.log(this.userName)
+            this.searchLoading = true
+            this.$axiox({
+                url: '',
+                method: 'post',
+                data: {}
+            }).then(res=> {
+                // TODO: 获取到的结果处理
+                this.rootNode = res
+                this.searchLoading = false
+            })
+            this.searchLoading = false
         },
         //节点展开回调
         nodeExpand: function() {
@@ -824,7 +836,7 @@ $contentLeft: 15px;
                 grid-template-columns: 400px auto;
                 .left-third {
                     height: 468px;
-                    margin: 0 auto;
+                    padding-left: 15px;
                     margin-top: 16px;
                     /deep/ .el-scrollbar__wrap {
                         overflow-x: hidden!important;

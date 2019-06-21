@@ -3,11 +3,11 @@
         <section class="clockgroup-content">
             <table-data :head="head" :tableData="clockGroupData" :tableLoading="clockGroupLoading" :totalNumber="groupNumber" :option="option" @chooseTable="getClockGroup" @editTable="editClockGroup" @delTable="delClockGroup" 
                 :format="format" :data="searchInfo" :formData="formItem" @btnClick="search" @changeMutiSelect="changeMutiSelect" :mutiItem="mutiItem" @showCreate="showCreate" @mutiTime="mutiTime"
-                @specialDate="showSpecialDate" @currentChange="nextGroup" @selectionChange="mutiSelect">
+                @specialDate="showSpecialDate" @currentChange="nextGroup" @selectionChange="mutiSelect" @showSlect="showSlectGroup">
             </table-data>
         </section>
         <!-- 创建考勤组名称弹窗 -->
-        <my-dialog :title="'新建考勤组'" :width="'500px'" :show.sync="isShowCreate" :isCancel="true" :confirmText="'提交'" @close="closeCreate" @cancel="cancelCreate" class="create-group" @confirm="goCreate">
+        <my-dialog :title="'新建考勤组'" :width="'35%'" :show.sync="isShowCreate" :isCancel="true" :confirmText="'提交'" @close="closeCreate" @cancel="cancelCreate" class="create-group" @confirm="goCreate">
             <template slot="dialog-content">
                 <div class="clock-name">
                     <el-input type="text" placeholder="考勤组名称" size="mini" style="width:400px;margin-bottom:18px" v-model="name"></el-input>
@@ -25,12 +25,13 @@
             </template>
         </my-dialog>
         <!-- 查看考勤组弹窗 -->
-        <my-dialog :title="'查看考勤组信息'" :width="'80%'" :show.sync="isShowSee" :isCancel="true" :confirmText="'编辑'" @close="closeSee" @cancel="closeSee" @confirm="goEdit" :cancelText="'关闭'">
+        <my-dialog :title="'查看考勤组信息'" :width="'60%'" :show.sync="isShowSee" :isCancel="true" :confirmText="'编辑'" @close="closeSee" @cancel="closeSee" @confirm="goEdit" 
+                :cancelText="'关闭'" :innerTitle="'考勤组成员'" :innerShow="innerShow" @closeInner="closeInner">
             <template slot="dialog-content" class="show-clockgroup-content">
                 <info-tag :text="'考勤组名称'" :info="groupInfo.name"></info-tag>
                 <info-tag :text="'考勤组成员'">
                     <p slot="info-tag">共有
-                        <span style="color:#409EFF;text-decoration: underline;cursor:pointer;padding:0 6px;" @click.prevent="showUsers">{{groupInfo.userNum}}</span>
+                        <span style="color:#409EFF;text-decoration: underline;cursor:pointer;padding:0 2px;" @click.prevent="showUsers">{{groupInfo.userNum}}</span>
                     个成员</p>
                 </info-tag>
                 <info-tag :text="'考勤地点'">
@@ -40,7 +41,7 @@
                 </info-tag>
                 <info-tag :text="'班次信息'">
                     <div class="order-head" slot="info-tag">
-                        <span>{{workType[groupInfo.workType]}}</span>
+                        <span>{{workType[groupInfo.scheduleType]}}</span>
                         <span>每天{{groupInfo.clockTimes}}次打卡</span>
                     </div>
                     <div class="order-content" slot="info-tag">
@@ -54,12 +55,17 @@
                     </template>
                 </info-tag>
             </template>
+            <template slot="innerDialog-content">
+                <table-data :head="userHead" :tableData="addUser" :isSelected="false" :isOption="false"  :emptyText="emptyText" :isSearch="false" :height="500" :page="{isPagenation:false}"
+                    :format="formatUser">
+                </table-data>
+            </template>
         </my-dialog>
         <!-- 批量修改考勤时间 -->
-        <my-dialog :title="'批量修改上班时间'" :width="'80%'" :show.sync="isShowMutiTime" :confirmText="'提交'" @close="closeMutiTime" @confirm="submintMutiTime">
+        <my-dialog :title="'批量修改上班时间'" :width="'1000px'" :show.sync="isShowMutiTime" :confirmText="'提交'" @close="closeMutiTime" @confirm="submintMutiTime">
             <clock-count-times slot="dialog-content"></clock-count-times>
         </my-dialog>
-        <my-dialog :title="'批量修改特殊日期'" :width="'80%'" :show.sync="isShowSpecialDate" :confirmText="'提交'" @close="closeSpecialDate" @confirm="submitMutiSpecialDate">
+        <my-dialog :title="'批量修改特殊日期'" :width="'1200px'" :show.sync="isShowSpecialDate" :confirmText="'提交'" @close="closeSpecialDate" @confirm="submitMutiSpecialDate">
             <special-dates slot="dialog-content" :status="'muti'"></special-dates>
         </my-dialog>
     </div>
@@ -81,6 +87,7 @@ export default {
         return {
             mutiItem: {left: [{className:'el-icon-edit-outline',nameText:'修改上班时间',event:'mutiTime'},{className:'el-icon-date',nameText:'特殊日期设置',event:'specialDate'}],
                         right: [{nameText:'创建考勤组',className:'el-icon-circle-plus-outline',event: 'showCreate'}]},
+            // tableSort: {prop:'date',order: 'descending'},
             // ----------------------搜索考勤组---------------------------
             searchInfo: {},
             formItem: [{type:'input',placeholder: '考勤组名称',label: 'name'},{label:'officeName',placeholder:'考勤地点',type:'input'},
@@ -89,14 +96,19 @@ export default {
                         {type:'button',btnType:'primary',nameText:'搜索'}],
             // -------------------------考勤组展示-------------------------
             head:[{key: 'name',name:'考勤组名称'},{key: 'officeAndClockTypes',name:'考勤地点/打卡方式'},{key: 'counttime',name:'打卡次数/作息时段'},{key: 'scheduleType',name:'班次类型'},{key: 'city',name:'所在城市'},
-                    {key: 'creator',name:'创建人'},{key: 'updateTime',name:'更新时间'},{key: 'workDay',name:'工作日设置'}],
+                    {key: 'creator',name:'创建人'},{key: 'updateTime',name:'更新时间',sortable: true},{key: 'workDay',name:'工作日设置'}],
             clockGroupData: [],
             clockGroupLoading: false,
             option:[{name: '查看',type:1,event: 'chooseTable'},{name: '编辑',type:1,event: 'editTable'},{name:'删除',type:2,event: 'delTable'}],
             groupNumber: 0,
+            // -------------------------查看考勤组-------------------------
+            innerShow: false,
+            userHead: [{key:'name',name: '姓名'},{key:'username',name: '用户账号'},{key:'mobile',name: '手机号'},{key:'hisgroup',name: '当前考勤组'},{key:'organ',name: '组织'}],
+            addUser: [],
+            emptyText: '还没有添加考勤组成员！',
+            selectedGroup: [],
             // --------------批量操作考勤组-------------------
             isShowMutiTime: false,       //是否显示修改时间界面
-            ids: [],
             // --------------批量操作特殊日期-------------------
             isShowSpecialDate: false,
 
@@ -117,6 +129,7 @@ export default {
     mounted() {
         //获取考勤组数据
         this.getGroup()
+        this.getCity()
     },
     computed: {
         ...mapState({
@@ -141,7 +154,7 @@ export default {
             getInitialDate: 'group/getInitialDate',
         }),
         //获取考勤组数据
-        getGroup: function(page=1,size=20,name='',officeName='',clockType=[],creator='',city=[]) {
+        getGroup(page=1,size=20,name='',officeName='',clockType=[],creator='',city=[]) {
             this.clockGroupLoading = true
             this.$axios({
                 url: `/es/clockGroups/_search?page=${page}&size=${size}`,
@@ -158,6 +171,22 @@ export default {
                 console.log(err)
             })
         },
+        //获取城市信息
+        getCity: function() {
+            this.$axios({
+                url: '/es/clockGroups/getCity',
+                method: 'post'
+            }).then(res=> {
+                console.log('成功获取城市列表',res)
+                if(res) {
+                    let list = []
+                    res.forEach(item=> {
+                        list.push({label: item,value: item})
+                    })
+                    this.formItem[4].options = list
+                } 
+            })
+        },
         //翻页
         nextGroup: function(val) {
             this.getGroup(val,20)
@@ -172,6 +201,10 @@ export default {
             this.name = ''
             this.type = 0
             this.isShowCreate = true
+        },
+        //展示已选择考勤组或释放全部
+        async showSlectGroup(val) {
+           val ? this.clockGroupData = this.selectedGroup : this.getGroup()
         },
         //添加考勤组-----------------
         goCreate: function() {
@@ -194,6 +227,7 @@ export default {
             this.groupInfo = scope.row
             await this.getAddClockUser(scope.row.clockGroupId).then(res=> {
                 this.groupInfo.userNum = res ? res.length : 0
+                this.addUser = res
             })
             this.showWorkDayType(this.groupInfo)
             this.workday = this.groupInfo.workDay.join(';')
@@ -202,9 +236,13 @@ export default {
             })
             this.isShowSee = true
         },
+        //格式化考勤组成员数据
+        formatUser: function(val) {
+            return val ? val : '无'
+        },
         //展示考勤组用户
         showUsers: function() {
-            
+            this.innerShow = true
         },
         //编辑考勤组
         goEdit: function() {
@@ -212,6 +250,9 @@ export default {
         },
         closeSee: function() {
             this.isShowSee = false
+        },
+        closeInner: function() {
+            this.innerShow = false
         },
         //编辑考勤组--------------------------------------
         editClockGroup: function(scope) {
@@ -265,7 +306,7 @@ export default {
         },
             //提交修改时间
         submintMutiTime: function() {
-            let clockGroupId = this.ids.map(item=> item.clockGroupId)
+            let clockGroupId = this.selectedGroup.map(item=> item.clockGroupId)
             let {clockTimes} = this.clockOrder
             let scheduleItem = utils.dealTimeData(this.countData,this.clockOrder.clockTimes)
             this.$axios({
@@ -275,6 +316,7 @@ export default {
             }).then(res=> {
                 if(res) {
                     this.$message.success(res)
+                    this.getGroup()
                     this.isShowMutiTime = false
                 }
             })
@@ -288,8 +330,10 @@ export default {
         },
             //提交修改特殊日期
         submitMutiSpecialDate: function() {
-            this.submitSpecialDate(this.ids).then(res=> {
+            let ids = this.selectedGroup.map(item=> item.clockGroupId)
+            this.submitSpecialDate(ids).then(res=> {
                 this.$message.success(res)
+                this.getGroup()
                 this.isShowSpecialDate = false
             })
         },
@@ -313,7 +357,7 @@ export default {
                 const list = []
                 if(cellvalue && cellvalue.length) {
                     cellvalue.forEach(item=> {
-                        list.push(item.officeName + '/' + value[item.clockType])
+                        if(item) list.push(item.officeName + '/' + value[item.clockType])
                     })
                 }
                 return cellvalue && cellvalue.length ? list.join('<br>') : '无'
@@ -341,7 +385,7 @@ export default {
             this.searchInfo[val2] = val1
         },
         mutiSelect: function(val) {
-            this.ids = val.map(item=> item.clockGroupId)
+            this.selectedGroup = val
         },
     }
 }
@@ -403,15 +447,19 @@ export default {
             width: 416px;
         }
         .order-head {
+            color: #666;
+            font-size: 12px;
             span {
                 &:first-child {
-                    margin-right: 20px;
+                    margin-right: 6px;
                 }
             }
         }
         .order-content {
             margin-top: 20px;
-            display: flex;
+            display: grid;
+            width: 720px;
+            grid-template-columns: 1fr 1fr 1fr;
         }
 
     }

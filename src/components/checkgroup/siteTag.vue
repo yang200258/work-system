@@ -8,6 +8,7 @@
         <div class="add-header" v-if="!siteData.length">
             <p>暂未添加考勤地点</p>
         </div>
+        
         <div class="wrapper-site">
             <el-scrollbar style="height:100%">
                 <div class="sitetag-wrapper" v-for="(item,index) in siteData" :key="index">
@@ -22,7 +23,7 @@
                                 GPS( <span v-if="item.gpsScope">{{item.gpsScope}}米)</span>
                             </span>
                         </div>
-                        <div class="clock-box">
+                        <div class="clock-box" v-else>
                             <div class="clock-style" v-show="isEdit" v-for="(t,i) in item.clockType" :key="i" >
                                 <el-checkbox v-model="t.enable" @change="changeClockType($event,index,i)">{{val[t.type]}}</el-checkbox>
                                 <el-input v-if="t.type == 4 && t.enable" v-model="item.scope" placeholder="打卡范围100米" size="mini" clearable @change="changScope($event,index)"></el-input>
@@ -36,6 +37,7 @@
                 </div>
             </el-scrollbar>
         </div>
+        
         
     </div>
 </template>
@@ -92,6 +94,7 @@ export default {
             p {
                 font-size: 12px;
                 font-weight: 700;
+                color: #9CA5B0;
                 &:first-child {
                     width: 180px;
                 }
@@ -102,9 +105,8 @@ export default {
         }
         .add-header {
             font-size: 68px;
-            color: #ddd;
+            color: #666;
             text-align: center;
-            font-weight: 200;
         }
         .wrapper-site {
             // height: 400px;
@@ -119,14 +121,15 @@ export default {
                     padding-left: 15px;
                     .name {
                         width: 180px;
-                        overflow: hidden;
+                        // overflow: hidden;
                         white-space: nowrap;
                         text-overflow: ellipsis;
-                        color: #409EFF;
+                        color: #0096FF;
                         font-size: 12px;
                         cursor: pointer;
                     }
                     .clock-type {
+                        // width: 400px;
                         font-size: 12px;
                         white-space: nowrap;
                         >span {

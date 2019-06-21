@@ -30,9 +30,9 @@ export default {
     methods: {
         format: function(cellvalue,property) {
             if(property == 'clockGroup') {
-                return cellvalue ? cellvalue.map(item=> item.name).join(';') : ''
+                return cellvalue ? cellvalue.map(item=> item.name).join(';') : '无'
             } else if(property == 'clockType') {
-                return cellvalue ? utils.filterClockType(cellvalue) : ''
+                return cellvalue ? utils.filterClockType(cellvalue) : '无'
             } else {
                 return cellvalue
             }

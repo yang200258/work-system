@@ -86,7 +86,7 @@ export default {
         delSite: function(scope) {
             let officeId  = scope.row.id
             this.$axios({
-                url:`/es/offices/deleteOffice?officeId=${officeId}`,
+                url:`/es/offices/delete?officeId=${officeId}`,
                 method: 'post',
                 // data: {officeId}
             }).then(res=> {

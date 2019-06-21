@@ -3,7 +3,9 @@
         <div class="left-tab">
             <div class="tab-head">
                 <span>打卡设备</span>
-                <el-input size="mini" suffix-icon="el-icon-search" placeholder="输入名称搜索" v-model="searchKey" @keyup.enter.native="searchDevice"></el-input>
+                <el-input size="mini" placeholder="输入名称搜索" v-model="searchKey" @keyup.enter.native="searchDevice">
+                    <i slot="suffix" class="el-input__icon el-icon-search" @click.prevent="searchDevice"></i>
+                </el-input>
             </div>
             <div class="tab-content">
                 <el-scrollbar style="height: 100%;"><equip-tag v-for="(item,i) in equips" :key="i" :device="item" @add="addDevice" v-show="type === item.type"></equip-tag></el-scrollbar>
@@ -80,6 +82,7 @@ export default {
         display: flex;
         height: 250px;
         justify-content: flex-start;
+        font-size: 12px;
         .left-tab {
             display: flex;
             flex-direction: column;
@@ -89,7 +92,6 @@ export default {
                 align-items: center;
                 span {
                     white-space: nowrap;
-                    font-size: 14px;
                 }
                 .el-input {
                     margin-left: 20px;
@@ -114,8 +116,7 @@ export default {
             flex-direction: column;
             span {
                 white-space: nowrap;
-                font-size: 14px;
-                margin-bottom: 20px;
+                margin: 8px 0 20px 0;
             }
             .tab-content {
                 overflow-y: auto;

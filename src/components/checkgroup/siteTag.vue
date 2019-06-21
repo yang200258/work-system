@@ -104,9 +104,11 @@ export default {
             margin: 18px 0;
         }
         .add-header {
-            font-size: 68px;
-            color: #666;
+            font-size: 28px;
+            color: #bcbcc9;
             text-align: center;
+            height: 400px;
+            line-height: 400px;
         }
         .wrapper-site {
             // height: 400px;

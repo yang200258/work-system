@@ -37,7 +37,7 @@ export default {
     },
     mounted() {
         //获取可选设备列表
-        this.queryDevice()
+        this.queryDevice('')
     },
     computed: {
         ...mapState({
@@ -114,10 +114,10 @@ export default {
         },
         //搜索设备
         searchDevice: function(searchInfo) {
-            this.queryDevice(searchInfo,'',1,20)
+            this.queryDevice(searchInfo)
         },
         //查询设备
-        queryDevice: function(name='',type='',page=1,size=20) {
+        queryDevice: function(name,type='',page=1,size=20) {
             this.$axios({
                 url: `/es/devices/_search?page=${page}&size=${size}`,
                 method: 'post',

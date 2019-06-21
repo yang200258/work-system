@@ -39,9 +39,11 @@ Vue.use(Dropdown);
 Vue.use(DropdownMenu);
 Vue.use(DropdownItem);
 Vue.use(Loading.directive);
+// Vue.use(InfiniteScroll)
 Vue.prototype.$loading = Loading.service;
 Vue.prototype.$msgbox = MessageBox
 Vue.prototype.$message = Message
+    // Vue.prototype.$InfiniteScroll = InfiniteScroll
 Vue.prototype.$confirm = MessageBox.confirm;
 
 

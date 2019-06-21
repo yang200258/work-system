@@ -24,7 +24,7 @@
                         </slot>
                     </template>
                 </el-table-column>
-                <el-table-column label="操作" align="left" v-if="isOption" :class-name="'option'">
+                <el-table-column label="操作" align="left" v-if="isOption" :class-name="'option'" width="140px">
                     <template slot-scope="scope">
                         <slot name="option" :scope="scope">
                             <span style="margin-right:22px;" :class="item.type == 1 ? 'edit' : 'del'" v-for="(item,index) in option" :key="index" @click.prevent="optionEvent(scope,item)">{{item.name}}</span>

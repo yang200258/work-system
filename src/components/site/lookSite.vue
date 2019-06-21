@@ -1,10 +1,10 @@
 <template>
     <div class="looksite-container">
         <!-- 查看考勤地点弹窗 -->
-        <my-dialog :title="'考勤地点信息'" :show="show" :width="'80%'" @close="close" :isCancel="true" :cancelText="'关闭'" :isConfirm="true" :confirmText="'编辑'" @cancel="cancel" @confirm="confirm">
+        <my-dialog :title="'考勤地点信息'" :show="show" :width="'1200px'" @close="close" :isCancel="true" :cancelText="'关闭'" :isConfirm="true" :confirmText="'编辑'" @cancel="cancel" @confirm="confirm">
             <template slot="dialog-content">
                 <div class="site">
-                    <site-info :isShowReset="!show" :isDestroy="isDestroy"></site-info>
+                    <site-info :isShowReset="!show" :isDestroy="isDestroy" :mapHeight="300"></site-info>
                 </div>
                 <el-divider></el-divider>
                 <div class="device">
@@ -79,10 +79,11 @@ export default {
             let [page,size] = [1,20]
             this.clockGroup = this.siteInfo.clockGroup ? this.siteInfo.clockGroup.map(item=> item.name) : []
             this.$axios({
-                url: `/es/offices/getDevice?page=${page}&size=${size}&officeId=${officeId}`,
+                url: `/es/offices/getDevices?page=${page}&size=${size}&officeId=${officeId}`,
                 method: 'post',
             }).then(res=> {
                 if(res) {
+                    console.log('成功获取考勤地点下考勤设备',res)
                     this.device = res.content
                 }
             }).catch(err=> {
@@ -105,6 +106,8 @@ export default {
 
 <style lang="scss" scoped>
     .looksite-container {
+        .site {
+        }
         .device {
             margin-top: 40px;
             .device-content {
@@ -116,7 +119,7 @@ export default {
                     .tag {
                         margin-top: 10px;
                         padding-left: 60px;
-                        height: 200px;
+                        max-height: 200px;
                         overflow-y: auto;
                         /deep/ .el-scrollbar__wrap {
                             overflow-x: hidden!important;

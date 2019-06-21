@@ -1,7 +1,7 @@
 <template>
     <div class="siteinfo-container">
         <!-- <p>选择地址</p> -->
-        <map-gao class="gao-map" :isShowReset="isShowReset" :isDestroy="isDestroy"> </map-gao>
+        <map-gao class="gao-map" :isShowReset="isShowReset" :isDestroy="isDestroy" :mapHeight="mapHeight"> </map-gao>
     </div>
 </template>
 
@@ -10,7 +10,8 @@ import MapGao from '@/components/common/MapGao'
 export default {
     props: {
         isShowReset: {type: Boolean},
-        isDestroy: {type: Boolean}
+        isDestroy: {type: Boolean},
+        mapHeight: {type:Number,default:600}
     },
     data() {
         return {

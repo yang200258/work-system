@@ -73,12 +73,12 @@
             <div class="third" v-if="active === 2">
                 <div class="left-third">
                     <p style="font-size: 14px;font-weight:700;">请选择编辑成员</p>
-                    <el-input placeholder="请输入用户姓名" v-model="userName" clearable size="mini" @keyup.enter.native="searchUser">
+                    <el-input placeholder="请输入用户姓名" v-model="userName" clearable size="mini" @keyup.enter.native="searchUser" @clear="clearUserName">
                         <i slot="suffix" class="el-input__icon el-icon-search" @click.prevent="searchUser"></i>
                     </el-input>
                     <el-scrollbar style="height: 100%">
                         <el-tree v-loading="searchLoading" ref="tree" :props="props" :load="loadNode" lazy show-checkbox expand-on-click-node @check-change="selectUser" highlight-current check-on-click-node
-                        node-key="id" @setCheckedNodes="setCheckedUser" @node-expand="nodeExpand"></el-tree>
+                        node-key="id" @setCheckedNodes="setCheckedUser" @node-expand="nodeExpand" :data="rootNode"></el-tree>
                     </el-scrollbar>
                 </div>
                 <div class="right-third">
@@ -177,9 +177,7 @@ export default {
         this.clearCountData()
         this.initialData()
         //获取初始机构树
-        this.getDepartUser().then(res=> {
-             this.rootNode = this.dealOrganUser(res.organizations,res.users,1)
-        })
+        this.getDepartUser().then(res => this.rootNode = res)
     },
     computed: {
         ...mapState({
@@ -357,14 +355,14 @@ export default {
         //全选按钮工作日激活操作
         handleCheckAllChange(val) {
             if(val) this.setWorkDay(this.days)
-            this.clockOrder.workDaySet = val ? days : []
+            this.setWorkDay(val ? days : [])
             this.isIndeterminate = false;
         },
         //全部选择工作日激活操作
         handleCheckedCitiesChange(value) {
             this.setWorkDay(value)
-            let checkedCount = value.length;
-            this.checkAll = checkedCount === this.days.length;
+            let checkedCount = value.length
+            this.checkAll = checkedCount === this.days.length
             this.isIndeterminate = checkedCount > 0 && checkedCount < this.days.length;
         },
         //更改自动排休状态
@@ -373,9 +371,12 @@ export default {
         },
         //编辑考勤班次时设置state/clockOrder
         setEditClockOrder(obj) {
-            let scheduleItem = obj.scheduleItem
-            let clockTimes = this.clockOrder.clockTimes
-            let times = this.formatCountData(clockTimes,scheduleItem)
+            if(!obj.clockTimes) {
+                this.clearCountData()
+                this.initialData()
+                return 
+            }
+            let times = this.formatCountData(obj.clockTimes,obj.scheduleItem)
             this.setWorkDay(utils.filterWorkDay(obj.workDaySet))
             this.setCountData({i: obj.clockTimes/2-1,data: times})
         },
@@ -383,6 +384,9 @@ export default {
         formatCountData: function(clockTimes, scheduleItem) {
             let time = []
             let times = []
+            if(clockTimes === 0) {
+                times.push({ text: '休息时段', time: [] },{ text: '工作时段', time: [] })
+            }
             if (clockTimes === 2) {
                 scheduleItem.forEach(item => {
                     if (item.type) {
@@ -537,7 +541,9 @@ export default {
         // ********************************考勤组成员设置*******************************
         //获取机构及人员
         async getDepartUser(oid=1) {
-            return await this.$axios({url: `/sys/organization-with-users?oid=${oid}`,method: 'get'})
+            let node = await this.$axios({url: `/sys/organization-with-users?oid=${oid}`,method: 'get'})
+            let rootNode = this.dealOrganUser(node.organizations,node.users,oid)
+            return rootNode
         },
         //异步加载部门或人员数据（点击节点）
         async loadNode(node,resolve) {
@@ -545,10 +551,7 @@ export default {
                 return resolve(this.rootNode)
             } else {
                 let list = []
-                await this.getDepartUser(node.data.id).then(res => {
-                    let data = this.dealOrganUser(res.organizations,res.users,node.data.id)
-                    return resolve(data)
-                })
+                await this.getDepartUser(node.data.id).then(res => resolve(res) )
             }
             this.setCheckedUser(this.clockUser)
         },
@@ -590,17 +593,28 @@ export default {
         },
         //搜索考勤组成员
         searchUser: function() {
+            if(utils.isStringEmpty(this.userName)) return this.$message.warning('请输入姓名再进行搜索！')
+            this.queryUser(this.userName)
+        },
+        //搜索接口
+        queryUser: function(q,page=1,size=20,gid=[],oid=[],rid=[]) {
             this.searchLoading = true
-            this.$axiox({
-                url: '',
+            this.$axios({
+                url: `/sys/users/_search?page=${page}&size=${size}`,
                 method: 'post',
-                data: {}
+                data: {gid,oid,q,rid}
             }).then(res=> {
-                // TODO: 获取到的结果处理
-                this.rootNode = res
-                this.searchLoading = false
+                if(res) {
+                    console.log('成功搜索到用户',res)
+                    res.content.forEach(item=> item.leaf = true)
+                    this.rootNode = res.content
+                    this.searchLoading = false
+                }
             })
-            this.searchLoading = false
+        },
+        //清除搜索框内容后重新获取机构树
+        clearUserName: function() {
+            this.getDepartUser().then(res => this.rootNode = res)
         },
         //节点展开回调
         nodeExpand: function() {

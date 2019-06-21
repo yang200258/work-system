@@ -4,19 +4,17 @@
             <div class="serch-key">
                 <el-input size="middle" placeholder="请输入地址"  v-model="searchKey" id="output" clearable autocomplete v-if="isShowReset"></el-input>
             </div>
-            <!-- <div id="search-result" v-show="searchKey" class="result"></div> -->
-            <div id="map-container" class="map-container" v-loading="loading" element-loading-text="拼命加载地图中" element-loading-spinner="el-icon-loading"></div>
+            <div id="map-container" class="map-container" :style="{height:mapHeight + 'px'}" v-loading="loading" element-loading-text="拼命加载地图中" element-loading-spinner="el-icon-loading"></div>
         </div>
         <div class="option">
             <div class="left">
                 <div class="left-top">
                     <span>地址名称</span>
-                    <el-input size="middle"  v-model="siteInfo.name" readonly></el-input>
+                    <el-input size="mini"  v-model="siteInfo.name" readonly></el-input>
                 </div>
                 <div class="left-botton">
                     <span>详细地址</span>
-                    <span v-if="!siteInfo.address">---</span>
-                    <span v-else>{{siteInfo.address}}</span>
+                    <el-input size="mini"  v-model="siteInfo.address" readonly></el-input>
                 </div>
             </div>
             <div class="right">
@@ -35,6 +33,7 @@ export default {
     props: {
         isShowReset: {type: Boolean,default: true},
         isDestroy: {type: Boolean,default: false},
+        mapHeight: {type:Number,default: 600}
     },
     data() {
         return {
@@ -84,7 +83,7 @@ export default {
             setSiteInfo: 'site/setSiteInfo'
         }),
         /* eslint-disable */
-        initMap: function() {
+        initMap() {
             let AMapUI = this.AMapUI = window.AMapUI
             let AMap = this.AMap = window.AMap
             let mapConfig = {
@@ -104,11 +103,16 @@ export default {
                 let {latitude,longitude} = siteInfo
                 mapConfig.center = [longitude, latitude]
                 let marker = this.marker = new AMap.Marker({
-                    position: [longitude, latitude]
+                    position: [longitude, latitude],
+                    draggable: true,
+                    title: siteInfo.name,
                 })
                 map.add(marker)
+                //编辑状态时重新定位点标记
+                // maker.on('draggend',res=> {
+                //     console.log(res)
+                // })
                 this.map.setFitView()
-                return
             }
             // 加载地图搜索插件
             AMap.service('AMap.PlaceSearch', () => {
@@ -128,10 +132,9 @@ export default {
                         input: 'output', //输入框id
                     })
                     //初始化poiPicker
-                    this.poiPickerReady(poiPicker);
+                    this.poiPickerReady(poiPicker)
                 }
             })
-            this.init = true
         },
         poiPickerReady: function(poiPicker) {
             this.poiPicker = poiPicker
@@ -139,10 +142,6 @@ export default {
                 draggable: true,
             }
             const marker = new AMap.Marker(markerConfig)
-            marker.on('dragend',res=> {
-                console.log(res)
-                marker.setPosition(res.lnglat)
-            })
             //监听poi选中信息
             poiPicker.on('poiPicked', poiResult=> {
                 //用户选中的poi点信息
@@ -150,14 +149,21 @@ export default {
                 this.formatSiteInfo(poiResult)
                 this.searchKey = poiResult.item.name
                 marker.setMap(this.map)
+                //搜索好后移动点标记重新定位***********
+                marker.on('dragend',res => {
+                    let {lat,lng} = res.lnglat
+                    this.getAddress(poiResult.item.name,lng,lat)
+                    return 
+                })
                 marker.setPosition(poiResult.item.location)
                 marker.setTitle(poiResult.item.name)
+                
                 //设置自适应
                 this.map.setFitView()
             })
         },
         reset: function() {
-             this.setSiteInfo({})
+            this.setSiteInfo({})
             this.searchKey = ''
             this.initMap()
         },
@@ -167,7 +173,8 @@ export default {
             let name = site.name
             if(source == 'suggest') {
                 let address = site.district + site.address
-                let city = site.district.split('市')[0].split('省')[1]
+                let l = site.district.split('市')[0].split('省').length
+                let city = l ===2 ? site.district.split('市')[0].split('省')[1] : site.district.split('市')[0].split('省')[0]
                 let latitude = site.location.lat
                 let longitude = site.location.lng
                 this.setSiteInfo({name,address,city,latitude,longitude})
@@ -178,7 +185,22 @@ export default {
                 let longitude = site.location.lng
                 this.setSiteInfo({name,address,city,latitude,longitude})
             }
-        }
+        },
+        //移动点标记时根据经纬度解析详细地址
+        getAddress(name,lng,lat) {
+            AMap.plugin('AMap.Geocoder', () => {
+                let geocoder = new AMap.Geocoder({})
+                const lnglat = [lng,lat]
+                geocoder.getAddress(lnglat, (status, result) => {
+                    if (status === 'complete' && result.info === 'OK') {
+                        console.log(result)
+                        let res = result.regeocode.addressComponent
+                        let [address,city,longitude,latitude] = [result.regeocode.formattedAddress,res.city,lng,lat]
+                        this.setSiteInfo({name,address,city,latitude,longitude})
+                    }
+                })
+            })
+        },
     }
 }
 </script>
@@ -199,27 +221,28 @@ export default {
         }
         .map-container {
             width: 100%;
-            height: 600px;
+            height: 500px;
         }
     }
     .option {
         display: flex;
-        // align-items: center;
+        margin-top: 30px;
         .left {
             display: flex;
             flex-direction: column;
+            font-size: 12px;
             >div {
                 display: flex;
                 align-items: center;
-                margin-top: 30px;
+                margin-top: 9px;
                 span {
                     white-space: nowrap;
                     display: block;
                     margin-right: 50px;
                 }
                 .el-input {
-                    overflow: hidden;
                     text-overflow: ellipsis;
+                    width: 510px;
                 }
             }
         }

@@ -1,6 +1,6 @@
 <template>
     <div class="myform-container">
-        <el-form :rules="rules" :model="formData" :label-position="position" ref="formRef" :hide-required-asterisk="hideRequired" :inline="isInline">
+        <el-form :rules="rules" :model="formData" :label-position="position" ref="formRef" :hide-required-asterisk="hideRequired" :inline="isInline" label-width="80px">
             <el-form-item v-for="(item,index) in formItem" :prop="item.prop" :label="item.label" :key="index">
                 <el-radio-group v-model="formData[item.prop]" v-if="item.type == 'radio'" :size="size">
                     <el-radio v-for="(option,i) in item.options" :label="option.value" :key="i">{{option.name}}</el-radio>
@@ -8,7 +8,7 @@
                 <el-checkbox-group v-model="formData[item.prop]" v-if="item.type == 'check'" :size="size">
                     <el-checkbox v-for="(option,i) in item.options" :label="option.value" :key="i">{{option.name}}</el-checkbox>
                 </el-checkbox-group>
-                <el-input v-model="formData[item.prop]" v-if="item.type == 'input'" :placeholder="item.placeholder" clearable :type="item.inputType" :size="size"></el-input>
+                <el-input v-model="formData[item.prop]" v-if="item.type == 'input'" :placeholder="item.placeholder" clearable :type="item.inputType" :size="size" :readonly="read"></el-input>
                 <el-select v-model="formData[item.prop]" :placeholder="item.placeholder" v-if="item.type == 'select'" :size="size" collapse-tags multiple>
                     <el-option v-for="(option,i) in item.options" :key="i" :label="option.name" :value="option.value"></el-option>
                 </el-select>
@@ -36,6 +36,7 @@ export default {
         size: {type: String,default: 'mini'},
         hideRequired: {type:Boolean,default: true},
         isInline: {type:Boolean,default: false},
+        read: {type: Boolean,default:false}
     },
     data() {
         return {
@@ -61,8 +62,12 @@ export default {
 .myform-container {
     .el-form {
         /deep/ .el-form-item {
+            // display: flex;
             .el-form-item__label {
                 white-space: nowrap;
+            }
+            .el-form-item__content {
+                margin-left: 0!important;
             }
         }
     }

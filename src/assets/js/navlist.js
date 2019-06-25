@@ -34,6 +34,14 @@ var data = [{
                 name: 'WIFI设备管理'
             }
         ]
+    },
+    {
+        name: '管理员页面',
+        path: '',
+        child: [{
+            path: '/manager/device_manage',
+            name: '设备管理'
+        }]
     }
 ]
 

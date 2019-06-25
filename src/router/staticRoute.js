@@ -118,6 +118,16 @@ const staticRoute = [{
                 meta: { title: 'WIFI设备管理' }
             }
         ]
+    },
+    {
+        path: '/manager',
+        component: layout,
+        children: [{
+            path: 'device_manage',
+            component: resolve => require(['@/views/deviceManage'], resolve),
+            name: 'deviceManage',
+            meta: { title: '设备管理' }
+        }]
     }
 ]
 

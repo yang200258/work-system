@@ -42,6 +42,19 @@ var data = [{
             path: '/manager/device_manage',
             name: '设备管理'
         }]
+    },
+    {
+        name: '假期管理',
+        path: '',
+        child: [{
+                path: '/rest/rest_manage',
+                name: '假种管理'
+            },
+            {
+                path: '/rest/rest_num',
+                name: '假种额度管理'
+            }
+        ]
     }
 ]
 

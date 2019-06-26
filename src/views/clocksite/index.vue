@@ -105,7 +105,7 @@ export default {
                 name: 'edit_clock_site',
                 params: {
                     officeId: scope.row.id
-                }    
+                }
             })
         },
         //通过查看考勤地点页面进入编辑

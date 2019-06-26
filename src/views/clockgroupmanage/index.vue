@@ -364,11 +364,12 @@ export default {
             }
             if(property == 'counttime') {
                 const list = []
-                if(row.scheduleItems && row.scheduleItems.length) {
+                if(row.scheduleItems && row.scheduleItems.length ) {
                     row.scheduleItems.forEach(item=> {
                         list.push([item.startTime,item.endTime])
                     })
                 }
+                if(!row.clockTimes) return '无'
                 if(row.clockTimes === 2) {
                     return `${row.clockTimes} / 工作时间：${list[0][0]}-${list[0][1]}；休息时间：${list[1][0]}-${list[1][1]}`
                 } else if(row.clockTimes === 6) {

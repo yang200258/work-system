@@ -2,7 +2,9 @@
     <div class="form-container">
         <div class="form-wrapper" v-for="(item,i) in formData" :key="i">
             <p v-if="item.type === 'text'">{{item.nameText}}</p>
-            <el-input v-if="item.type === 'input'" :placeholder="item.placeholder" v-model="data[item.label]" :size="size" clearable></el-input>
+            <el-input v-if="item.type === 'input'" :placeholder="item.placeholder" v-model="data[item.label]" :size="size" clearable @keyup.enter.native="inputSearch">
+                <i v-if="item.isSuffix" slot="suffix" class="el-input__icon el-icon-search" @click.prevent="inputSearch"></i>
+            </el-input>
             <select-tree v-if="item.type === 'selectTree'" :nameText="item.nameText" :loadNode="loadNode" :id.sync="data[item.label]" :tipText="item.tipText"></select-tree>
             <muti-select v-if="item.type === 'mutiSelect'" :nameText="item.nameText" :options="item.options" @changeMutiSelect="changeMutiSelect($event,item.label)"></muti-select>
             <el-button v-if="item.type === 'button'" :type="item.btnType || 'primary'" @click.prevent="btnClick" :size="size">{{item.nameText}}</el-button>
@@ -41,7 +43,10 @@ export default {
         },
         btnClick: function() {
             this.$emit('btnClick')
-        }
+        },
+        inputSearch: function() {
+            this.$emit('inputSearch')
+        },
     }
 }
 </script>

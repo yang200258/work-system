@@ -8,9 +8,10 @@
                 <el-checkbox-group v-model="formData[item.prop]" v-if="item.type == 'check'" :size="size">
                     <el-checkbox v-for="(option,i) in item.options" :label="option.value" :key="i">{{option.name}}</el-checkbox>
                 </el-checkbox-group>
-                <el-input v-model="formData[item.prop]" v-if="item.type == 'input'" :placeholder="item.placeholder" clearable :type="item.inputType" :size="size" :readonly="read"></el-input>
-                <el-select v-model="formData[item.prop]" :placeholder="item.placeholder" v-if="item.type == 'select'" :size="size" collapse-tags multiple>
-                    <el-option v-for="(option,i) in item.options" :key="i" :label="option.name" :value="option.value"></el-option>
+                <el-input v-model="formData[item.prop]" v-if="item.type == 'input'" :placeholder="item.placeholder" clearable :type="item.inputType" :size="size" :disabled="item.disable || read"></el-input>
+                <el-select v-model="formData[item.prop]" :placeholder="item.placeholder" v-if="item.type == 'select'" :size="size" :collapse-tags="item.collapseTags" :multiple="item.multiple" :disabled="read"
+                @change="changeSelect($event,item.prop)">
+                    <el-option v-for="(option,i) in item.options" :key="i" :label="option.name" :value="option.id"></el-option>
                 </el-select>
                 <select-tree v-if="item.type == 'select-tree'" v-model="formData[item.prop]" :loadNode="loadNode" :id.sync="item.returnArray" :tipText="item.text"></select-tree>
                 <el-slider v-if="item.type == 'slider'" v-model="formData[item.prop]"  :size="size"></el-slider>
@@ -36,7 +37,9 @@ export default {
         size: {type: String,default: 'mini'},
         hideRequired: {type:Boolean,default: true},
         isInline: {type:Boolean,default: false},
-        read: {type: Boolean,default:false}
+        read: {type: Boolean,default:false},
+        // collapseTags: {type:Boolean,default:true},
+        // multiple: {type:Boolean,default:true}
     },
     data() {
         return {
@@ -50,6 +53,9 @@ export default {
         //分发点击按钮事件
         clickEvent: function(eventName) {
             this.$emit(eventName)
+        },
+        changeSelect: function(val,prop) {
+            this.$emit('changeSelect',val,prop)
         }
     },
     components:{
@@ -68,6 +74,13 @@ export default {
             }
             .el-form-item__content {
                 margin-left: 0!important;
+                .el-select--mini {
+                    .el-input--mini {
+                        input {
+                            height: 28px!important;
+                        }
+                    }
+                }
             }
         }
     }

@@ -37,7 +37,8 @@ export default {
     },
     mounted() {
         //获取可选设备列表
-        this.queryDevice('')
+        this.getEquipList()
+        if(this.$route.params.officeId) this.officeId = this.$route.params.officeId
     },
     computed: {
         ...mapState({
@@ -52,7 +53,8 @@ export default {
             setEquips: 'site/setEquips',
             setAddEquips: 'site/setEquips',
             setInialDeviceId: 'site/setEquips',
-            clearSiteInfo: 'site/clearSiteInfo'
+            clearSiteInfo: 'site/clearSiteInfo',
+            setSiteInfo:'site/setSiteInfo'
         }),
         //点击保存时操作
         submitCreate: function() {
@@ -64,7 +66,9 @@ export default {
         },
         //操作考勤地点---------新增id=0编辑id=1
         optionSite: function(id=0) {
-            this.siteInfo.id = id
+            // this.siteInfo.id = id
+            let obj = Object.assign({},this.siteInfo,{id})
+            this.setSiteInfo(obj)
             this.$axios({
                 url: '/es/offices/save',
                 method: 'post',
@@ -83,34 +87,19 @@ export default {
             })
         },
         //添加打卡设备
-        optionDevice: function() {
-            let officeId = this.officeId
+        async optionDevice() {
+            let officeId = this.siteInfo.id
             let {newId,delId} = this.contrastDevice(this.inialDeviceId,this.addEquips)       //获取到的新增设备和减少设备的id，待接口
-            this.$axios({
-                url: '/es/offices/addDevice',
-                method: 'post',
-                data: {deviceId:newId,officeId}
-            }).then(res=> {
-                console.log('添加设备成功',res)
-                if(res) {
-                    this.$axios({
-                        url: '/es/offices/deleteDevices',
-                        method: 'post',
-                        data: {deviceId:delId,officeId}
-                    }).then(delRes=> {
-                        console.log('删除设备成功',delRes)
-                        if(delRes) {
-                            this.$message.success('保存设备成功！')
-                            //编辑或新增成功后清楚数据
-                            this.clearSiteInfo()
-                            this.$router.push('clocksite')
-                        }
-                    })
-                    
+            let addres = await this.$axios({url: '/es/offices/addDevice',method: 'post',data: {deviceId:newId,officeId}})
+            if(addres) {
+                let delres = await this.$axios({url: '/es/offices/deleteDevices',method: 'post',data: {deviceId:delId,officeId}})
+                if(delres) {
+                    this.$message.success('保存设备成功！')
+                    //编辑或新增成功后清除数据
+                    this.clearSiteInfo()
+                    this.$router.push('clocksite')
                 }
-            }).catch(err=> {
-                console.log(err)
-            })
+            } 
         },
         //搜索设备
         searchDevice: function(searchInfo) {
@@ -130,6 +119,11 @@ export default {
             }).catch(err=> {
                 console.log(err)
             })
+        },
+        //获取打卡设备列表
+        async getEquipList() {
+            let res = await this.$axios({url:'/es/devices',method:'get'})
+            this.setEquips(res.content)
         },
         //编辑添加设备时对比初始状态的已添加设备,返回新增、删除的设备id
         contrastDevice: function(inialDeviceId,finalDevice) {

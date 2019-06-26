@@ -128,6 +128,21 @@ const staticRoute = [{
             name: 'deviceManage',
             meta: { title: '设备管理' }
         }]
+    },
+    {
+        path: '/rest',
+        component: layout,
+        children: [{
+            path: 'rest_manage',
+            component: resolve => require(['@/views/rest/restManage'], resolve),
+            name: 'restManage',
+            meta: { title: '假种管理' }
+        }, {
+            path: 'rest_num',
+            component: resolve => require(['@/views/rest/restNum'], resolve),
+            name: 'restNum',
+            meta: { title: '假种额度管理' }
+        }]
     }
 ]
 

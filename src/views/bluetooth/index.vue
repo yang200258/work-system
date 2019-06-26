@@ -1,6 +1,6 @@
 <template>
     <div class="bluetooth-manage">
-        <device :searchInfo="bluetoothInfo" :table="{head,content,loading,total}" @searchDevice="searchBluetooth" @editTable="editBluetooth" @delTable="delBluetooth" 
+        <device :searchInfo="bluetoothInfo" :table="{head,content,loading,total,option}" @searchDevice="searchBluetooth" @editTable="editBluetooth" @delTable="delBluetooth" 
             @chooseTable="chooseBluetooth" :infoSet="infoSet" :form="form" :formItem="formItem" @confirm="confirm" @cancel="cancel" @close="close" :isShowInfo="isShowInfo"
             @runRecord="runRecord"></device>
         <my-dialog :title="'运行信息记录'" :show="isShowRecord" :confirmText="'关闭'" @confirm="closeRecord" @close="closeRecord">
@@ -15,13 +15,14 @@
 <script>
 import Device from '@/components/device/device'
 import TableData from '@/components/common/TableData'
+import MyDialog from '@/components/common/MyDialog'
 export default {
     data() {
         return {
             bluetoothInfo: {},
             head:[{key: 'type',name:'设备类型'},{key: 'name',name:'设备编号'},{key: 'lastComm',name:'最近通信'},{key: 'operator',name:'最新编辑'},{key: 'officeName',name:'关联考勤地点'},
                     {key: 'memo',name:'备注'},{key: 'state',name:'设备状态'}],
-            option:[{name: '查看',type:1,event: 'chooseTable'},{name: '编辑',type:1,event: 'editTable'},{name:'停用',type:2,event: 'delTable'},{name:'运行记录',type:1,event: 'runRecord'}],
+            option:[{name: '查看',type:1,event: 'chooseTable'},{name: '编辑',type:1,event: 'editTable'},{name:'停用',type:2,event: 'delTable'},{name:'启用',type:1,event: 'delTable'},{name:'运行记录',type:1,event: 'runRecord'}],
             content: [],
             total: 0,
             loading: false,
@@ -33,7 +34,7 @@ export default {
                 {type:'input',inputType:'text',size:'small',prop:'name',placeholder: '',label: '设备编号',read: true},
                 {type:'input',inputType:'text',size:'small',prop:'manufacturer',placeholder: '',label: '设备厂商',read: true},
                 {type:'input',inputType:'text',size:'small',prop:'model',placeholder: '',label: '设备型号',read: true},
-                {type:'input',inputType:'text',size:'small',prop:'officeName',placeholder: '',label: '考勤地点',read: true},
+                // {type:'input',inputType:'text',size:'small',prop:'officeName',placeholder: '',label: '考勤地点',read: true},
                 {type:'input',inputType:'text',size:'small',prop:'memo',placeholder: '',label: '备注',read: true},
             ],
             //设备运行记录数据**************************
@@ -44,14 +45,14 @@ export default {
             recordLoading: false,
             recordId: '',
             searchRecord: {},
-            recordItem: [{type:'date',dateType:'daterange',label:'date',startPlaceholder:'开始日期',endPlaceholder:'结束日期'},{type:'button',btnType:'primary',nameText:'筛选'}],
+            recordItem: [{type:'date',dateType:'daterange',label:'date',startPlaceholder:'开始日期',endPlaceholder:'结束日期',valueFormat:'yyyy-MM-dd'},{type:'button',btnType:'primary',nameText:'筛选'}],
 
         }
     },
     mounted() {
         this.getBlooth(this.bluetoothInfo.name,this.bluetoothInfo.showAbnormal)
     },
-    components: {Device,TableData},
+    components: {Device,TableData,MyDialog},
     methods: {
         //搜索设备
         searchBluetooth: function() {
@@ -69,7 +70,7 @@ export default {
         delBluetooth: function(scope) {
             let deviceId = scope.row.id
             this.$axios({
-                url: `/es/devices/changeState?deviceId =${deviceId }`,
+                url: `/es/devices/changeState?deviceId=${deviceId }`,
                 method: 'post',
             }).then(res=> {
                 if(res) {
@@ -140,19 +141,23 @@ export default {
         },  
         //翻页
         changeRecord: function(val) {
-            this.deviceRecord(this.recordId,this.searchRecord.date[0],this.searchRecord.date[1],val)
+            let startDate = this.searchRecord.date ? this.searchRecord.date[0] : ''
+            let endDate = this.searchRecord.date ? this.searchRecord.date[1] : ''
+            this.deviceRecord(this.recordId,startDate,endDate,val)
         },
         //筛选运行记录
         filterRecord: function() {
-            this.deviceRecord(this.recordId,this.searchRecord.date[0],this.searchRecord.date[1])
+            let startDate = this.searchRecord.date ? this.searchRecord.date[0] : ''
+            let endDate = this.searchRecord.date ? this.searchRecord.date[1] : ''
+            this.deviceRecord(this.recordId,startDate,endDate)
         },
         //设备运行记录
-        deviceRecord: function(deviceId,starDate='',endDate='',page=1,size=20) {
+        deviceRecord: function(deviceId,startDate='',endDate='',page=1,size=20) {
             this.recordLoading = true
             this.$axios({
-                url: `/es/devices/deviceLog?page=${page}size=${size}`,
+                url: `/es/devices/deviceLog?page=${page}&size=${size}`,
                 method: 'post',
-                data: {deviceId,endDate,starDate}
+                data: {deviceId,endDate,startDate}
             }).then(res=> {
                 if(res) {
                     this.recordData = res.content

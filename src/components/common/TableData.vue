@@ -1,7 +1,7 @@
 <template>
     <div class="table-data">
         <div class="search-container" v-if="isSearch">
-            <form-com :data="data" :formData="formData" :loadNode="loadNode" @changeMutiSelect="changeMutiSelect" @btnClick="btnClick"></form-com>
+            <form-com :data="data" :formData="formData" :loadNode="loadNode" @changeMutiSelect="changeMutiSelect" @btnClick="btnClick" @inputSearch="inputSearch"></form-com>
         </div>
         <el-divider v-if="isSearch"></el-divider>
         <div class="muti-option" v-if="isMutiOption">
@@ -15,19 +15,22 @@
         </div>
         <div class="table-container">
             <el-table ref="table" v-loading="tableLoading" element-loading-text="拼命加载中" element-loading-spinner="el-icon-loading" :default-sort="tableSort" :empty-text="emptyText"
-            :data="tableData" @selection-change="selectionChange" :highlight-current-row="true" :header-cell-class-name="'title'" :height="height" :row-class-name="tableRowClassName">
+            :data="tableData" @selection-change="selectionChange" :highlight-current-row="true" :header-cell-class-name="'title'" :height="height" :row-class-name="tableRowClassName"
+            :cell-class-name="cellClassName">
                 <el-table-column type="selection" align="left" v-if="isSelected"> </el-table-column>
-                <el-table-column v-for="(item,index) in head" :prop="item.key" :label="item.name" :key="index" align="left" :show-overflow-tooltip="true" :sortable="item.sortable"> 
+                <el-table-column v-for="(item,index) in head" :prop="item.key" :label="item.name" :key="index" align="left" :show-overflow-tooltip="true" :sortable="item.sortable"
+                    :filters="item.filters" :filter-method="filterTag"> 
                     <template slot-scope="scope">
                         <slot name="special" :scope="scope">
                             <span v-html="format(scope.row[scope.column.property],scope.column.property,scope.row)">{{scope.row[scope.column.property]}}</span>
                         </slot>
                     </template>
                 </el-table-column>
-                <el-table-column label="操作" align="left" v-if="isOption" :class-name="'option'" width="140px">
+                <el-table-column label="操作" align="left" v-if="isOption" :class-name="'option'" width="200px">
                     <template slot-scope="scope">
                         <slot name="option" :scope="scope">
-                            <span style="margin-right:22px;" :class="item.type == 1 ? 'edit' : 'del'" v-for="(item,index) in option" :key="index" @click.prevent="optionEvent(scope,item)">{{item.name}}</span>
+                            <span style="margin-right:22px;" v-show="!((!scope.row.state && names.indexOf(item.name)>-1) || (scope.row.state && unNames.indexOf(item.name)>-1))" v-for="(item,index) in option" 
+                                :key="index" :class="item.type == 1 ? 'edit' : 'del'" @click.prevent="optionEvent(scope,item)">{{item.name}}</span>
                         </slot>
                     </template>
                 </el-table-column>
@@ -47,6 +50,7 @@ export default {
         height: {type:Number},
         //特殊标注区
         tableRowClassName: {type: Function,default: function() {}},
+        cellClassName: {type: Function,default: function() {}},
         //表格上方搜索区
         isSearch: {type:Boolean,default: true},
         data: {type: Object},
@@ -65,10 +69,9 @@ export default {
         head: {type: Array},
         isSelected: { type: Boolean, default: true },
         emptyText: {type:String,default: '暂无数据'},
-        // formatter: {type: Function,default: function(row, column,cellValue, index) {
-        //     return cellValue
-        // }},
         format: {type:Function,default: function(cellValue,property) {return cellValue }},
+        //表格筛选
+        filterTag: {type:Function,default: ()=>{}},
         // 操作区
         isOption: {type:Boolean,default: true},
         option: {type:Array,default:()=> {return [{name: '编辑',event: 'editTable',type:1},{name: '删除',event: 'delTable',type:2}]}},
@@ -80,7 +83,9 @@ export default {
         return{
             isShowSelected: false,
             selectCount: 0,
-            selectdata: []
+            selectdata: [],
+            unNames: ['禁用','停用'],
+            names:['启用']
         }
     },
     watch: {
@@ -106,6 +111,9 @@ export default {
         },
         btnClick: function() {
             this.$emit('btnClick')
+        },
+        inputSearch: function() {
+            this.$emit('inputSearch')
         },
         //处理批量操作事件分发
         mutiOption: function(item) {
@@ -180,8 +188,16 @@ export default {
                     cursor: pointer;
                     transition: .3s background-color;
                 }
-                //设置操作栏的按钮不换行
+                
                 /deep/ .el-table__row {
+                    //设置考勤设备时状态样式
+                    .red {
+                        color: #FF0000;
+                    }
+                    .green {
+                        color:#71C346;
+                    }
+                    //设置操作栏的按钮不换行
                     .option {
                         .cell {
                             display: flex;

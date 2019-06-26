@@ -20,7 +20,7 @@ const util = {
         let list = []
         let datas = countData[count / 2 - 1].clockNum
         datas.forEach(item => {
-            obj = item.text.indexOf('休息时段') > -1 ? { startTime: item.time[0], endTime: item.time[1], type: 1 } : { startTime: item.time[0], endTime: item.time[1], type: 0 }
+            obj = item.text.includes('休息时段') ? { startTime: item.time[0], endTime: item.time[1], type: 1 } : { startTime: item.time[0], endTime: item.time[1], type: 0 }
             list.push(obj)
         })
         return list

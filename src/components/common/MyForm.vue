@@ -2,25 +2,41 @@
     <div class="myform-container">
         <el-form :rules="rules" :model="formData" :label-position="position" ref="formRef" :hide-required-asterisk="hideRequired" :inline="isInline" label-width="80px">
             <el-form-item v-for="(item,index) in formItem" :prop="item.prop" :label="item.label" :key="index">
+                <!-- 点选框 -->
                 <el-radio-group v-model="formData[item.prop]" v-if="item.type == 'radio'" :size="size">
                     <el-radio v-for="(option,i) in item.options" :label="option.value" :key="i">{{option.name}}</el-radio>
                 </el-radio-group>
+                <!-- 选择框 -->
                 <el-checkbox-group v-model="formData[item.prop]" v-if="item.type == 'check'" :size="size">
                     <el-checkbox v-for="(option,i) in item.options" :label="option.value" :key="i">{{option.name}}</el-checkbox>
                 </el-checkbox-group>
-                <el-input v-model="formData[item.prop]" v-if="item.type == 'input'" :placeholder="item.placeholder" clearable :type="item.inputType" :size="size" :disabled="item.disable || read"></el-input>
+                <!-- 点击选择 -->
+                <el-checkbox v-if="item.type == 'checkbox'" v-model="formData[item.prop]">{{item.checkBoxName}}</el-checkbox>
+                <!-- checkbox插槽 -->
+                <slot v-if="item.type == 'checkbox' && formData[item.prop]" :name="item.slotName"></slot>
+                <!-- 输入 -->
+                <el-input v-model="formData[item.prop]" v-if="item.type == 'input'" :placeholder="item.placeholder" clearable :type="item.inputType" :size="size" 
+                :disabled="item.disable || read" :rows="item.rows"></el-input><span></span>
+                <!-- 选择 -->
                 <el-select v-model="formData[item.prop]" :placeholder="item.placeholder" v-if="item.type == 'select'" :size="size" :collapse-tags="item.collapseTags" :multiple="item.multiple" :disabled="read"
                 @change="changeSelect($event,item.prop)">
                     <el-option v-for="(option,i) in item.options" :key="i" :label="option.name" :value="option.id"></el-option>
                 </el-select>
+                <!-- 树 -->
                 <select-tree v-if="item.type == 'select-tree'" v-model="formData[item.prop]" :loadNode="loadNode" :id.sync="item.returnArray" :tipText="item.text"></select-tree>
+                <!-- 滑动/ -->
                 <el-slider v-if="item.type == 'slider'" v-model="formData[item.prop]"  :size="size"></el-slider>
+                <!-- 日期 -->
                 <el-date-picker v-if="item.type == 'date'" :type="item.dateType"  v-model="formData[item.prop]" :placeholder="item.placeholder" :size="size" :value-format='item.valueFormat' 
                     :default-value="formData[item.prop] && formData[item.prop][0]" :format="item.format" :picker-options="item.options" :range-separator="item.rangeSeparator" 
                     :start-placeholder="item.startPlaceholder" :end-placeholder="item.endPlaceholder">
                 </el-date-picker>
+                <!-- 计数 -->
+                <el-input-number v-if="item.type == 'inputNumber'" v-model="formData[item.prop]" :min="item.min" :max="item.max" :label="item.label"></el-input-number>
+                <el-switch v-if="item.type == 'switch'" v-model="formData[item.prop]" active-color="#13ce66"></el-switch>
+                <!-- 开关插槽     -->
+                <slot v-if="item.type == 'switch' && formData[item.prop]" :name="item.slotName"></slot>
                 <el-button v-if="item.type == 'button'" :icon="item.icon" :type="item.buttonType" :size="size" @click.prevent="clickEvent(item.event)">{{item.text}}</el-button>
-                 <slot v-if="item.type == 'slot'" :name="item.name"></slot>
             </el-form-item>
         </el-form>
     </div>
@@ -71,6 +87,7 @@ export default {
             // display: flex;
             .el-form-item__label {
                 white-space: nowrap;
+                font-size: 12px;
             }
             .el-form-item__content {
                 margin-left: 0!important;

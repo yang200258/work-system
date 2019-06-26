@@ -18,7 +18,7 @@ export default {
             //获取到的地点信息
             siteInfo: {content:[],recordCount: 0},
             //表头
-            sitehead: [{key: 'city',name: '城市'},{key: 'name',name: '地点名称'},{key: 'clockType',name: '打卡设备'},{key: 'clockGroup',name: '应用考勤组'}],
+            sitehead: [{key: 'city',name: '城市'},{key: 'name',name: '地点名称'},{key: 'officeDevices',name: '打卡设备'},{key: 'clockGroup',name: '应用考勤组'}],
             //操作配置
             option:[{name: '查看',type:1,event: 'chooseTable'},{name: '编辑',type:1,event: 'editTable'},{name:'删除',type:2,event: 'delTable'}],
             isShowSite: false,

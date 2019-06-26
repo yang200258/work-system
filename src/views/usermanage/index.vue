@@ -2,7 +2,8 @@
     <div class="usermanage-container">
         <div class="usermanage-content">
             <table-data :head="head" :tableData="tableData" :tableLoading="loading" :isSelected="true" :option="option" :totalNumber="total" @editTable="editUser" @delTable="stopUse" 
-             @currentChange="currentChange" :data="queryUserData" :formData="formData" :loadNode="loadNode" @btnClick="queryUser" @changeMutiSelect="changeMutiSelect"></table-data>
+             @currentChange="currentChange" :data="queryUserData" :formData="formData" :loadNode="loadNode" @btnClick="queryUser" @changeMutiSelect="changeMutiSelect" :getRowKey="getRowKey"
+             ></table-data>
         </div>
     </div>
 </template>
@@ -133,6 +134,9 @@ export default {
         },
         changeMutiSelect: function(val1,val2) {
             this.queryUserData[val2] = val1
+        },
+        getRowKey: function(row) {
+            return row.id
         }
     }
 }

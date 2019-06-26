@@ -65,11 +65,12 @@ export default {
         },
         // 删除设备
         delDevice: function(device) {
-            const list = []
+            let list = []
             let equip = this.equips
+            let addEquip = this.addEquips
             equip.push(device)
             this.setEquips(equip)
-            this._.remove(this.addEquips,item => item.id !==device.id )
+            list = this._.remove(addEquip,item => item.id !== device.id)
             this.setAddEquips(list)
         }
     }

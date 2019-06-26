@@ -25,7 +25,7 @@ router.beforeEach((to, from, next) => {
         console.log('跳转路径', from, to)
         if (to.path === '/login') {
             next({ path: "/home", replace: true })
-        } else if (to.path.indexOf("/error") >= 0) {
+        } else if (to.path.includes("/error")) {
             // 防止因重定向到error页面造成beforeEach死循环
             next()
         } else {
@@ -33,7 +33,7 @@ router.beforeEach((to, from, next) => {
         }
     } else {
         // 如果是免登陆的页面则直接进入，否则跳转到登录页面
-        if (whiteList.indexOf(to.path) >= 0) {
+        if (whiteList.includes(to.path)) {
             // console.log('该页面无需登录即可访问')
             next()
         } else {

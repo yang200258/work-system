@@ -31,8 +31,8 @@ export default {
         format: function(cellvalue,property) {
             if(property == 'clockGroup') {
                 return cellvalue ? cellvalue.map(item=> item.name).join(';') : '无'
-            } else if(property == 'clockType') {
-                return cellvalue ? utils.filterClockType(cellvalue) : '无'
+            } else if(property == 'officeDevices') {
+                return utils.filterClockType(cellvalue)
             } else {
                 return cellvalue
             }

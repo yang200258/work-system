@@ -357,7 +357,9 @@ export default {
                 const list = []
                 if(cellvalue && cellvalue.length) {
                     cellvalue.forEach(item=> {
-                        if(item) list.push(item.officeName + '/' + value[item.clockType])
+                        const str = []
+                        item.clockType.forEach(i=>str.push(value[i]))
+                        if(item) list.push(item.officeName + '/' + str.join(';'))
                     })
                 }
                 return cellvalue && cellvalue.length ? list.join('<br>') : '无'

@@ -138,6 +138,11 @@ const staticRoute = [{
             name: 'restManage',
             meta: { title: '假种管理' }
         }, {
+            path: 'rest_create',
+            component: resolve => require(['@/views/rest/restManage/createRest'], resolve),
+            name: 'createRest',
+            meta: { title: '假期创建' }
+        }, {
             path: 'rest_num',
             component: resolve => require(['@/views/rest/restNum'], resolve),
             name: 'restNum',

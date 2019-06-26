@@ -77,7 +77,7 @@ export default {
                 this.isSetSpecial = true
             }
             let userAgent = navigator.userAgent
-            if(userAgent.indexOf('Trident') > -1 && this.status !== 'muti') {
+            if(userAgent.includes('Trident') && this.status !== 'muti') {
                 this.$refs.setSpecial.style.top = ($event.pageY - $event.offsetY) + 'px'
                 this.$refs.setSpecial.style.left = ($event.pageX - $event.offsetX + $event.target.clientWidth) + 'px' 
             } else {
@@ -97,7 +97,7 @@ export default {
         //提交设置
         submitSet: function(reason,type) {
             let dates = this.specialDate
-            if(dates.map(item=>item.date).indexOf(this.day) !== -1) {
+            if(dates.map(item=>item.date).includes(this.day)) {
                 this.$message.error('不可重复添加日期！')
                 this.isSetSpecial = false
                 return 
@@ -134,7 +134,7 @@ export default {
             }
         },
         selectedDates: function({row}) {
-            if(this.initialDate.map(item=>item.date).indexOf(row.date) > -1) return 'success-row'
+            if(this.initialDate.map(item=>item.date).includes(row.date)) return 'success-row'
         },
         //删除考勤时间
         delTime: function(scope) {

@@ -57,7 +57,7 @@ const proxy = function(initstate, ssKey, keys) {
     ls.setItem(ssKey, copy(obj, keys))
     return new Proxy(obj, {
         set: function(target, key, value, receiver) {
-            k.indexOf(key) >= 0 && ls.setItem(ssKey, copy(target, keys))
+            k.includes(key) && ls.setItem(ssKey, copy(target, keys))
             return Reflect.set(target, key, value, receiver)
         }
     })

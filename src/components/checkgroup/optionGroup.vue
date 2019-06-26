@@ -481,7 +481,7 @@ export default {
             let sitePresent = this.clockSite
             let id = site.officeId
             let initialId = this._.intersection(sitePresent.map(item => item.officeId))
-            if(initialId.indexOf(id) !== -1) {
+            if(initialId.includes(id)) {
                 this.$message.warning('考勤地点已存在，无法重复添加')
                 return
             }
@@ -653,7 +653,7 @@ export default {
             return val ? val : '无'
         },
         selectedUser: function({row, rowIndex}) {
-            if(this.initialClockUser.map(item=>item.id).indexOf(row.id) > -1) return 'success-row'
+            if(this.initialClockUser.map(item=>item.id).includes(row.id)) return 'success-row'
         },
         // ********************************考勤组特殊日期设置*******************************
          //设置特殊日期及编辑时点击跳转

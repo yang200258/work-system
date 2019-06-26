@@ -16,10 +16,10 @@
         <div class="table-container">
             <el-table ref="table" v-loading="tableLoading" element-loading-text="拼命加载中" element-loading-spinner="el-icon-loading" :default-sort="tableSort" :empty-text="emptyText"
             :data="tableData" @selection-change="selectionChange" :highlight-current-row="true" :header-cell-class-name="'title'" :height="height" :row-class-name="tableRowClassName"
-            :cell-class-name="cellClassName">
-                <el-table-column type="selection" align="left" v-if="isSelected"> </el-table-column>
+            :cell-class-name="cellClassName" :row-key="getRowKey">
+                <el-table-column type="selection" align="left" v-if="isSelected" :reserve-selection="true"> </el-table-column>
                 <el-table-column v-for="(item,index) in head" :prop="item.key" :label="item.name" :key="index" align="left" :show-overflow-tooltip="true" :sortable="item.sortable"
-                    :filters="item.filters" :filter-method="filterTag"> 
+                    :filters="item.filter" :filter-method="item.filter && filterTag" :column-key="columnKey"> 
                     <template slot-scope="scope">
                         <slot name="special" :scope="scope">
                             <span v-html="format(scope.row[scope.column.property],scope.column.property,scope.row)">{{scope.row[scope.column.property]}}</span>
@@ -29,7 +29,7 @@
                 <el-table-column label="操作" align="left" v-if="isOption" :class-name="'option'" width="200px">
                     <template slot-scope="scope">
                         <slot name="option" :scope="scope">
-                            <span style="margin-right:22px;" v-show="!((!scope.row.state && names.indexOf(item.name)>-1) || (scope.row.state && unNames.indexOf(item.name)>-1))" v-for="(item,index) in option" 
+                            <span style="margin-right:22px;" v-show="!((!scope.row.state && names.includes(item.name)) || (scope.row.state && unNames.includes(item.name)))" v-for="(item,index) in option" 
                                 :key="index" :class="item.type == 1 ? 'edit' : 'del'" @click.prevent="optionEvent(scope,item)">{{item.name}}</span>
                         </slot>
                     </template>
@@ -51,6 +51,9 @@ export default {
         //特殊标注区
         tableRowClassName: {type: Function,default: function() {}},
         cellClassName: {type: Function,default: function() {}},
+        getRowKey:{type:Function,default:()=>{}},
+        columnKey:{type: String,default:''},
+        // filters:{type:Array},
         //表格上方搜索区
         isSearch: {type:Boolean,default: true},
         data: {type: Object},
@@ -105,6 +108,7 @@ export default {
             this.$emit(item.event,scope)
         },
         selectionChange: function(val){
+            console.log(val)
             this.selectCount = val.length
             this.selectdata = val
             this.$emit('selectionChange',val)
@@ -196,6 +200,10 @@ export default {
                     }
                     .green {
                         color:#71C346;
+                    }
+                    //设置单元格padding
+                    .is-left {
+                        padding: 8px 0;
                     }
                     //设置操作栏的按钮不换行
                     .option {

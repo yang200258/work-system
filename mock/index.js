@@ -8,9 +8,10 @@ import holiday from './holiday'
 import editHoliday from './editHoliday'
 import deleteholiday from './deleteholiday'
 import addHoliday from './addHoliday'
+import getrest from './getrest'
 import _ from 'lodash'
 
-let data = _.concat(login, accountDetail, organ, user, queryUser, holiday, editHoliday, deleteholiday, addHoliday)
+let data = _.concat(login, accountDetail, organ, user, queryUser, holiday, editHoliday, deleteholiday, addHoliday, getrest)
 data.forEach(function(res) {
     if (res.method == 'post') {
         Mock.mock(res.path, res.method, res.data)

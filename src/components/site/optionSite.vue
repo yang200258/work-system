@@ -90,15 +90,12 @@ export default {
         async optionDevice() {
             let officeId = this.siteInfo.id
             let {newId,delId} = this.contrastDevice(this.inialDeviceId,this.addEquips)       //获取到的新增设备和减少设备的id，待接口
-            let addres = await this.$axios({url: '/es/offices/addDevice',method: 'post',data: {deviceId:newId,officeId}})
+            let addres = await this.$axios({url: '/es/offices/setDevices',method: 'post',data: {addDeviceId:newId,deleteDeviceId:delId,officeId}})
             if(addres) {
-                let delres = await this.$axios({url: '/es/offices/deleteDevices',method: 'post',data: {deviceId:delId,officeId}})
-                if(delres) {
-                    this.$message.success('保存设备成功！')
-                    //编辑或新增成功后清除数据
-                    this.clearSiteInfo()
-                    this.$router.push('clocksite')
-                }
+                this.$message.success('保存设备成功！')
+                //编辑或新增成功后清除数据
+                this.clearSiteInfo()
+                this.$router.push('clocksite')
             } 
         },
         //搜索设备

@@ -1,7 +1,7 @@
 <template>
     <div class="restmanage-container">
         <table-data :isSelected="false" :isOption="false" :head="leaveHead" :tableLoading="loading" :tableData="leaveData" :data="searchInfo" :formData="formData" @btnClick="searchLeave"
-            :mutiItem="mutiItem" @input="input" :format="format" :filterTag="filterTag" :totalNumber="total" @currentChange="next">
+            :mutiItem="mutiItem" @output="output" :format="format" :totalNumber="total" @currentChange="next">
             <template #special="{scope: scope}">
                 <div class="wrapper" v-if="scope.column.property === 'userType' || times.includes(scope.column.property)">
                     <div class="type-wrapper" v-if="scope.column.property === 'userType'" >
@@ -9,7 +9,7 @@
                         <span v-if="scope.column.property === 'userType' && !scope.row.userType.length">无</span>
                     </div>
                     <div v-if="times.includes(scope.column.property)">
-                        <span class="rest-num" @click.prevent="getRestInfo">{{scope.row[scope.column.property]}}</span>
+                        <span class="rest-num" @click.prevent="getRestInfo(scope)">{{scope.row[scope.column.property]}}</span>
                     </div>
                 </div>
             </template>
@@ -23,16 +23,23 @@ import TableData from '@/components/common/TableData'
 export default {
     data() {
         return {
-            leaveHead: [{key:'name',name:'姓名'},{key:'account',name:'账号',}, {key:'depart',name:'部门',filter:[]}, {key:'userType',name:'员工类型'},{key:'year',name:'剩余年假（天）',sortable:true},
-                        {key:'hour',name:'剩余免责事假（小时）',sortable:true},{key:'day',name:'剩余探父母假（天）',sortable:true}],
+            leaveHead: [{key:'name',name:'姓名',fixed:true,width:100},{key:'account',name:'账号',fixed:true,width:100}, {key:'depart',name:'部门',fixed:true,width:100}, 
+                    {key:'userType',name:'员工类型',fixed:true,width:200},{key:'year',name:'年假（天）',sortable:true},
+                        {key:'hour',name:'免责事假（小时）',sortable:true},{key:'day',name:'探父母假（天）',sortable:true},{key:'day',name:'探父母假（天）',sortable:true}
+                        ,{key:'day',name:'探父母假（天）',sortable:true},{key:'day',name:'探父母假（天）',sortable:true},{key:'day',name:'探父母假（天）',sortable:true}
+                        ,{key:'day',name:'探父母假（天）',sortable:true},{key:'day',name:'探父母假（天）',sortable:true},{key:'day',name:'探父母假（天）',sortable:true}
+                        ,{key:'day',name:'探父母假（天）',sortable:true},{key:'day',name:'探父母假（天）',sortable:true},{key:'day',name:'探父母假（天）',sortable:true}
+                        ,{key:'day',name:'探父母假（天）',sortable:true},{key:'day',name:'探父母假（天）',sortable:true},{key:'day',name:'探父母假（天）',sortable:true}
+                        ,{key:'day',name:'探父母假（天）',sortable:true},{key:'day',name:'探父母假（天）',sortable:true},{key:'day',name:'探父母假（天）',sortable:true}],
             loading: false,
             leaveData:[],
             searchInfo:{},
             total: 0,
             formData: [{type:'input',placeholder:'请输入姓名',label:'name'},{type:'selectTree',placeholder:'全部',nameText:'所属部门',label:'depart',tipText:'全部'},
+                        {type:'date',dateType:'daterange',label:'date',startPlaceholder:'开始日期',endPlaceholder:'结束日期',valueFormat:'yyyy-MM-dd'},
                        {type:'mutiSelect',nameText:'显示假种',placeholder:'全部',label:'leaveType',options: [{name:'年休假',id: 0},{name:'探亲假',id: 1},{name:'免责事假',id: 2}]},
                        {type:'button',nameText: '搜索',btnType:'primary'}],
-            mutiItem:{right:[{nameText:'批量导入',className:'el-icon-download',event:'input'}]},
+            mutiItem:{right:[{nameText:'导出',className:'el-icon-download',event:'output'}]},
             status: ['success','','info'],
             typeContent: ['正式','劳派','外包'],
             leaveType:['年休假','探亲假','免责事假'],
@@ -41,7 +48,7 @@ export default {
     },
     components: {TableData},
     mounted() {
-        this.getLeaveData()
+        this.search(this.searchInfo)
     },
     computed: {
         
@@ -51,18 +58,18 @@ export default {
             this.search(this.searchInfo,val)
         },
         //获取假期列表
-        getLeaveData() {
-            this.search(this.searchInfo)
-            let filterList = this.leaveHead.filter(i => ['depart'].includes(i.key))
-            filterList.forEach(item=> {
-                if(item.key === 'depart') {
-                    this.leaveData.forEach(t => {
-                        item.filter.push({text:t.depart,value:t.depart})
-                    })
-                    item.filter = this._.uniqBy(item.filter,'text')
-                }
-            })
-        },
+        // getLeaveData() {
+        //     this.search(this.searchInfo)
+        //     // let filterList = this.leaveHead.filter(i => ['depart'].includes(i.key))
+        //     // filterList.forEach(item=> {
+        //     //     if(item.key === 'depart') {
+        //     //         this.leaveData.forEach(t => {
+        //     //             item.filter.push({text:t.depart,value:t.depart})
+        //     //         })
+        //     //         item.filter = this._.uniqBy(item.filter,'text')
+        //     //     }
+        //     // })
+        // },
         //筛选
         searchLeave: function() {
             this.search(this.searchInfo)
@@ -78,17 +85,14 @@ export default {
             this.leaveData = res.content
             this.total = res.recordCount
         },
-        //批量导入
-        input: function() {
-           this.$router.push({
-               name: 'restInput'
-           }) 
+        //导出
+        output: function() {
+            
         },
         //点击假数进入假期额度详情
         getRestInfo: function() {
-            console.log(222222)
             this.$router.push({
-                name: 'restInfo'
+                name:'restInfo'
             })
         },
         format: function(cellValue,propperty) {
@@ -100,15 +104,16 @@ export default {
             }
         },
         //筛选
-        filterTag: function(value,row,column) {
-            if(column.property === 'depart')  return row.depart === value
-        },
+        // filterTag: function(value,row,column) {
+        //     if(column.property === 'depart')  return row.depart === value
+        // },
     }
 }
 </script>
 
 <style lang="scss" scoped>
     .restmanage-container {
+        width: 100%;
         .rest-num {
             color:#0096FF;
             text-decoration: underline;

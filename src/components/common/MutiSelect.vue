@@ -3,14 +3,14 @@
         <el-popover placement="bottom-start" width="100" @hide="popoverHide" trigger="click">
             <el-scrollbar>
                 <el-checkbox-group v-model="selectGroup" style="display:flex;flex-direction: column;height:100px;" @change="change">
-                    <el-checkbox v-for="(item,i) in options" :key="i" :label="item.value" style="margin-top:4px;">{{item.label}}</el-checkbox>
+                    <el-checkbox v-for="(item,i) in options" :key="i" :label="item.id" style="margin-top:4px;">{{item.name}}</el-checkbox>
                 </el-checkbox-group>
             </el-scrollbar>
             <div class="choose-option" slot="reference">
                 <p style="margin-right:10px">{{nameText}}:</p>
                 <p v-if="chooseContent.length === 0" style="margin-right:4px">全部</p>
                 <div class="choose-content">
-                    <span v-for="(item,i) in chooseContent" :key="i">{{item.label}}</span>
+                    <span v-for="(item,i) in chooseContent" :key="i">{{item.name}}</span>
                 </div>
                 <div class="iconfont icon-sanjiao"></div>
             </div>
@@ -45,7 +45,7 @@ export default {
             const list = []
             this.options.forEach(item=> {
                 this.selectGroup.forEach(v=> {
-                    if(item.value === v) {
+                    if(item.id === v) {
                         list.push(item)
                     }
                 })

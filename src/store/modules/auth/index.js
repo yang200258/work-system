@@ -34,29 +34,14 @@ const mutations = {
 
 const actions = {
     //登录账号
-    login({ commit, dispatch }, userInfo) {
-        return new Promise((resolve, reject) => {
-            axios({
-                url: '/sys/accounts/login',
-                method: 'post',
-                data: {
-                    ...userInfo
-                }
-            }).then(res => {
-                console.log('获取登录数据', res.token);
-                if (res) {
-                    if (res.token) {
-                        commit('setToken', res.token)
-                        dispatch('getNavlist')
-                    }
-                    resolve(res)
-                } else {
-                    reject(res)
-                }
-            }).catch(err => {
-                reject(err)
-            })
-        })
+    async login({ commit, dispatch }, userInfo) {
+        let res = await axios({ url: '/sys/accounts/login', method: 'post', data: {...userInfo } })
+        console.log('获取登录数据', res)
+        if (res.token) {
+            commit('setToken', res.token)
+            dispatch('getNavlist')
+        }
+        return res
     },
     //获取用户详情
     getAccountDetail({ commit }) {

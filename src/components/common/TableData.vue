@@ -14,12 +14,13 @@
             </div>
         </div>
         <div class="table-container">
+            <!-- // TODO: 鼠标滑动后横向滚动 -->
             <el-table ref="table" v-loading="tableLoading" element-loading-text="拼命加载中" element-loading-spinner="el-icon-loading" :default-sort="tableSort" :empty-text="emptyText"
             :data="tableData" @selection-change="selectionChange" :highlight-current-row="true" :header-cell-class-name="'title'" :height="height" :row-class-name="tableRowClassName"
-            :cell-class-name="cellClassName" :row-key="getRowKey">
+            :cell-class-name="cellClassName" :row-key="getRowKey" style="width: 100%">
                 <el-table-column type="selection" align="left" v-if="isSelected" :reserve-selection="true"> </el-table-column>
                 <el-table-column v-for="(item,index) in head" :prop="item.key" :label="item.name" :key="index" align="left" :show-overflow-tooltip="true" :sortable="item.sortable"
-                    :filters="item.filter" :filter-method="item.filter && filterTag" :column-key="columnKey"> 
+                    :filters="item.filter" :filter-method="item.filter && filterTag" :width="item.width" :fixed="item.fixed"> 
                     <template slot-scope="scope">
                         <slot name="special" :scope="scope">
                             <span v-html="format(scope.row[scope.column.property],scope.column.property,scope.row)">{{scope.row[scope.column.property]}}</span>
@@ -44,6 +45,7 @@
 <script>
 import FormCom from './FormCom'
 import MutiBtn from './MutiBtn'
+import {mapState,mapActions} from 'vuex'
 export default {
     /* eslint-disable */
     props: {
@@ -58,10 +60,10 @@ export default {
         isSearch: {type:Boolean,default: true},
         data: {type: Object},
         formData: {type:Array},
-        loadNode: {
-            type: Function,
-            default: function() {}
-        },
+        // loadNode: {
+        //     type: Function,
+        //     default: function() {}
+        // },
         //表格上方批量操作区
         isMutiOption: {type:Boolean,default:true},
         mutiItem: {type:Object,default: function() {return {left:[],right:[]}} },
@@ -97,7 +99,25 @@ export default {
         FormCom,
         MutiBtn
     },
+    computed: {
+        ...mapState({
+            rootNode: state => state.rootNode
+        })
+    },
     methods: {
+        ...mapActions({
+            getOrganization: 'getOrganization'
+        }),
+        // //异步加载机构数据
+        async loadNode(node,resolve) {
+            if (node.level === 0) {
+                return resolve(this.rootNode)
+            } else {
+                let res = await this.getOrganization({id:node.data.id,level:1})
+                let data = this._.dropWhile(res,o =>  o.id == node.data.id )
+                return resolve(data)
+            }
+        },
         sizeChange(val) {
             this.$emit('sizeChange',val)
         },
@@ -108,7 +128,6 @@ export default {
             this.$emit(item.event,scope)
         },
         selectionChange: function(val){
-            console.log(val)
             this.selectCount = val.length
             this.selectdata = val
             this.$emit('selectionChange',val)
@@ -147,6 +166,7 @@ export default {
 
 <style lang="scss">
     .table-data {
+        width: 100%;
         .search-container {
             padding: 0 32px;
         }
@@ -175,6 +195,7 @@ export default {
             
         }
         .table-container {
+            width: 100%;
             padding: 0 32px;
             .el-table .success-row {
                 color: #409eff;
@@ -182,7 +203,7 @@ export default {
             .el-table {
                 // 滚动条的宽度
                 /deep/ .el-table__body-wrapper::-webkit-scrollbar {
-                    height: 2px; // 纵向滚动条 必写
+                    height: 6px; // 纵向滚动条 必写
                     width: 6px;
                 }
                 // 滚动条的滑块
@@ -192,14 +213,13 @@ export default {
                     cursor: pointer;
                     transition: .3s background-color;
                 }
-                
                 /deep/ .el-table__row {
                     //设置考勤设备时状态样式
                     .red {
                         color: #FF0000;
                     }
                     .green {
-                        color:#71C346;
+                        color:#0096FF;
                     }
                     //设置单元格padding
                     .is-left {

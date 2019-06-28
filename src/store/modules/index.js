@@ -4,6 +4,7 @@ import user from './user'
 import tagNav from './tagNav'
 import site from './site'
 import group from './group'
+import rest from './rest'
 
 export default {
     auth,
@@ -11,4 +12,5 @@ export default {
     tagNav,
     site,
     group,
+    rest,
 }

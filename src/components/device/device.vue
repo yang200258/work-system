@@ -119,8 +119,11 @@ export default {
         .device-info {
             .form {
                 /deep/ .el-form-item {
-                    margin-bottom: 0;
+                    margin-bottom: 10px;
                     display: flex;
+                    .el-form-item__content {
+                        margin-left: 0!important;
+                    }
                 }
             }
         }

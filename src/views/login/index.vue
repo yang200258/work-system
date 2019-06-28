@@ -23,7 +23,7 @@
 </template>
 
 <script>
-import {mapActions} from 'vuex'
+import {mapMutations,mapActions} from 'vuex'
 // import MyForm from '@/components/common/MyForm'
 export default {
     data() {
@@ -36,12 +36,14 @@ export default {
             identityCode: ''
         }
     },
-    // components: {MyForm},
     methods: {
+        ...mapMutations({
+            setRootNode: 'setRootNode'
+        }),
         ...mapActions({
             login:'auth/login',
             getAccountDetail: 'auth/getAccountDetail',
-            // getOrgan: 'auth/getOrgan',
+            getOrganization: 'getOrganization'
         }),
         //登录请求
         loginRequest: function() {
@@ -49,36 +51,31 @@ export default {
                 if(valid) {
                     this.logining = true
                     this.authLogin(this.loginForm.username,this.loginForm.password)
+                } else {
+                    this.logining = false
                 }
             })
         },
         //登录封装方法(登录、获取用户详情、获取机构信息)
-        authLogin: function(username,password) {
-            this.login({username,password}).then(res=> {
-                console.log('登录请求成功数据',res)
-                if(res) {
-                    this.getAccountDetail().then(res=> {
-                        if(res.userId) {
-                            this.logining = false
-                            this.$message.success('登录成功！')
-                            this.$router.push('home')
-                        } else {
-                            this.$message.error(res.msg)
-                            this.logining = false
-                        }
-                    }).catch(err=> {
-                        console.log('获取用户详情异常2' + err);
-                        this.logining = false
-                    })
+        async authLogin(username,password) {
+            let login = await this.login({username,password})
+            if(login) {
+                let detail = await this.getAccountDetail()
+                if(detail.userId) {
+                    this.logining = false
+                    this.$message.success('登录成功！')
+                    this.$router.push('home')
+                    //获取最高层级机构信息
+                    let res = await this.getOrganization({id:0,level:0})
+                    this.setRootNode(res)
                 } else {
-                     this.$message.error(res.msg)
-                     this.logining = false
+                    this.$message.error(detail.msg)
+                    this.logining = false
                 }
-            }).catch(err=> {
-                console.log('登录异常',err);
-                this.$message.error(err.msg)
+            } else {
+                this.$message.error('登录异常')
                 this.logining = false
-            })
+            }
         }
     }
 }

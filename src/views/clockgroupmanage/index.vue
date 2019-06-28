@@ -181,7 +181,7 @@ export default {
                 if(res) {
                     let list = []
                     res.forEach(item=> {
-                        list.push({label: item,value: item})
+                        list.push({id: item,name: item})
                     })
                     this.formItem[4].options = list
                 } 

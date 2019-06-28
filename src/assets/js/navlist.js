@@ -51,8 +51,16 @@ var data = [{
                 name: '假种管理'
             },
             {
+                path: '/rest/rest_list',
+                name: '请假清单'
+            },
+            {
+                path: '/rest/rest_statics',
+                name: '假期统计'
+            },
+            {
                 path: '/rest/rest_num',
-                name: '假种额度管理'
+                name: '假期额度管理'
             }
         ]
     }

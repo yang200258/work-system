@@ -273,6 +273,9 @@ export default {
             .editForm {
                 /deep/ .el-form-item {
                     display: flex;
+                    .el-form-item__content {
+                        margin-left: 0!important;
+                    }
                 }
             }
         }

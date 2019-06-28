@@ -41,6 +41,7 @@ export default {
 @import '@/assets/style/headBar.scss';
 .wrapper {
     height: 100%;
+    width: 100%;
     display: grid;
     grid-template-columns: 1fr;
     grid-template-rows: $headBarHeight auto;
@@ -53,6 +54,8 @@ export default {
     }
     .content {
         height: 100%;
+        width: 100%;
+        overflow-x: hidden;
     }
 }
 

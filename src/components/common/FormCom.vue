@@ -1,6 +1,8 @@
 <template>
     <div class="form-container">
         <div class="form-wrapper" v-for="(item,i) in formData" :key="i">
+            <!-- 前置插槽***************** -->
+            <slot :name="item.preSlotName"></slot>
             <p v-if="item.type === 'text'">{{item.nameText}}</p>
             <el-input v-if="item.type === 'input'" :placeholder="item.placeholder" v-model="data[item.label]" :size="size" clearable @keyup.enter.native="inputSearch">
                 <i v-if="item.isSuffix" slot="suffix" class="el-input__icon el-icon-search" @click.prevent="inputSearch"></i>
@@ -13,6 +15,8 @@
                     :default-value="formData[item.prop] && formData[item.prop][0]" :format="item.format" :picker-options="item.options" :range-separator="item.rangeSeparator" 
                     :start-placeholder="item.startPlaceholder" :end-placeholder="item.endPlaceholder">
             </el-date-picker>
+            <!-- 后置插槽*********************************** -->
+            <slot :name="item.suffixSlotName"></slot>
         </div>
     </div>
 </template>

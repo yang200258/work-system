@@ -133,21 +133,45 @@ const staticRoute = [{
         path: '/rest',
         component: layout,
         children: [{
-            path: 'rest_manage',
-            component: resolve => require(['@/views/rest/restManage'], resolve),
-            name: 'restManage',
-            meta: { title: '假种管理' }
-        }, {
-            path: 'rest_create',
-            component: resolve => require(['@/views/rest/restManage/createRest'], resolve),
-            name: 'createRest',
-            meta: { title: '假期创建' }
-        }, {
-            path: 'rest_num',
-            component: resolve => require(['@/views/rest/restNum'], resolve),
-            name: 'restNum',
-            meta: { title: '假种额度管理' }
-        }]
+                path: 'rest_manage',
+                component: resolve => require(['@/views/rest/restManage'], resolve),
+                name: 'restManage',
+                meta: { title: '假种管理' }
+            }, {
+                path: 'rest_create',
+                component: resolve => require(['@/views/rest/restManage/createRest'], resolve),
+                name: 'createRest',
+                meta: { title: '假期创建' }
+            },
+            {
+                path: 'rest_list',
+                component: resolve => require(['@/views/rest/restList'], resolve),
+                name: 'restList',
+                meta: { title: '请假清单' }
+            },
+            {
+                path: 'rest_statics',
+                component: resolve => require(['@/views/rest/restStatics'], resolve),
+                name: 'restStatics',
+                meta: { title: '假期统计' }
+            },
+            {
+                path: 'rest_info',
+                component: resolve => require(['@/views/rest/restStatics/restInfo'], resolve),
+                name: 'restInfo',
+                meta: { title: '额度使用记录' }
+            }, {
+                path: 'rest_num',
+                component: resolve => require(['@/views/rest/restNum'], resolve),
+                name: 'restNum',
+                meta: { title: '假期额度管理' }
+            }, {
+                path: 'rest_input',
+                component: resolve => require(['@/views/rest/restNum/restInput'], resolve),
+                name: 'restInput',
+                meta: { title: '批量导入额度' }
+            }
+        ]
     }
 ]
 

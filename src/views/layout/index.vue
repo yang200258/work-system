@@ -9,8 +9,10 @@
                 </header-bar>
             </template>
         </div>
-        <div class="content">
+        <div class="tag">
             <tag-nav></tag-nav>
+        </div>
+        <div class="content">
             <!-- <keep-alive> -->
                 <router-view></router-view>
             <!-- </keep-alive> -->

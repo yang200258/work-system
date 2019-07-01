@@ -17,8 +17,8 @@ export default {
             isSearch: [],  //判断查询还是条件搜索用户
             searchInfo: {}, // 搜索用户时的oid和q
             // rootNode:[],
-            head: [{key: 'name',name: '姓名'},{key: 'username',name: '账号'},{key: '',name: '部门'},{key: 'employeeId',name: '工号'},{key: 'role',name: '角色'},
-                    {key: 'workTypeName',name: '员工类型'},{key: '',name: '考勤组'},{key: '',name: '账号状态'}],
+            head: [{key: 'name',name: '姓名'},{key: 'username',name: '账号'},{key: 'organizationName',name: '部门'},{key: 'employeeId',name: '工号'},{key: 'role',name: '角色'},
+                    {key: 'workTypeName',name: '员工类型'},{key: 'clockGroupName',name: '考勤组'},{key: '',name: '账号状态'}],
             loading: false,
             tableData: [],
             total: 0,

@@ -46,15 +46,9 @@ export default {
 <style lang="scss" scoped>
     .tag-nav {
         padding: 24px 48px 24px;
-        // margin: 24px 0;
+        width: 100%;
         font-size: 14px;
-        // .active {
-        //     /deep/ .el-breadcrumb__inner {
-        //         color: #409eff;
-        //         &:hover {
-        //            color: #409eff; 
-        //         }
-        //     }
-        // }
+        background-color: #fff;
+        z-index: 9999;
     }
 </style>

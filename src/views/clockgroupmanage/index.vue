@@ -214,7 +214,7 @@ export default {
                 console.log(res)
                 this.$message.success('创建考勤组成功！')
                 this.isShowCreate = false
-                this.$router.push('create_clock_group')
+                this.$router.push({name: 'create_clock_group'})
             })
         },
         //搜索考勤组

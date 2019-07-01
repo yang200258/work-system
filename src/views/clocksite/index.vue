@@ -125,7 +125,7 @@ export default {
         //创建考勤地点
         createSite: function() {
             this.setSiteInfo({})
-            this.$router.push('create_clock_site')
+            this.$router.push({name: 'create_clock_site'})
         },
         //设置考勤地点
         setSite: function(obj) {

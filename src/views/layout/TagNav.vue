@@ -20,17 +20,21 @@ export default {
         this.addTagNav()
     },
     watch: {
-        $route(){
-            this.addTagNav()
+        $route(to, from){
+            this.addTagNav(to, from)
             // this.scrollToCurTag()
         }
     },
     methods: {
-        addTagNav(){
+        addTagNav(to, from){
             if(this.$route.name === 'home') return this.tagNavList = []
             let matched = this.$route.matched.filter(item => item.name)
             matched = [].concat(matched)
-            this.tagNavList = matched
+            if(to && from && to.fullPath.includes(from.fullPath)) {
+                this.tagNavList.push(matched[0])
+            } else {
+                this.tagNavList = matched
+            }
         },
         isActive(item){
             return item.path === this.$route.path

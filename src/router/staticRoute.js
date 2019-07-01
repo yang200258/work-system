@@ -71,13 +71,13 @@ const staticRoute = [{
                 meta: { title: '考勤组管理' },
             },
             {
-                path: 'edit_clock_group',
+                path: 'clock_group_manage/edit_clock_group',
                 component: resolve => require(['@/views/clockgroupmanage/editClockGroup'], resolve),
                 name: 'edit_clock_group',
                 meta: { title: '编辑考勤组' }
             },
             {
-                path: 'create_clock_group',
+                path: 'clock_group_manage/create_clock_group',
                 component: resolve => require(['@/views/clockgroupmanage/createClockGroup'], resolve),
                 name: 'create_clock_group',
                 meta: { title: '创建考勤组' },
@@ -89,13 +89,13 @@ const staticRoute = [{
                 meta: { title: '考勤地点管理' },
             },
             {
-                path: 'create_clock_site',
+                path: 'clocksite/create_clock_site',
                 component: resolve => require(['@/views/clocksite/createClockSite'], resolve),
                 name: 'create_clock_site',
                 meta: { title: '创建考勤地点' }
             },
             {
-                path: 'edit_clock_site',
+                path: 'clocksite/edit_clock_site',
                 component: resolve => require(['@/views/clocksite/editClockSite'], resolve),
                 name: 'edit_clock_site',
                 meta: { title: '编辑考勤地点' }
@@ -117,7 +117,7 @@ const staticRoute = [{
                 name: 'wifi',
                 meta: { title: 'WIFI设备管理' }
             }
-        ]
+        ],
     },
     {
         path: '/manager',
@@ -138,7 +138,7 @@ const staticRoute = [{
                 name: 'restManage',
                 meta: { title: '假种管理' }
             }, {
-                path: 'rest_create',
+                path: 'rest_manage/rest_create',
                 component: resolve => require(['@/views/rest/restManage/createRest'], resolve),
                 name: 'createRest',
                 meta: { title: '假期创建' }
@@ -156,7 +156,7 @@ const staticRoute = [{
                 meta: { title: '假期统计' }
             },
             {
-                path: 'rest_info',
+                path: 'rest_statics/rest_info',
                 component: resolve => require(['@/views/rest/restStatics/restInfo'], resolve),
                 name: 'restInfo',
                 meta: { title: '额度使用记录' }
@@ -166,7 +166,7 @@ const staticRoute = [{
                 name: 'restNum',
                 meta: { title: '假期额度管理' }
             }, {
-                path: 'rest_input',
+                path: 'rest_num/rest_input',
                 component: resolve => require(['@/views/rest/restNum/restInput'], resolve),
                 name: 'restInput',
                 meta: { title: '批量导入额度' }

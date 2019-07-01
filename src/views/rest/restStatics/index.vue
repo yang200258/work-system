@@ -19,7 +19,7 @@
 
 <script>
 import TableData from '@/components/common/TableData'
-// import {mapMutations} from 'vuex'
+import {mapState,mapActions} from 'vuex'
 export default {
     data() {
         return {
@@ -37,7 +37,7 @@ export default {
             total: 0,
             formData: [{type:'input',placeholder:'请输入姓名',label:'name'},{type:'selectTree',placeholder:'全部',nameText:'所属部门',label:'depart',tipText:'全部'},
                         {type:'date',dateType:'daterange',label:'date',startPlaceholder:'开始日期',endPlaceholder:'结束日期',valueFormat:'yyyy-MM-dd'},
-                       {type:'mutiSelect',nameText:'显示假种',placeholder:'全部',label:'leaveType',options: [{name:'年休假',id: 0},{name:'探亲假',id: 1},{name:'免责事假',id: 2}]},
+                       {type:'mutiSelect',nameText:'显示假种',placeholder:'全部',label:'leaveType',options: []},
                        {type:'button',nameText: '搜索',btnType:'primary'}],
             mutiItem:{right:[{nameText:'导出',className:'el-icon-download',event:'output'}]},
             status: ['success','','info'],
@@ -48,12 +48,18 @@ export default {
     },
     components: {TableData},
     mounted() {
+        this.getRestType().then(res=> this.formData[3].options = res)
         this.search(this.searchInfo)
     },
     computed: {
-        
+        ...mapState({
+            restType: state => state.restType
+        })
     },
     methods: {
+        ...mapActions({
+            getRestType: 'rest/getRestType'
+        }),
         next: function(val) {
             this.search(this.searchInfo,val)
         },

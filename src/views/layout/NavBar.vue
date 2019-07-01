@@ -33,13 +33,16 @@ export default {
                 this.$refs.navbar.activeIndex = ''
                 return
             }
-            // let indexPath = this.$refs.navbar.items[path].indexPath
-            // this.selectMenu(path, indexPath)
+            let indexPath
+            let indexpaths = Object.keys(this.$refs.navbar.items).filter(item => path.includes(item))[0]
+            this.$refs.navbar.items[path] ? indexPath = this.$refs.navbar.items[path].indexPath : indexPath = this.$refs.navbar.items[indexpaths].indexPath
+            this.selectMenu(path, indexPath)
         }
     },
     methods: {
         // 选择菜单激活
         selectMenu(index, indexPath){
+            console.log(index, indexPath);
             /**
              * 在选择父级菜单时自动关闭其下所有子菜单
              * 选择时获取点击菜单的父级index，并计算得到该index在已打开菜单中的索引值，

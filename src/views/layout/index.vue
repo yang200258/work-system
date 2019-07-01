@@ -25,9 +25,9 @@ import TagNav from './TagNav'
 
 export default {
     computed: {
-        tagNavList(){
-            return this.$store.state.tagNav.cachedPageName
-        }
+        // tagNavList(){
+        //     return this.$store.state.tagNav.cachedPageName
+        // }
     },
     components:{
         HeaderBar,

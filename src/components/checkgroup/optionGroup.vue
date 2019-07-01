@@ -413,7 +413,7 @@ export default {
         // ********************************考勤地点设置*******************************
         // 创建考勤地点
         createSite: function() {
-            this.$router.push('create_clock_site')
+            this.$router.push({name:'create_clock_site'})
         },
         //删除已选择考勤地点
         delsite: function(id) {

@@ -90,136 +90,71 @@ const mutations = {
 
 const actions = {
     //新建考勤组
-    addGroup({ commit }, data) {
-        return new Promise((resolve, reject) => {
-            axios({
-                url: '/es/clockGroups/save',
-                method: 'post',
-                data: data
-            }).then(res => {
-                if (res) {
-                    commit('setName', data.name)
-                    commit('setId', res.id)
-                    resolve(res)
-                } else {
-                    reject(res)
-                }
-            }).catch(err => {
-                reject(err)
-            })
-        })
-
+    async addGroup({ commit }, data) {
+        let res = await axios({ url: '/es/clockGroups/save', method: 'post', data: data })
+        if (res) {
+            commit('setName', data.name)
+            commit('setId', res.id)
+        }
+        return res
     },
     //修改考勤组名称
-    editName({ state, commit }, data) {
+    async editName({ state, commit }, data) {
         let id = state.id
-        return new Promise((resolve, reject) => {
-            axios({
-                url: '/es/clockGroups/edit',
-                method: 'post',
-                data: { name: data, id }
-            }).then(res => {
-                if (res) {
-                    commit('setName', data)
-                    resolve(res)
-                } else {
-                    reject(res)
-                }
-            }).catch(err => {
-                reject(err)
-            })
-        })
+        let res = await axios({ url: '/es/clockGroups/edit', method: 'post', data: { name: data, id } })
+        if (res) {
+            commit('setName', data)
+        }
+        return res
     },
     //获取考勤组班次信息
     /* eslint-disable */
-    getClockSchedual({ commit, state }) {
-        return new Promise((resolve, reject) => {
-            axios({
-                url: `/es/regularSchedules/get?clockGroupId=${state.id}`,
-                method: 'post'
-            }).then(res => {
-                console.log('获取考勤组班次信息成功', res)
-                if (res) {
-                    let { clockGroupId, ...data } = res
-                    commit('setClockOrder', data)
-                    resolve(res)
-                }
-            }).catch(err => {
-                reject(err)
-            })
-        })
+    async getClockSchedual({ commit, state }) {
+        let res = await axios({ url: `/es/regularSchedules/get?clockGroupId=${state.id}`, method: 'post' })
+        console.log('获取考勤组班次信息成功', res)
+        if (res) {
+            let { clockGroupId, ...data } = res
+            commit('setClockOrder', data)
+        }
+        return res
     },
     //编辑考勤组时获取已添加的考勤地点数据
-    getAddClockSite({ commit, state }) {
-        return new Promise((resolve, reject) => {
-            axios({
-                url: `/es/groupOffices/get?clockGroupId=${state.id}`,
-                method: 'post',
-            }).then(res => {
-                console.log('成功获取考勤地点信息', res);
-                if (res) {
-                    commit('setClockSite', res)
-                    commit('setInitialClockSite', [...res])
-                    resolve(res)
-                }
-            }).catch(err => {
-                reject(err)
-            })
-        })
+    async getAddClockSite({ commit, state }) {
+        let res = await axios({ url: `/es/groupOffices/get?clockGroupId=${state.id}`, method: 'post' })
+        console.log('成功获取考勤地点信息', res);
+        if (res) {
+            commit('setClockSite', res)
+            commit('setInitialClockSite', [...res])
+        }
+        return res
     },
     //编辑时获取已添加考勤组成员
     async getAddClockUser({ commit }, data) {
-        return axios({
-            url: `/es/groupUsers/_search?clockGroupId=${data}`,
-            method: 'post',
-        }).then(res => {
-            if (res) {
-                commit('setInitialClockUser', [...res])
-                commit('setClockUser', res)
-                return res
-            }
-        }).catch(err => {
-            return err
-        })
+        let res = await axios({ url: `/es/groupUsers/_search?clockGroupId=${data}`, method: 'post' })
+        if (res) {
+            commit('setInitialClockUser', [...res])
+            commit('setClockUser', res)
+        }
+        return res
     },
     //编辑特殊日期时获取初始状态特殊日期
-    getInitialDate({ commit, state }, data) {
-        return new Promise((resolve, reject) => {
-            axios({
-                url: `/es/specialDate/get?clockGroupId=${data}`,
-                method: 'post',
-            }).then(res => {
-                if (res) {
-                    console.log('获取考勤组特殊日期成功', res)
-                    commit('setInitialDate', [...res])
-                    commit('setSpecialDates', res)
-                    resolve(res)
-                }
-            }).catch(err => {
-                reject(err)
-            })
-        })
+    async getInitialDate({ commit, state }, data) {
+        let res = await axios({ url: `/es/specialDate/get?clockGroupId=${data}`, method: 'post' })
+        if (res) {
+            console.log('获取考勤组特殊日期成功', res)
+            commit('setInitialDate', [...res])
+            commit('setSpecialDates', res)
+        }
+        return res
     },
     //提交特殊日期设置
-    submitSpecialDate({ state }, clockGroupId) {
-        return new Promise((resolve, reject) => {
-            console.log(state.initialDate, state.specialDate)
-            let obj = utils.addDelArr(state.initialDate, state.specialDate, 'date')
-            let addSpecialDate = obj.addArr
-            let delSpecialDate = obj.delArr.map(item => item.specialDateId)
-            console.log(obj);
-            axios({
-                url: '/es/specialDate/set',
-                method: 'post',
-                data: { clockGroupId, addSpecialDate, delSpecialDate }
-            }).then(res => {
-                if (res) {
-                    resolve(res)
-                }
-            }).catch(err => {
-                reject(err)
-            })
-        })
+    async submitSpecialDate({ state }, clockGroupId) {
+        let obj = utils.addDelArr(state.initialDate, state.specialDate, 'date')
+        let addSpecialDate = obj.addArr
+        let delSpecialDate = obj.delArr.map(item => item.specialDateId)
+        console.log(obj);
+        let res = await axios({ url: '/es/specialDate/set', method: 'post', data: { clockGroupId, addSpecialDate, delSpecialDate } })
+        return res
     }
 }
 

@@ -87,21 +87,15 @@ export default {
             }
         },
         //初始获取假期数据
-        getHoliday: function(page=0,size=20) {
+        async getHoliday(page=0,size=20) {
             this.loadingHoliday = false
-            this.$axios({
-                url: `/sys/festival/list?page=${page}&size=${size}`,
-                method: 'get',
-            }).then(res=> {
-                if(res) {
-                    this.holiday = res.content
-                    this.totalNumber = res.recordCount
-                } else {
-                    this.$message.error(res.msg)
-                }
-            }).catch(err=>{
-                console.log(err);
-            })
+            let res = await this.$axios({url: `/sys/festival/list?page=${page}&size=${size}`,method: 'get'})
+            if(res) {
+                this.holiday = res.content
+                this.totalNumber = res.recordCount
+            } else {
+                this.$message.error(res.msg)
+            }
         },
         //翻页查询
         currentChange: function(val) {
@@ -159,22 +153,9 @@ export default {
             })
         },
         //编辑节假日封装
-        editHoliday: function(data) {
-            return new Promise((resolve,reject)=> {
-                this.$axios({
-                    url: '/sys/festival/saveFestival',
-                    method: 'post',
-                    data: {...data}
-                }).then(res=> {
-                    if(res) {
-                        resolve(res)
-                    } else {
-                        reject(res)
-                    }
-                }).catch(err=> {
-                    console.log(err);
-                })
-            })
+        async editHoliday(data) {
+            let res = await this.$axios({url: '/sys/festival/saveFestival',method: 'post',data: {...data}})
+            return res
         },
         //显示添加节假日弹出层
         addHoli: function() {
@@ -189,35 +170,22 @@ export default {
                 if(valid) {
                     this.editForm.vacationDays = this.editForm.vacationDays.join(';')
                     this.editForm.workDays = this.editForm.workDays.join(';')
-                    this.addHoliday(this.editForm).then(res=> {
-                        if(res) {
-                            this.$message.success('添加成功')
-                            this.isShowEdit = false 
-                            this.$nextTick(()=> {
-                               this.$refs['editForm'].$refs.formRef.resetFields();
-                            })
-                            this.getHoliday()
-                        }
-                    }).catch(err=> {
-                        console.log(err)
-                    })
+                    this.addHoliday(this.editForm)
                 }
             })
         },
         //添加节假日封装
-        addHoliday: function(data) {
+        async addHoliday(data) {
             data.id = 0
-            return new Promise((resolve,reject)=> {
-                this.$axios({
-                    url: '/sys/festival/saveFestival',
-                    method: 'post',
-                    data: {...data}
-                }).then(res=> {
-                    if(res)  resolve(res)
-                }).catch(err=> {
-                    reject(err)
+            let res = await this.$axios({url: '/sys/festival/saveFestival',method: 'post',data: {...data}})
+            if(res) {
+                this.$message.success('添加成功')
+                this.isShowEdit = false 
+                this.$nextTick(()=> {
+                    this.$refs['editForm'].$refs.formRef.resetFields();
                 })
-            })
+                this.getHoliday()
+            }
         },
         //显示删除节假日
         showDelete: function(scope) {

@@ -44,39 +44,13 @@ const actions = {
         return res
     },
     //获取用户详情
-    getAccountDetail({ commit }) {
-        return new Promise((resolve, reject) => {
-            axios({
-                url: '/sys/accounts/me',
-                method: 'get'
-            }).then(res => {
-                console.log('获取用户详情数据', res);
-                if (res.userId) {
-                    commit('user/setUserInfo', res, { root: true })
-                    resolve(res)
-                } else {
-                    reject(res)
-                }
-            })
-        })
-    },
-    //获取机构列表
-    getOrgan({ commit }, data) {
-        return new Promise((resolve, reject) => {
-            axios({
-                url: `/sys/organizations?id=${data.id}&level=${data.level}`,
-                method: 'get',
-            }).then(res => {
-                if (res && res.code == 200) {
-                    commit('setOrgan')
-                    resolve(res)
-                } else {
-                    reject(res)
-                }
-            }).catch(err => {
-                reject(err)
-            })
-        })
+    async getAccountDetail({ commit }) {
+        let res = await axios({ url: '/sys/accounts/me', method: 'get' })
+        console.log('获取用户详情数据', res);
+        if (res.userId) {
+            commit('user/setUserInfo', res, { root: true })
+        }
+        return res
     },
     //生成权限列表
     getNavlist: function({ commit }) {
@@ -93,12 +67,10 @@ const actions = {
         commit('setNavlist', Navlist[0].data)
     },
     //退出登录
-    logout: function({ commit }) {
-        return new Promise((resolve) => {
-            commit('user/setUserInfo', {}, { root: true })
-            commit('setToken', '')
-            resolve()
-        })
+    async logout({ commit }) {
+        await commit('user/setUserInfo', {}, { root: true })
+        await commit('setToken', '')
+        return
     }
 }
 

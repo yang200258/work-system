@@ -45,10 +45,10 @@ export default {
 
 <style lang="scss" scoped>
     .tag-nav {
-        padding: 24px 48px 24px;
-        width: 100%;
-        font-size: 14px;
-        background-color: #fff;
-        z-index: 9999;
+        // padding: 24px 48px 24px;
+        // width: 100%;
+        // font-size: 14px;
+        // background-color: #fff;
+        // z-index: 9999;
     }
 </style>

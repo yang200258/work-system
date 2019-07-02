@@ -46,13 +46,20 @@ export default {
     width: 100%;
     display: grid;
     grid-template-columns: 1fr;
-    grid-template-rows: $headBarHeight auto;
+    grid-template-rows: $headBarHeight 62px auto;
     .header-bar {
         min-width: 560px;
         position: fixed;
         top: 0;
         max-height: $headBarHeight;
         width: 100%;
+    }
+    .tag {
+        padding: 24px 48px 24px;
+        width: 100%;
+        font-size: 14px;
+        background-color: #fff;
+        z-index: 9999;
     }
     .content {
         height: 100%;

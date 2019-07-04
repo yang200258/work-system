@@ -3,8 +3,8 @@
         <table-data :isSelected="false" :isOption="false" :head="leaveHead" :tableLoading="loading" :tableData="leaveData" :data="searchInfo" :formData="formData" @btnClick="searchLeave"
             :mutiItem="mutiItem" @input="input" :format="format" :filterTag="filterTag" :totalNumber="total" @currentChange="next">
             <template #special="{scope: scope}">
-                <div class="wrapper" v-if="scope.column.property === 'userType' || times.includes(scope.column.property)">
-                    <div class="type-wrapper" v-if="scope.column.property === 'userType'" >
+                <div class="restmanage-wrapper" v-if="scope.column.property === 'userType' || times.includes(scope.column.property)">
+                    <div class="restmanageType-wrapper" v-if="scope.column.property === 'userType'" >
                         <el-tag style="margin-right:8px;" v-for="item in scope.row.userType" :key="item" :type="status[item]">{{typeContent[item]}}</el-tag>
                         <span v-if="scope.column.property === 'userType' && !scope.row.userType.length">无</span>
                     </div>

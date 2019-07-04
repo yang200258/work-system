@@ -59,7 +59,7 @@ export default {
         width: 100%;
         font-size: 14px;
         background-color: #fff;
-        z-index: 9999;
+        z-index: 999;
     }
     .content {
         height: 100%;

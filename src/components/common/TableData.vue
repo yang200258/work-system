@@ -129,7 +129,6 @@ export default {
         },
         selectionChange: function(val){
             this.selectCount = val.length
-            this.selectdata = val
             this.$emit('selectionChange',val)
         },
         btnClick: function() {

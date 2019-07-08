@@ -3,79 +3,95 @@
         <div class="restinfo-header">
             <div class="header-info">
                 <div class="left-header-info">
-                    {{name}}
+                    {{userInfo.name}}
                 </div>
                 <div class="right-header-info">
-                    <div><span>{{name}}</span><span>的额度使用记录</span> </div>
-                    <div><span>部门：</span><span>{{depart}}</span> </div>
+                    <div><span>{{userInfo.name}}</span><span>的额度使用记录</span> </div>
+                    <div><span>部门：</span><span>{{userInfo.depart}}</span> </div>
                 </div>
             </div>
             <div class="header-balance">
-                <el-select v-model="restType" size="mini" @change="changeSelect">
+                <el-select v-model="userInfo.restType" size="mini" @change="changeSelect">
                     <el-option v-for="(option,i) in options" :key="i" :label="option.name" :value="option.value"></el-option>
                 </el-select>
-                <span>额度：</span><span class="num" @click.prevent="showSetBalance">{{num}}</span><span>天（年假规则：</span><span>{{rule}}）</span>
+                <span>额度：</span><span class="num" @click.prevent="showSetBalance">{{userInfo.num}}</span><span>天（年假规则：</span><span>{{userInfo.rule}}）</span>
             </div>
             <div class="header-option">
                 <el-button type="primary" size="mini" @click.prevent="showSetBalance">调整额度</el-button>
             </div>
         </div>
         <table-data :isOption="false" :head="infoHead" :tableLoading="loading" :tableData="infoData" :totalNumber="total" :currentChange="next" ></table-data>
-        <my-dialog :title="'修改额度'" :show="isShowEdit" :width="'800px'" :confirmText="'保存'" @confirm="confirm" :isCancel="true"  @cancel="close"
-                    :cancelText="'取消'" @close="close">
-            <template slot="dialog-content">
-                <my-form :formData="form" :formItem="formItem" :position="'left'" @changeSelect="changeSelect">
-                    <template slot="numday">
-                         <el-input-number v-model="numday" controls-position="right" :min="0" size="mini" style="width: 80px;margin:0 10px;"></el-input-number><span>天</span>
-                    </template>
-                </my-form>
-            </template>
-        </my-dialog>
+        <edit-num :title="'修改额度'" :isShowEdit="isShowEdit" :form="form"  :formItem="formItem" @confirm="confirm"  @cancel="close" @close="close"></edit-num>
     </div>
 </template>
 
 <script>
 import TableData from '@/components/common/TableData'
-import MyDialog from '@/components/common/MyDialog'
-import MyForm from '@/components/common/MyForm'
+import EditNum from '@/components/rest/editNum'
 export default {
     data() {
         return {
-            infoHead:[{key:'date',name:'时间'},{key:'operator',name:'操作人'},{key:'option',name:'操作'},{key:'balance',name:'额度'},{key:'validity',name:'有效期'},{key:'reason',name:'理由'}
-                ,{key:'last',name:'操作后余额'}],
+            infoHead:[{key:'time',name:'时间'},{key:'operator',name:'操作人'},{key:'action',name:'操作'},{key:'quota',name:'额度'},{key:'expire_at',name:'有效期'},{key:'reason',name:'理由'}
+                ,{key:'balance',name:'操作后余额'}],
             infoData: [],
             loading:false,
             total: 0,
             options:[{value: 0,name:'年假'}],
-            restType: 0,
-            num: 5,
-            rule: '每年1月1日自动发放5天',
-            name: '刘鑫',
-            depart: '产品中心',
             isShowEdit: false,
-            form:{},
-            numday: 0,
-            formItem:[{type:'select',prop:'type',options:[{id:0,name:'增加'},{id:1,name:'减少'}],suffixSlotName:'numday',label:'修改年假'},
-                        {type:'input',inputType:'textarea',placeholder:'请输入理由（必填）',rows:4,label:'理由'}]
+            form:{numday:0},
+            userInfo: {}
         }
     },
-    components: {TableData,MyDialog,MyForm},
+    components: {TableData,EditNum},
+    mounted() {
+        if(this.$route.params.userInfo) {
+            this.userInfo = this.$route.params.userInfo
+            let {userId,holidayId} = this.userInfo
+            this.getRestInfoList(userId,holidayId)
+        }
+    },
     methods: {
+        //获取用户请假额度使用记录
+        async getRestInfoList(userId,holidayId,page=1,size=20) {
+            try {
+                this.loading = true
+                let res = await this.$axios({url:`/es/holidayBal/holidayLog?$page=${page}&size=${size}`,method: 'post',data:{userId,holidayId}})
+                this.infoData = res.content
+                this.total = res.recordContent
+                this.loading = false
+            } catch(err) {
+                this.loading = false
+                this.$message.error(err)
+            }
+        },
         //翻页
-        next: function() {
-
+        next: function(val) {
+            this.getRestInfoList(this.userInfo.userId,this.userInfo.holidayId,val)
         },
         //显示调整额度弹窗
         showSetBalance: function() {
+            this.form = {numday:0}
             this.isShowEdit = true
         },
         //改变假种时触发
-        changeSelect: function() {
-
+        changeSelect: function(val) {
+            this.userInfo.holidayId = val
+            this.getRestInfoList(this.userInfo.userId,val)
         },
         //调整额度
-        confirm: function() {
-
+        async confirm() {
+            let {adjust,reason,numday} = this.form
+            let {holidayId,userId} = this.userInfo
+            adjust = adjust * numday
+            try {
+                let res = await this.$axios({url: '/es/holidayBal/adjust',method:'post',data:{adjust,holidayId,reason,userId:[userId]}})
+                if(res) {
+                    this.$message.success(res)
+                    this.isShowEdit = false
+                }
+            } catch(err) {
+                this.$meaasge.error(err)
+            }
         },
         close: function() {
             this.isShowEdit = false
@@ -127,9 +143,7 @@ export default {
                 cursor:pointer
             }
         }
-        .header-option {
-
-        }
+        
     }
 }
 </style>

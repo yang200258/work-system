@@ -63,19 +63,6 @@ export default {
         next: function(val) {
             this.search(this.searchInfo,val)
         },
-        //获取假期列表
-        // getLeaveData() {
-        //     this.search(this.searchInfo)
-        //     // let filterList = this.leaveHead.filter(i => ['depart'].includes(i.key))
-        //     // filterList.forEach(item=> {
-        //     //     if(item.key === 'depart') {
-        //     //         this.leaveData.forEach(t => {
-        //     //             item.filter.push({text:t.depart,value:t.depart})
-        //     //         })
-        //     //         item.filter = this._.uniqBy(item.filter,'text')
-        //     //     }
-        //     // })
-        // },
         //筛选
         searchLeave: function() {
             this.search(this.searchInfo)
@@ -96,9 +83,11 @@ export default {
             
         },
         //点击假数进入假期额度详情
-        getRestInfo: function() {
+        getRestInfo: function(scope) {
+            console.log(scope)
             this.$router.push({
-                name:'restInfo'
+                name:'restInfo',
+                params: {userInfo:scope.row}
             })
         },
         format: function(cellValue,propperty) {

@@ -12,11 +12,14 @@
         <div class="tag">
             <tag-nav></tag-nav>
         </div>
-        <div class="content">
-            <!-- <keep-alive> -->
-                <router-view></router-view>
-            <!-- </keep-alive> -->
-        </div>
+       <el-scrollbar style="height:100%"> 
+           <div class="content">
+                <!-- <keep-alive> -->
+                    <router-view></router-view>
+                <!-- </keep-alive> -->
+            </div>
+       </el-scrollbar>
+        
     </div>
 </template>
 

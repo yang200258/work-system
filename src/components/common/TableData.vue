@@ -27,7 +27,7 @@
                         </slot>
                     </template>
                 </el-table-column>
-                <el-table-column label="操作" align="left" v-if="isOption" :class-name="'option'" width="200px">
+                <el-table-column label="操作" align="left" v-if="isOption" :class-name="'option'">
                     <template slot-scope="scope">
                         <slot name="option" :scope="scope">
                             <span style="margin-right:22px;" v-show="!((!scope.row.state && names.includes(item.name)) || (scope.row.state && unNames.includes(item.name)))" v-for="(item,index) in option" 

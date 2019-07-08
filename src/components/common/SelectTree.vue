@@ -61,7 +61,7 @@ export default {
     //   default:function() {}
     // },
     //父组件传递过来的数据。。   .sync双向绑定
-    id: [String, Array],
+    id: {type:Array,default: ()=> []},
     //节点唯一标识
     nodeKey: { type: String, default: 'id' },
   },

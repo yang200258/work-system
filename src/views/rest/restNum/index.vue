@@ -31,8 +31,8 @@ export default {
             leaveData:[],
             searchInfo:{},
             total: 0,
-            formData: [{type:'input',placeholder:'请输入姓名',label:'name'},{type:'selectTree',placeholder:'全部',nameText:'所属部门',label:'depart',tipText:'全部'},
-                       {type:'mutiSelect',nameText:'显示假种',placeholder:'全部',label:'leaveType',options: []},
+            formData: [{type:'input',placeholder:'请输入姓名',label:'name'},{type:'selectTree',placeholder:'全部',nameText:'所属部门',label:'oid',tipText:'全部'},
+                       {type:'mutiSelect',nameText:'显示假种',placeholder:'全部',label:'holidayId',options: []},
                        {type:'button',nameText: '搜索',btnType:'primary'}],
             mutiItem:{left: [{nameText:'批量调整额度',className:'el-icon-edit-outline',event:'mutiRestNum'}],right:[{nameText:'批量导入',className:'el-icon-download',event:'input'}]},
             status: ['success','','info'],
@@ -49,7 +49,7 @@ export default {
     components: {TableData,EditNum},
     mounted() {
         this.getRestType().then(res=> this.formData[2].options = this.formItem[0].options = res)
-         this.search(this.searchInfo)
+        this.search(this.searchInfo)
     },
     computed: {
         ...mapState({
@@ -71,12 +71,16 @@ export default {
         // eslint-disable-next-line
         async search(info,page=1,size=20) {
             this.loading = true
-            // let res = await this.$axios({url:`/es/holiday/_search?page=${page}&size=${size}`,method: 'post',data: info})
-            let res = {content:[{name:'一起去',account:'uchgdui',depart:'A',userType:[0,1,2],year:6,hour:8,day:6,userId:0},
-                        {name:'yqq',account:'uchcdvvgdui',depart:'BX',userType:[0,1],year:6,hour:8,day:6,userId:1}],recordCount:3}
-            this.loading = false
-            this.leaveData = res.content
-            this.total = res.recordCount
+            try {
+                let res = await this.$axios({url:`/es/holidayBal/_search?page=${page}&size=${size}`,method: 'post',data: info})
+                this.leaveData = res.content
+                this.total = res.recordCount
+                this.loading = false
+            } catch(err) {
+                console.log(err)
+                this.loading = false
+            }
+            
         },
         //批量导入
         input: function() {

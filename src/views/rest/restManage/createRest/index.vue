@@ -29,7 +29,7 @@ export default {
             formItem: [{type:'input',prop:'name',placeholder:'请输入假期名称',label:'假期名称'},
                         {type:'select',prop:'applyUnit',placeholder:'请选择',options:[{id:0,name:'按工作日'},{id:1,name:'按自然日'},{id:2,name:'按小时'}],label:'时间单位'},
                         {type:'input',prop:'memo',inputType:'textarea',placeholder:'请输入提示文案',label:'提示文案（可选）',rows:6},
-                        {type:'check',prop:'userType',options:[{name:'正式员工',value:0},{name:'劳务派遣',value:1},{name:'外包员工',value:2}],label:'可用员工类型'},
+                        {type:'check',prop:'userType',options:[],label:'可用员工类型'},
                         {type:'switch',prop:'balanceEnabled',label:'启用余额'},
                         // 余额
                         {type:'select',prop:'blanceType',placeholder:'请选择',options:[{id:0,name:'按年发放（每年1月1日发放额度）'},{id:1,name:'按月发放（每月1日发放额度）'},
@@ -47,10 +47,24 @@ export default {
             restForm: state => state.rest.restForm
         })
     },
+    mounted() {
+        this.getWorkType()
+    },
     methods: {
         ...mapMutations({
             initialRestForm: 'rest/initialRestForm'
         }),
+        async getWorkType() {
+            try {
+                let res = await this.$axios({url:`/es/holiday/getWorkType`,method: 'post'})
+                const list = []
+                res.forEach(item => list.push({name: item.workTypeName,value:item.workTypeId}))
+                let index = this._.findIndex(this.formItem,item => item.prop == 'userType')
+                this.formItem[index].options = list
+            } catch(err) {
+                console.log(err)
+            }
+        },
         //启动余额开关显示项
         isOpenBlance: function(val) {
             const showList = ['blanceType','limit','validityRule','delay']

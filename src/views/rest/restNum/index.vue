@@ -3,13 +3,12 @@
         <table-data :isOption="false" :head="leaveHead" :tableLoading="loading" :tableData="leaveData" :data="searchInfo" :formData="formData" @btnClick="searchLeave"
             :mutiItem="mutiItem" @input="input" :format="format" :totalNumber="total" @currentChange="next" @mutiRestNum="mutiRestNum" @selectionChange="selectionChange">
             <template #special="{scope: scope}">
-                <div class="restmanage-wrapper" v-if="scope.column.property === 'userType' || times.includes(scope.column.property)">
+                <div class="restmanage-wrapper" v-if="scope.column.property === 'userType' || scope.column.property%1 === 0" >
                     <div class="restmanageType-wrapper" v-if="scope.column.property === 'userType'" >
-                        <el-tag style="margin-right:8px;" v-for="item in scope.row.userType" :key="item" :type="status[item]">{{typeContent[item]}}</el-tag>
-                        <span v-if="scope.column.property === 'userType' && !scope.row.userType.length">无</span>
+                        <el-tag style="margin-right:8px;" type="success">{{scope.row.userType}}</el-tag>
                     </div>
-                    <div v-if="times.includes(scope.column.property)">
-                        <span class="rest-num" @click.prevent="getRestInfo(scope)">{{scope.row[scope.column.property]}}</span>
+                    <div v-else>
+                        <span class="rest-num" @click.prevent="getRestInfo(scope)">{{scope.row[scope.column.property].balance}}</span>
                     </div>
                 </div>
             </template>
@@ -25,8 +24,7 @@ import {mapState,mapActions} from 'vuex'
 export default {
     data() {
         return {
-            leaveHead: [{key:'name',name:'姓名'},{key:'account',name:'账号',}, {key:'depart',name:'部门'}, {key:'userType',name:'员工类型'},{key:'year',name:'剩余年假（天）',sortable:true},
-                        {key:'hour',name:'剩余免责事假（小时）',sortable:true},{key:'day',name:'剩余探父母假（天）',sortable:true}],
+            leaveHead: [{key:'userName',name:'姓名'},{key:'account',name:'账号',}, {key:'department',name:'部门'}, {key:'userType',name:'员工类型'}],
             loading: false,
             leaveData:[],
             searchInfo:{},
@@ -35,10 +33,6 @@ export default {
                        {type:'mutiSelect',nameText:'显示假种',placeholder:'全部',label:'holidayId',options: []},
                        {type:'button',nameText: '搜索',btnType:'primary'}],
             mutiItem:{left: [{nameText:'批量调整额度',className:'el-icon-edit-outline',event:'mutiRestNum'}],right:[{nameText:'批量导入',className:'el-icon-download',event:'input'}]},
-            status: ['success','','info'],
-            typeContent: ['正式','劳派','外包'],
-            leaveType:['年休假','探亲假','免责事假'],
-            times: ['year','hour','day'],
             isShowEdit: false,
             form: {numday:0},
             formItem:[{type:'select',prop:'holidayId',options:[],label:'修改年假'},
@@ -48,7 +42,11 @@ export default {
     },
     components: {TableData,EditNum},
     mounted() {
-        this.getRestType().then(res=> this.formData[2].options = this.formItem[0].options = res)
+        this.getRestType().then(res=> {
+            let index = this._.findIndex(this.formData,item => item.label == 'holidayId')
+            let itemIndex = this._.findIndex(this.formItem,item => item.prop == 'holidayId')
+            this.formData[index].options = this.formItem[itemIndex].options = res
+        })
         this.search(this.searchInfo)
     },
     computed: {
@@ -75,12 +73,23 @@ export default {
                 let res = await this.$axios({url:`/es/holidayBal/_search?page=${page}&size=${size}`,method: 'post',data: info})
                 this.leaveData = res.content
                 this.total = res.recordCount
+                this.formatSearchData(this.leaveData)
                 this.loading = false
             } catch(err) {
                 console.log(err)
                 this.loading = false
             }
-            
+        },
+        //格式化获取数据--添加假期数据
+        formatSearchData(leaveData) {
+            leaveData.forEach(item => {
+                if(item.holidayBal.length === 0) return
+                item.holidayBal.forEach(holiday =>{
+                    item[holiday.holidayId] = holiday
+                    if(this.leaveHead.find((item => item.key == holiday.holidayId))) return 
+                    this.leaveHead.push({key:`${holiday.holidayId}`,name:`${holiday.holidayName}(${holiday.applyUnit})`})
+                })
+            })
         },
         //批量导入
         input: function() {
@@ -101,8 +110,9 @@ export default {
         async confirm() {
             let {adjust,reason,numday,holidayId} = this.form
             adjust = adjust * numday
+            let userId = this.userId
             try {
-                let res = await this.$axios({url: '/es/holidayBal/adjust',method:'post',data:{adjust,holidayId,reason}})
+                let res = await this.$axios({url: '/es/holidayBal/adjust',method:'post',data:{userId,adjust,holidayId,reason}})
                 if(res) {
                     this.$message.success(res)
                     this.isShowEdit = false
@@ -116,15 +126,15 @@ export default {
         },
         //点击假数进入假期额度详情
         getRestInfo: function(scope) {
+            let userInfo = scope.row
+            let clickInfo = scope.row[scope.column.property]
             this.$router.push({
                 name: 'restInfo',
-                params: {userInfo:scope.row}
+                params: {userInfo,clickInfo}
             })
         },
         format: function(cellValue,propperty) {
             switch(propperty) {
-                case 'leaveType':
-                    return  this.leaveType[cellValue]
                 default:
                     return cellValue ? cellValue : '无'
             }

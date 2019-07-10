@@ -3,24 +3,24 @@
         <div class="restinfo-header">
             <div class="header-info">
                 <div class="left-header-info">
-                    {{userInfo.name}}
+                    {{userInfo.userName}}
                 </div>
                 <div class="right-header-info">
-                    <div><span>{{userInfo.name}}</span><span>的额度使用记录</span> </div>
-                    <div><span>部门：</span><span>{{userInfo.depart}}</span> </div>
+                    <div><span>{{userInfo.userName}}</span><span>的额度使用记录</span> </div>
+                    <div><span>部门：</span><span>{{userInfo.department}}</span> </div>
                 </div>
             </div>
             <div class="header-balance">
-                <el-select v-model="userInfo.restType" size="mini" @change="changeSelect">
-                    <el-option v-for="(option,i) in options" :key="i" :label="option.name" :value="option.value"></el-option>
+                <el-select v-model="userInfo.holidayId" size="mini" @change="changeSelect">
+                    <el-option v-for="(option,i) in restType" :key="i" :label="option.name" :value="option.id"></el-option>
                 </el-select>
-                <span>额度：</span><span class="num" @click.prevent="showSetBalance">{{userInfo.num}}</span><span>天（年假规则：</span><span>{{userInfo.rule}}）</span>
+                <span>额度：</span><span class="num" @click.prevent="showSetBalance">{{clickInfo.balance}}</span><span>天（年假规则：</span><span>{{clickInfo.rule}}）</span>
             </div>
             <div class="header-option">
                 <el-button type="primary" size="mini" @click.prevent="showSetBalance">调整额度</el-button>
             </div>
         </div>
-        <table-data :isOption="false" :head="infoHead" :tableLoading="loading" :tableData="infoData" :totalNumber="total" :currentChange="next" ></table-data>
+        <table-data :isSelected="false" :isOption="false" :head="infoHead" :tableLoading="loading" :tableData="infoData" :totalNumber="total" :currentChange="next" :format="format"></table-data>
         <edit-num :title="'修改额度'" :isShowEdit="isShowEdit" :form="form"  :formItem="formItem" @confirm="confirm"  @cancel="close" @close="close"></edit-num>
     </div>
 </template>
@@ -28,26 +28,36 @@
 <script>
 import TableData from '@/components/common/TableData'
 import EditNum from '@/components/rest/editNum'
+import {mapState} from 'vuex'
 export default {
     data() {
         return {
-            infoHead:[{key:'time',name:'时间'},{key:'operator',name:'操作人'},{key:'action',name:'操作'},{key:'quota',name:'额度'},{key:'expire_at',name:'有效期'},{key:'reason',name:'理由'}
+            infoHead:[{key:'time',name:'时间',sortable:true},{key:'operator',name:'操作人'},{key:'action',name:'操作'},{key:'quota',name:'额度'},{key:'expire_at',name:'有效期'},{key:'reason',name:'理由'}
                 ,{key:'balance',name:'操作后余额'}],
             infoData: [],
             loading:false,
             total: 0,
-            options:[{value: 0,name:'年假'}],
+            options:[],
             isShowEdit: false,
             form:{numday:0},
-            userInfo: {}
+            userInfo: {},
+            clickInfo:{},
+            formItem:[{type:'select',prop:'adjust',options:[{id:1,name:'增加'},{id:-1,name:'减少'}],suffixSlotName:'numday',label:'修改年假'},
+                        {type:'input',inputType:'textarea',placeholder:'请输入理由（必填）',rows:4,label:'理由',prop: 'reason'}],
         }
     },
     components: {TableData,EditNum},
+    computed: {
+        ...mapState({
+            restType:state => state.rest.restType
+        })
+    },
     mounted() {
         if(this.$route.params.userInfo) {
             this.userInfo = this.$route.params.userInfo
-            let {userId,holidayId} = this.userInfo
-            this.getRestInfoList(userId,holidayId)
+            this.clickInfo = this.$route.params.clickInfo
+            this.userInfo.holidayId = this.clickInfo.holidayId
+            this.getRestInfoList(this.userInfo.userId,this.userInfo.holidayId)
         }
     },
     methods: {
@@ -86,7 +96,11 @@ export default {
             try {
                 let res = await this.$axios({url: '/es/holidayBal/adjust',method:'post',data:{adjust,holidayId,reason,userId:[userId]}})
                 if(res) {
-                    this.$message.success(res)
+                    if(!res.failCount) {
+                        this.$message.success(`批量操作假期成功！`)
+                    } else {
+                        this.$message.success(`批量操作假期成功${res.success}人，失败${res.failCount}人，失败原因：${res.adjustFail}！`)
+                    }
                     this.isShowEdit = false
                 }
             } catch(err) {
@@ -95,7 +109,13 @@ export default {
         },
         close: function() {
             this.isShowEdit = false
-        }
+        },
+        format: function(cellValue,propperty) {
+            switch(propperty) {
+                default:
+                    return cellValue ? cellValue : '无'
+            }
+        },
     }
 }
 </script>
@@ -140,7 +160,9 @@ export default {
                 color:#499EFF;
                 text-decoration:underline;
                 font-size:24px;
-                cursor:pointer
+                cursor:pointer;
+                display: inline-block;
+                padding-right: 10px;
             }
         }
         

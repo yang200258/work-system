@@ -24,20 +24,14 @@ export default {
     data() {
         return {
             leaveHead: [{key:'name',name:'姓名',fixed:true,width:100},{key:'account',name:'账号',fixed:true,width:100}, {key:'depart',name:'部门',fixed:true,width:100}, 
-                    {key:'userType',name:'员工类型',fixed:true,width:200},{key:'year',name:'年假（天）',sortable:true},
-                        {key:'hour',name:'免责事假（小时）',sortable:true},{key:'day',name:'探父母假（天）',sortable:true},{key:'day',name:'探父母假（天）',sortable:true}
-                        ,{key:'day',name:'探父母假（天）',sortable:true},{key:'day',name:'探父母假（天）',sortable:true},{key:'day',name:'探父母假（天）',sortable:true}
-                        ,{key:'day',name:'探父母假（天）',sortable:true},{key:'day',name:'探父母假（天）',sortable:true},{key:'day',name:'探父母假（天）',sortable:true}
-                        ,{key:'day',name:'探父母假（天）',sortable:true},{key:'day',name:'探父母假（天）',sortable:true},{key:'day',name:'探父母假（天）',sortable:true}
-                        ,{key:'day',name:'探父母假（天）',sortable:true},{key:'day',name:'探父母假（天）',sortable:true},{key:'day',name:'探父母假（天）',sortable:true}
-                        ,{key:'day',name:'探父母假（天）',sortable:true},{key:'day',name:'探父母假（天）',sortable:true},{key:'day',name:'探父母假（天）',sortable:true}],
+                    {key:'userType',name:'员工类型',fixed:true,width:200},{key:'year',name:'年假（天）',sortable:true},],
             loading: false,
             leaveData:[],
             searchInfo:{},
             total: 0,
             formData: [{type:'input',placeholder:'请输入姓名',label:'name'},{type:'selectTree',placeholder:'全部',nameText:'所属部门',label:'depart',tipText:'全部'},
                         {type:'date',dateType:'daterange',label:'date',startPlaceholder:'开始日期',endPlaceholder:'结束日期',valueFormat:'yyyy-MM-dd'},
-                       {type:'mutiSelect',nameText:'显示假种',placeholder:'全部',label:'leaveType',options: []},
+                       {type:'mutiSelect',nameText:'显示假种',placeholder:'全部',label:'restType',options: []},
                        {type:'button',nameText: '搜索',btnType:'primary'}],
             mutiItem:{right:[{nameText:'导出',className:'el-icon-download',event:'output'}]},
             status: ['success','','info'],
@@ -48,7 +42,10 @@ export default {
     },
     components: {TableData},
     mounted() {
-        this.getRestType().then(res=> this.formData[3].options = res)
+        this.getRestType().then(res=> {
+            let index = this._.findIndex(this.formData,item => item.label == 'restType')
+            this.formData[index].options = res
+        })
         this.search(this.searchInfo)
     },
     computed: {
@@ -71,9 +68,7 @@ export default {
         // eslint-disable-next-line
         async search(info,page=1,size=20) {
             this.loading = true
-            // let res = await this.$axios({url:`/es/holiday/_search?page=${page}&size=${size}`,method: 'post',data: info})
-            let res = {content:[{name:'一起去',account:'uchgdui',depart:'A',userType:[0,1,2],year:6,hour:8,day:6},
-                        {name:'yqq',account:'uchcdvvgdui',depart:'BX',userType:[0,1],year:6,hour:8,day:6}],recordCount:3}
+            let res = await this.$axios({url:`/es/holiday/_search?page=${page}&size=${size}`,method: 'post',data: info})
             this.loading = false
             this.leaveData = res.content
             this.total = res.recordCount

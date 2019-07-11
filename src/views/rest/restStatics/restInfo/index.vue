@@ -101,6 +101,7 @@ export default {
                     } else {
                         this.$message.success(`批量操作假期成功${res.success}人，失败${res.failCount}人，失败原因：${res.adjustFail}！`)
                     }
+                    this.getRestInfoList(this.userInfo.userId,this.userInfo.holidayId)
                     this.isShowEdit = false
                 }
             } catch(err) {

@@ -115,6 +115,7 @@ export default {
                 let res = await this.$axios({url: '/es/holidayBal/adjust',method:'post',data:{userId,adjust,holidayId,reason}})
                 if(res) {
                     this.$message.success(res)
+                    this.search(this.searchInfo)
                     this.isShowEdit = false
                 }
             } catch(err) {

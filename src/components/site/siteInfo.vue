@@ -1,6 +1,5 @@
 <template>
     <div class="siteinfo-container">
-        <!-- <p>选择地址</p> -->
         <map-gao class="gao-map" :isShowReset="isShowReset" :isDestroy="isDestroy" :mapHeight="mapHeight"> </map-gao>
     </div>
 </template>

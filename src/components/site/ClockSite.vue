@@ -1,8 +1,9 @@
 <template>
     <div class="clocksite-container">
         <section>
-            <table-data :head="sitehead" :tableData="siteInfo.content" :isSelected="false" :option="option"  :totalNumber="siteInfo.recordCount" @delTable="delTable" @editTable="editTable" 
-            @chooseTable="chooseTable" @currentChange="nextPage" :format="format" :data="searchInfo" :formData="formItem" @btnClick="searchSite" :mutiItem="mutiItem" @createSite="createSite">
+            <table-data :head="sitehead" :tableData="siteInfo.content" :isSelected="false" :option="option" :totalNumber="siteInfo.recordCount" @delTable="delTable" @editTable="editTable" 
+            @chooseTable="chooseTable" @currentChange="nextPage" :format="format" :data="searchInfo" :formData="formItem" @btnClick="searchSite" :mutiItem="mutiItem" @createSite="createSite"
+            @changeMutiSelect="changeMutiSelect">
                 <template #special="{scope: scope}">
                     <slot name="clockstyle" :scope="scope"></slot>
                 </template>
@@ -23,11 +24,30 @@ export default {
     },
     data() {
         return {
-            formItem:[{type:'input',label:'name',placeholder:'考勤地点'},{type:'input',label:'city',placeholder:'城市'},{type:'button',btnType:'primary',nameText:'搜索'}],
-            mutiItem: {right:[{nameText:'添加',className:'el-icon-circle-plus-outline',event:'createSite'}]}
+            formItem:[{type:'input',label:'name',placeholder:'考勤地点'},{type:'mutiSelect',nameText:'城市',options:[],placeholder:'全部',label:'city'},{type:'button',btnType:'primary',nameText:'搜索'}],
+            mutiItem: {right:[{nameText:'添加',className:'el-icon-circle-plus-outline',event:'createSite'}]},
+            // searchInfo: {},
         }
     },
+    mounted() {
+        this.getCity()
+    },
     methods: {
+        async getCity() {
+            try {
+                let res = await this.$axios({url:'/es/offices/getCity',method:'get'})
+                if(res) {
+                    console.log('成功获取城市列表',res)
+                    let index = this._.findIndex(this.formItem,item => item.label === 'city')
+                    let options = res.map(item=> {
+                        return {name:item,id:item}
+                    })
+                    this.formItem[index].options = options
+                }
+            } catch(err) {
+                console.log(err)
+            }
+        },
         format: function(cellvalue,property) {
             if(property == 'clockGroup') {
                 return cellvalue ? cellvalue.map(item=> item.name).join(';') : '无'
@@ -36,6 +56,9 @@ export default {
             } else {
                 return cellvalue
             }
+        },
+        changeMutiSelect: function(val1,val2) {
+            this.$emit('changeMutiSelect',val1,val2)
         },
         editTable: function(scope) {
             this.$emit('editTable',scope)
@@ -47,7 +70,7 @@ export default {
             this.$emit('delTable',scope)
         },
         nextPage: function(val) {
-            this.$emit('nextPage',val)
+            this.$emit('nextPage',val,this.searchInfo)
         },
         createSite: function() {
             this.$emit('createSite')

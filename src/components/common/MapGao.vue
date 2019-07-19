@@ -204,7 +204,6 @@ export default {
         },
         //修改地址名称
         changeName(val) {
-            console.log(val)
             this.setInfoName(val)
         }
     }

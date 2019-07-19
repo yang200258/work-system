@@ -70,22 +70,20 @@ export default {
         })
     },
     methods: {
-        chooseSite: function() {
+        async chooseSite() {
             this.isDestroy = true
             let officeId = this.siteInfo.id
             let [page,size] = [1,20]
             this.clockGroup = this.siteInfo.clockGroup ? this.siteInfo.clockGroup.map(item=> item.name) : []
-            this.$axios({
-                url: `/es/offices/getDevices?page=${page}&size=${size}&officeId=${officeId}`,
-                method: 'post',
-            }).then(res=> {
+            try {
+                let res = await this.$axios({url: `/es/offices/getDevices?page=${page}&size=${size}&officeId=${officeId}`,method: 'post'})
                 if(res) {
                     console.log('成功获取考勤地点下考勤设备',res)
                     this.device = res.content
                 }
-            }).catch(err=> {
-                console.log(err);
-            })
+            } catch(err) {
+                console.log(err)
+            }
         },
         close: function() {
             this.$emit('close')

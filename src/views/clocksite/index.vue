@@ -1,7 +1,7 @@
 <template>
     <div class="clocksite-container">
         <clock-site :searchInfo="searchInfo" :siteInfo="siteInfo" :sitehead="sitehead" :option="option" @delTable="delSite" @querySite="querySite" @chooseTable="chooseSite" @nextPage="nextPage"
-            @createSite="createSite" @searchSite="searchSite" @editTable="editSite" :totalNumber="siteInfo.recordCount">
+            @createSite="createSite" @searchSite="searchSite" @editTable="editSite" :totalNumber="siteInfo.recordCount" @changeMutiSelect="changeMutiSelect">
         </clock-site>
         <look-site :show="isShowSite" @close="closeSite" @cancel="closeSite" @confirm="goEditSite"></look-site>
     </div>
@@ -22,11 +22,7 @@ export default {
             //操作配置
             option:[{name: '查看',type:1,event: 'chooseTable'},{name: '编辑',type:1,event: 'editTable'},{name:'删除',type:2,event: 'delTable'}],
             isShowSite: false,
-            // ******************查看考勤地点*****************
-            //查看考勤组时的设备
-            // device: [],
-            //查看考勤组时的应用考勤组
-            // clockGroup: [],
+            lookSiteId: null,
         }
     },
     components: {
@@ -52,25 +48,23 @@ export default {
                 console.log(err)
             }
         },
-        searchSite: function(page=1,size=20) {
+        async searchSite(page=1,size=20) {
             let {city,name} = this.searchInfo
-            this.$axios({
-                url: `/es/offices/_search?page=${page}&size=${size}`,
-                method: 'post',
-                data: {city,name}
-            }).then(res=> {
+            try {
+                let res = await this.$axios({url: `/es/offices/_search?page=${page}&size=${size}`,method: 'post',data: {city,name}})
                 console.log('查询到的考勤地点',res)
                 if(res) {
                     this.siteInfo = res
                 }
-            }).catch(err=> {
+            } catch(err) {
                 console.log(err)
-            })
+            }
         },
         //*******************查看考勤地点信息********************* 
         // 查看考勤地点
         chooseSite: function(scope) {
-            this.setSiteInfo(scope.row)
+            this.setSite(scope.row)
+            this.lookSiteId = scope.row.id
             this.isShowSite = true 
         },
         //关闭查看弹框 + 关闭按钮关闭查看弹框
@@ -80,20 +74,17 @@ export default {
         },
         //******************删除考勤地点信息************************** */
         //删除考勤地点
-        delSite: function(scope) {
+        async delSite(scope) {
             let officeId  = scope.row.id
-            this.$axios({
-                url:`/es/offices/delete?officeId=${officeId}`,
-                method: 'post',
-                // data: {officeId}
-            }).then(res=> {
+            try {
+                let res = await this.$axios({url:`/es/offices/delete?officeId=${officeId}`,method: 'post'})
                 if(res) {
                     this.$message.success(res)
                     this.querySite()
                 }
-            }).catch(err=> {
+            } catch(err) {
                 console.log(err)
-            })
+            }
         },
         //******************编辑考勤地点信息************************** */
         editSite: function(scope) {
@@ -111,7 +102,7 @@ export default {
             this.$router.push({
                 name: 'edit_clock_site',
                 params: {
-                    officeId: this.siteInfo.id
+                    officeId: this.lookSiteId
                 }    
             })
         },
@@ -128,6 +119,9 @@ export default {
         setSite: function(obj) {
             let {id='',name,address,city,latitude,longitude} = obj
             this.setSiteInfo({id,name,address,city,latitude,longitude})
+        },
+        changeMutiSelect: function(val1,val2) {
+            this.searchInfo[val2] = val1
         },
     }
 }

@@ -64,7 +64,7 @@ export default {
                 this.optionDevice()
             }
         },
-        //操作考勤地点---------新增id=0编辑id=1
+        //操作考勤地点---------新增id=0编辑id!=0
         async optionSite(id=0) {
             // this.siteInfo.id = id
             let obj = Object.assign({},this.siteInfo,{id})
@@ -100,24 +100,26 @@ export default {
             this.queryDevice(searchInfo)
         },
         //查询设备
-        queryDevice: function(name,type='',page=1,size=20) {
-            this.$axios({
-                url: `/es/devices/_search?page=${page}&size=${size}`,
-                method: 'post',
-                data: {name,type}
-            }).then(res=> {
+        async queryDevice(name,type='',page=1,size=20) {
+            try {
+                let res = await this.$axios({url: `/es/devices/_search?page=${page}&size=${size}`,method: 'post',data: {name,type}})
                 console.log('查询到的设备',res)
                 if(res) {
                     this.setEquips(res.content)
                 }
-            }).catch(err=> {
+            } catch(err) {
                 console.log(err)
-            })
+            }
         },
         //获取打卡设备列表
         async getEquipList() {
-            let res = await this.$axios({url:'/es/devices',method:'get'})
-            this.setEquips(res.content)
+            try{
+                let res = await this.$axios({url:'/es/devices',method:'get'})
+                console.log('成功获取设备列表',res)
+                if(res) this.setEquips(res.content)
+            } catch(err) {
+                console.log(err)
+            }
         },
         //编辑添加设备时对比初始状态的已添加设备,返回新增、删除的设备id
         contrastDevice: function(inialDeviceId,finalDevice) {

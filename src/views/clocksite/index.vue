@@ -33,7 +33,9 @@ export default {
     },
     methods: {
         ...mapMutations({
-            setSiteInfo: 'site/setSiteInfo'
+            setSiteInfo: 'site/setSiteInfo',
+            setAddEquips: 'site/setAddEquips',
+            setInialDeviceId: 'site/setInialDeviceId',
         }),
         //获取考勤地点
         async querySite(page=0,size=20,city='',name='') {
@@ -98,7 +100,7 @@ export default {
         },
         //通过查看考勤地点页面进入编辑
         goEditSite: function() {
-            this.isShowSite = false
+            // this.isShowSite = false
             this.$router.push({
                 name: 'edit_clock_site',
                 params: {
@@ -113,6 +115,8 @@ export default {
         //创建考勤地点
         createSite: function() {
             this.setSiteInfo({})
+            this.setAddEquips([])
+            this.setInialDeviceId([])
             this.$router.push({name: 'create_clock_site'})
         },
         //设置考勤地点

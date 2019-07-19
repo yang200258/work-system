@@ -181,7 +181,7 @@ export default {
                 this.setSiteInfo({name,address,city,latitude,longitude})
             } else {
                 let address = poi.item.pname+poi.item.cityname+poi.item.adname+poi.item.address
-                let city = site.cityname
+                let city = site.cityname.split('市')[0]
                 let latitude = site.location.lat
                 let longitude = site.location.lng
                 this.setSiteInfo({name,address,city,latitude,longitude})

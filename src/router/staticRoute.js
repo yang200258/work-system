@@ -85,7 +85,7 @@ const staticRoute = [{
             {
                 path: 'clocksite',
                 component: resolve => require(['@/views/clocksite'], resolve),
-                name: 'clocksite',
+                name: 'clocksite_list',
                 meta: { title: '考勤地点管理' },
             },
             {

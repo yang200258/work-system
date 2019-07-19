@@ -14,7 +14,7 @@
                             <p>蓝牙设备</p>
                             <div class="tag">
                                 <el-scrollbar style="height: 100%;">
-                                     <div v-for="(item,i) in device" :key="i" v-show="item.type === 0">{{item.name}}-{{item.type == 0 ? '蓝牙设备' : 'WIFI设备'}}</div>
+                                     <div class="device-tag" v-for="(item,i) in device" :key="i" v-show="item.type === 0">{{item.name}}-{{item.type == 0 ? '蓝牙设备' : 'WIFI设备'}}</div>
                                 </el-scrollbar>
                             </div>
                         </div>
@@ -22,7 +22,7 @@
                             <p>WIFI设备</p>
                             <div class="tag">
                                 <el-scrollbar style="height: 100%;">
-                                    <div v-for="(item,i) in device" :key="i" v-show="item.type === 1">{{item.name}}-{{item.type == 0 ? '蓝牙设备' : 'WIFI设备'}}</div>
+                                    <div class="device-tag" v-for="(item,i) in device" :key="i" v-show="item.type === 1">{{item.name}}-{{item.type == 0 ? '蓝牙设备' : 'WIFI设备'}}</div>
                                 </el-scrollbar>
                             </div>
                         </div>
@@ -57,9 +57,6 @@ export default {
             device: [],
             isDestroy: false
         }
-    },
-    mounted() {
-        
     },
     watch: {
         show: function(val) {
@@ -125,12 +122,12 @@ export default {
                             overflow-x: hidden!important;
                         }
                         .el-scrollbar {
-                            div {
+                            .device-tag {
                                 padding: 6px;
                                 background-color: #409EFF;
                                 color: #FFF;
                                 border-radius: 4px;
-                                margin: 10px 0;
+                                margin-bottom: 16px;
                                 width: 200px;
                                 text-align: center;
                                 overflow: hidden;

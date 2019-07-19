@@ -65,15 +65,12 @@ export default {
             }
         },
         //操作考勤地点---------新增id=0编辑id=1
-        optionSite: function(id=0) {
+        async optionSite(id=0) {
             // this.siteInfo.id = id
             let obj = Object.assign({},this.siteInfo,{id})
             this.setSiteInfo(obj)
-            this.$axios({
-                url: '/es/offices/save',
-                method: 'post',
-                data: this.siteInfo
-            }).then(res=> {
+            try {
+                let res = await this.$axios({url: '/es/offices/save',method: 'post',data: this.siteInfo})
                 console.log('成功操作考勤地点',res);
                 if(res) {
                     if(!id) this.$message.success('添加考勤地点成功')
@@ -82,9 +79,9 @@ export default {
                     this.activeName = 'optionDevice'
                     this.isDisable = false
                 }
-            }).catch(err=> {
-                console.log(err);
-            })
+            } catch(err) {
+                console.log(err)
+            }
         },
         //添加打卡设备
         async optionDevice() {
@@ -95,7 +92,7 @@ export default {
                 this.$message.success('保存设备成功！')
                 //编辑或新增成功后清除数据
                 this.clearSiteInfo()
-                this.$router.push('clocksite')
+                this.$router.push({name:'clocksite_list'})
             } 
         },
         //搜索设备
@@ -148,9 +145,10 @@ export default {
         display: flex;
         flex-direction: column;
         .footer {
+            margin: 40px 0;
             display: flex;
             justify-content: center;
-            margin: 40px 0;
+            align-items: center;
         }
     }
 </style>

@@ -1,9 +1,9 @@
 <template>
     <div class="device-manage">
         <section class="device-content">
-            <table-data :head="table.head" :isSelected="false" :tableData="table.content" :tableLoading="table.loading" :option="table.option" :totalNumber="table.total" @currentChange="currentChange" @chooseTable="chooseTable"
-            @editTable="editTable" @delTable="delTable" :data="searchInfo" :formData="formitem" @btnClick="searchDevice" :mutiItem="mutiItem" @addDevice="addDevice" @runRecord="runRecord"
-            :format="formatDevice" :tableSort="tableSort" :cellClassName="statusName"></table-data>
+            <table-data :head="table.head" :isSelected="false" :tableData="table.content" :tableLoading="table.loading" :option="table.option" :totalNumber="table.total" 
+                @currentChange="currentChange" @chooseTable="chooseTable" @editTable="editTable" @delTable="delTable" :data="searchInfo" :formData="formitem" @btnClick="searchDevice" 
+                :mutiItem="mutiItem" @addDevice="addDevice" @runRecord="runRecord" :format="formatDevice" :tableSort="tableSort" :cellClassName="statusName"></table-data>
         </section>
         <section class="device-info">
             <my-dialog :title="infoSet.title" :show="isShowInfo" :width="infoSet.width" :confirmText="infoSet.confirmText" @confirm="confirm" :isCancel="infoSet.isCancel"  @cancel="cancel"
@@ -28,7 +28,7 @@ export default {
         form: {type:Object},
         isShowInfo: {type:Boolean,default: false},
         mutiItem: {type:Object,default: ()=> {}},
-        tableSort: {type:Object}
+        tableSort: {type:Object},
     },
     data() {
         return {
@@ -87,8 +87,6 @@ export default {
         //格式化数据
         formatDevice: function(cellValue,property) {
             switch(property) {
-                case 'type':
-                    return cellValue ? 'WIFI设备' : '蓝牙设备'
                 case 'state':
                     return cellValue ? '停用' : '可用'
                 case 'office':

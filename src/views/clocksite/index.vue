@@ -1,7 +1,7 @@
 <template>
     <div class="clocksite-container">
         <clock-site :searchInfo="searchInfo" :siteInfo="siteInfo" :sitehead="sitehead" :option="option" @delTable="delSite" @querySite="querySite" @chooseTable="chooseSite" @nextPage="nextPage"
-            @createSite="createSite" @searchSite="searchSite" @editTable="editSite">
+            @createSite="createSite" @searchSite="searchSite" @editTable="editSite" :totalNumber="siteInfo.recordCount">
         </clock-site>
         <look-site :show="isShowSite" @close="closeSite" @cancel="closeSite" @confirm="goEditSite"></look-site>
     </div>
@@ -40,20 +40,17 @@ export default {
             setSiteInfo: 'site/setSiteInfo'
         }),
         //获取考勤地点
-        querySite: function(page=0,size=20,city='',name='') {
-            this.$axios({
-                url: `/es/offices/_search?page=${page}&size=${size}`,
-                method: 'post',
-                data: {city,name}
-            }).then(res=> {
+        async querySite(page=0,size=20,city='',name='') {
+            try {
+                let res = await this.$axios({url: `/es/offices/_search?page=${page}&size=${size}`,method: 'post',data: {city,name}})
                 console.log('获取考勤地点数据',res);
                 if(res) {
                     let {content,recordCount} = res 
                     this.siteInfo = {content,recordCount}
                 }
-            }).catch(err=> {
+            } catch(err) {
                 console.log(err)
-            })
+            }
         },
         searchSite: function(page=1,size=20) {
             let {city,name} = this.searchInfo
@@ -135,10 +132,3 @@ export default {
     }
 }
 </script>
-
-<style lang="scss" scoped>
-    .clocksite-container{
-        
-
-    }
-</style>

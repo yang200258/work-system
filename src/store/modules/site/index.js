@@ -10,6 +10,9 @@ const mutations = {
     setSiteInfo: (state, data) => {
         state.siteInfo = data
     },
+    setInfoName: (state, data) => {
+        state.siteInfo.name = data
+    },
     setEquips: (state, data) => {
         state.equips = data
     },

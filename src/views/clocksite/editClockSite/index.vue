@@ -10,12 +10,15 @@ import OptionSite from '@/components/site/optionSite'
 export default {
     data() {
         return {
-            optionSiteId: 1,       //操作新增考勤地点还是编辑考勤地点
+            optionSiteId: null,       //操作新增考勤地点还是编辑考勤地点
         }
     },
     mounted() {
         //获取初始对应地点已添加设备
-        if(this.$route.params.officeId) this.getInialDeviceId(this.$route.params.officeId)
+        if(this.$route.params.officeId) {
+            this.getInialDeviceId(this.$route.params.officeId)
+            this.optionSiteId = this.$route.params.officeId
+        }
     },
     computed: {
         ...mapState({

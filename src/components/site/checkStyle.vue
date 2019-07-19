@@ -81,7 +81,7 @@ export default {
 <style lang="scss" scoped>
     .tab-container {
         display: flex;
-        height: 250px;
+        height: 600px;
         justify-content: flex-start;
         font-size: 12px;
         .left-tab {
@@ -103,7 +103,7 @@ export default {
                 margin-left: 80px;
                 margin-top: 10px;
                 overflow-y: auto;
-                height: 250px;
+                height: 600px;
                 /deep/ .el-scrollbar__wrap {
                     overflow-x: hidden!important;
                 }
@@ -115,13 +115,14 @@ export default {
             padding-left: 80px;
             display: flex;
             flex-direction: column;
+            width: 400px;
             span {
                 white-space: nowrap;
                 margin: 8px 0 20px 0;
             }
             .tab-content {
                 overflow-y: auto;
-                height: 250px;
+                height: 600px;
                 width: 317px;
                 /deep/ .el-scrollbar__wrap {
                     overflow-x: hidden!important;

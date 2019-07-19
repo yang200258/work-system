@@ -10,7 +10,7 @@
             <div class="left">
                 <div class="left-top">
                     <span>地址名称</span>
-                    <el-input size="mini"  v-model="siteInfo.name" readonly></el-input>
+                    <el-input size="mini"  v-model="siteInfo.name" @change="changeName"></el-input>
                 </div>
                 <div class="left-botton">
                     <span>详细地址</span>
@@ -80,7 +80,8 @@ export default {
     },
     methods: {
         ...mapMutations({
-            setSiteInfo: 'site/setSiteInfo'
+            setSiteInfo: 'site/setSiteInfo',
+            setInfoName: 'site/setInfoName'
         }),
         /* eslint-disable */
         initMap() {
@@ -201,6 +202,11 @@ export default {
                 })
             })
         },
+        //修改地址名称
+        changeName(val) {
+            console.log(val)
+            this.setInfoName(val)
+        }
     }
 }
 </script>

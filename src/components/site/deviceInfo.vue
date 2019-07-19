@@ -1,7 +1,6 @@
 <template>
     <div class="deviceinfo-container">
         <div class="tab-content">
-            <!-- <span>添加打卡设备</span> -->
             <el-tabs type="border-card" class="tab" :value="tabDeviceName">
                 <el-tab-pane :label="item" v-for="(item,i) in tabItem" :key="i" :name="item">
                     <check-style :type="i" @searchDevice="searchDevice"></check-style>
@@ -45,9 +44,7 @@ export default {
             white-space: nowrap;
         }
         .tab {
-            // margin-left: 40px;
-            width: 100%;
-            min-width: 800px;
+            width: 1000px;
         }
     }
 }

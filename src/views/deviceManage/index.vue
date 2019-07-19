@@ -2,11 +2,11 @@
     <div class="device-manage">
         <device :searchInfo="deviceInfo" :table="{head,content,loading,total,option}" @searchDevice="searchDevice" @editTable="editDevice" @delTable="delDevice" @chooseTable="chooseDevice"
             :infoSet="infoSet" :form="form" :formItem="formItem" :isShowInfo="isShowInfo" @confirm="confirm" @cancel="cancel" @close="close" :mutiItem="mutiItem" @addDevice="addDevice"
-            @runRecord="runRecord" @changeSelect="changeSelect" :tableSort="tableSort"></device>
-        <my-dialog :title="'运行信息记录'" :show="isShowRecord" :confirmText="'关闭'" @confirm="closeRecord" @close="closeRecord">
+            @runRecord="runRecord" @changeSelect="changeSelect" :tableSort="tableSort" @currentChange="currentChange"></device>
+        <my-dialog :title="'运行信息记录'" :show="isShowRecord" @confirm="closeRecord" @close="closeRecord" :width="'800px'"  :isOption="false">
             <template slot="dialog-content">
                 <table-data :head="recordHead" :tableData="recordData" :tableLoading="recordLoading" :isSelected="false" :isOption="false" :tableSort="tableSort" @currentChange="changeRecord"
-                :data="searchRecord" :formData="recordItem" @btnClick="filterRecord"></table-data>
+                :data="searchRecord" :formData="recordItem" @btnClick="filterRecord" @format="formatRecord"></table-data>
             </template>
         </my-dialog>
     </div>
@@ -23,7 +23,7 @@ export default {
             mutiItem: {right:[{nameText:'导入',className:'iconfont icon-iconfontzhizuobiaozhun023146',event:'input'},{nameText:'添加',className:'el-icon-circle-plus-outline',event:'addDevice'}]},
             formData: [{type: 'input',placeholder: '设备编号',label: 'name'},{type: 'checkbox',nameText: '只显示通信异常设备（最近5天没有通信）',label: 'isException'},
                             {type:'button',nameText: '搜索'}],
-            head:[{key: 'type',name:'设备类型'},{key: 'name',name:'设备编号'},{key: 'lastComm',name:'最近通信',sortable: true},{key: 'operator',name:'最新编辑'},{key: 'office',name:'关联考勤地点'},
+            head:[{key: 'type',name:'设备类型'},{key: 'name',name:'设备编号'},{key:'mac',name:'Mac'},{key:'major',name:'Major'},{key:'minor',name:'Minor'},{key: 'lastComm',name:'最近通信',sortable: true},{key: 'operator',name:'最新编辑'},{key: 'office',name:'关联考勤地点'},
                     {key: 'memo',name:'备注'},{key: 'state',name:'设备状态'}],
             option:[{name: '查看',type:1,event: 'chooseTable'},{name: '编辑',type:1,event: 'editTable'},{name:'停用',type:2,event: 'delTable'},{name:'启用',type:1,event: 'delTable'},{name:'运行记录',type:1,event: 'runRecord'}],
             content: [],
@@ -46,7 +46,7 @@ export default {
             isShowInfo:false,
             //设备运行记录数据**************************
             isShowRecord: false,
-            recordHead: [{key: 'date',name:'日期'},{key: 'time',name:'时间'},{key: 'user',name:'用户'},{key: 'gps',name:'记录GPS'},{key: 'scope',name:'地点与设备间距'}],
+            recordHead: [{key: 'date',name:'日期'},{key: 'time',name:'时间'},{key: 'userName',name:'用户'},{key: 'gps',name:'记录GPS'},{key: 'distance',name:'地点与设备间距'}],
             tableSort:{prop: 'lastComm',order: 'descending'},
             recordData: [],
             recordLoading: false,
@@ -119,21 +119,18 @@ export default {
             this.isShowInfo = true
         },
         //关闭查看、、保存编辑
-        confirm: function() {
+        async confirm() {
             if(!this.infoSet.isCancel) return this.isShowInfo = false
-            this.$axios({
-                url: '/sys/devices/saveBluetooth',
-                method: 'post',
-                data: this.form
-            }).then(res=> {
+            try {
+                let res = this.$axios({url: '/sys/devices/saveBluetooth',method: 'post',data: this.form})
                 if(res) {
                     this.$message.success(res)
                     this.isShowInfo = false
                     this.getDevice(this.deviceInfo)
                 }
-            }).catch(err=> {
+            } catch(err) {
                 console.log(err)
-            })
+            }
         },
         //取消编辑
         cancel: function() {
@@ -144,22 +141,19 @@ export default {
             this.isShowInfo = false
         },
         //获取设备列表
-        getDevice: function(info,page=1,size=20) {
+        async getDevice(info,page=1,size=20) {
             this.loading = true
-            this.$axios({
-                url: `/sys/devices/searchBluetooth?page=${page}&size=${size}`,
-                method: 'post',
-                data: info
-            }).then(res=> {
+            try {
+                let res = await this.$axios({url: `/sys/devices/searchBluetooth?page=${page}&size=${size}`,method: 'post',data: info})
                 console.log('获取到设备数据',res)
                 if(res) {
                     this.content = res.content
                     this.total = res.recordCount
                     this.loading = false
                 }
-            }).catch(err=> {
+            } catch(err) {
                 console.log(err)
-            })
+            }
         },
         //选择租户后获取major/minor
         async changeSelect(val,prop) {
@@ -170,14 +164,18 @@ export default {
         },
         //获取租户列表
         async getTenants() {
-            let res = await this.$axios({url:'/sys/tenants',method: 'get'})
-            let list = []
-            res.forEach(item=> {
-                // eslint-disable-next-line
-                let {organizations,...data} = item
-                list.push(data)
-            })
-            return list
+            try {
+                let res = await this.$axios({url:'/sys/tenants',method: 'get'})
+                let list = []
+                res.forEach(item=> {
+                    // eslint-disable-next-line
+                    let {organizations,...data} = item
+                    list.push(data)
+                })
+                return list
+            } catch(err) {
+                console.log(err);
+            }
         },
         //*****************设备运行记录************************************* */
         //点击运行记录显示
@@ -202,28 +200,26 @@ export default {
             this.deviceRecord(this.recordId,startDate,endDate)
         },
         //设备运行记录
-        deviceRecord: function(deviceId,startDate='',endDate='',page=1,size=20) {
+        async deviceRecord(deviceId,startDate='',endDate='',page=1,size=20) {
             this.recordLoading = true
-            this.$axios({
-                url: `/es/devices/deviceLog?page=${page}&size=${size}`,
-                method: 'post',
-                data: {deviceId,endDate,startDate}
-            }).then(res=> {
+            try {
+                let res = await this.$axios({url: `/sys/devices/deviceLog?page=${page}&size=${size}`,method: 'post',data: {deviceId,endDate,startDate}})
                 if(res) {
                     this.recordData = res.content
+                    this.totalRecord = res.recordCount
                     this.recordLoading = false
                 }
-            }).catch(err=> {
+            } catch(err) {
                 console.log(err)
-            })
+                this.recordLoading = false
+            }
         },
+        formatRecord(cellValue,property,row) {
+            if(property === 'gps') {
+                return row.latitude && row.longitude ? (row.latitude + ',' + row.longitude) : '无'
+            }
+            return cellValue ? cellValue : '无'
+        }
     }
 }
 </script>
-
-<style lang="scss" scoped>
-    .bluetooth-manage {
-
-    }
-</style>
-

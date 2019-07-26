@@ -39,21 +39,19 @@ export default {
     },
     methods: {
         //获取用户列表（页面初始数据）
-        queryUserGroup: function(oid=0,page=0,size=20) {
+        async queryUserGroup(oid=0,page=0,size=20) {
             this.loading = true
-            this.$axios({
-                url: `/sys/users?oid=${oid}&page=${page}&size=${size}`,
-                method: 'get',
-            }).then(res=> {
+            try {
+                let res = await this.$axios({url: `/sys/users?oid=${oid}&page=${page}&size=${size}`,method: 'get'})
                 console.log('获取到用户列表数据',res);
                 if(res) {
                     this.tableData = res.content
                     this.total = res.recordCount
                 }
                 this.isSearch = this.loading = false
-            }).catch(err=> {
-                console.log(err);
-            })
+            }catch(err) {
+                console.log(err)
+            }
         },
         searchUser: function() {
             this.queryUser(this.queryUserData)

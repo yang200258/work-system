@@ -152,7 +152,6 @@ const actions = {
         let obj = utils.addDelArr(state.initialDate, state.specialDate, 'date')
         let addSpecialDate = obj.addArr
         let delSpecialDate = obj.delArr.map(item => item.specialDateId)
-        console.log(obj);
         let res = await axios({ url: '/es/specialDate/set', method: 'post', data: { clockGroupId, addSpecialDate, delSpecialDate } })
         return res
     }

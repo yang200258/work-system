@@ -49,6 +49,7 @@ Vue.prototype.$loading = Loading.service;
 Vue.prototype.$msgbox = MessageBox
 Vue.prototype.$message = Message
     // Vue.prototype.$InfiniteScroll = InfiniteScroll
+Vue.prototype.$prompt = MessageBox.prompt;
 Vue.prototype.$confirm = MessageBox.confirm;
 
 

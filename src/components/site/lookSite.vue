@@ -72,7 +72,7 @@ export default {
     methods: {
         async chooseSite() {
             this.isDestroy = true
-            let officeId = this.siteInfo.id
+            let officeId = this.siteInfo.id || this.siteInfo.officeId
             let [page,size] = [1,20]
             this.clockGroup = this.siteInfo.clockGroup ? this.siteInfo.clockGroup.map(item=> item.name) : []
             try {

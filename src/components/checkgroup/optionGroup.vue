@@ -2,11 +2,11 @@
     <div class="create-group-container">
         <header class="group-header">
             <div class="name">
-                <p> {{name}}</p>
-                <el-popover placement="bottom" title="修改考勤组名称" width="400" trigger="click" v-model="isShowEditName">
-                    <el-input v-model="groupname" clearable @keyup.enter.native="changeName"></el-input>
-                    <i class="el-icon-edit" slot="reference"></i>
-                </el-popover>
+                <p style="margin-right:6px"> {{name}}</p>
+                <!-- <el-popover placement="bottom" title="修改考勤组名称" width="400" trigger="click" v-model="isShowEditName"> -->
+                    <!-- <el-input v-model="groupname" clearable @keyup.enter.native="changeName"></el-input> -->
+                <i class="el-icon-edit" slot="reference" style="font-size:14px" @click.prevent="openChangeName"></i>
+                <!-- </el-popover> -->
             </div>
             <el-steps :active="active" :finish-status="status === 'new' ? 'success' : ''">
                 <el-step v-for="(item,i) in steps" :key="i" :title="item" :class="['step' + i, active === i ? 'isSet':'',status === 'edit' ? 'step-edit' : '']"  @click.native="goSpecialDate(i)"></el-step>
@@ -62,7 +62,7 @@
                             <div class="content-table">
                                 <table-data :head="siteHead" :tableLoading="loadingSite" :tableData="siteTableData" :totalNumber="recordCount"  :option="option" :format="formatter" @editTable="editTable"
                                     @chooseTable="chooseTable" :isSelected="false" @currentChange="nextSitePage" :data="searchInfo" :formData="formData" @changeMutiSelect="changeMutiSelect" 
-                                    @btnClick="searchSite" :isMutiOption="false">
+                                    @btnClick="searchSite" :isMutiOption="false" :optionWidth="'100px'">
                                 </table-data>
                             </div>
                         </div>
@@ -152,7 +152,7 @@ export default {
             userName: '',
             searchLoading: false,   //搜索user时状态
             //是否按部门添加考勤组成员
-            head: [{key:'name',name: '姓名'},{key:'username',name: '用户账号'},{key:'mobile',name: '手机号'},{key:'hisgroup',name: '当前考勤组'},{key:'organ',name: '组织'}],
+            head: [{key:'name',name: '姓名'},{key:'username',name: '用户账号'},{key:'mobile',name: '手机号'},{key:'clockGroupName',name: '当前考勤组'},{key:'organizationName',name: '组织'}],
             userOption:[{name: '删除',event: 'delTable',type:2}],
             //考勤组成员信息
             users: [],
@@ -285,17 +285,32 @@ export default {
                         //提交特殊日期接口
                     this.submitSpecialDate([this.id]).then(res=> {
                         this.$message.success(res)
-                        this.$router.push('clock_group_manage')
+                        this.$router.push({name: 'clock_group_manage'})
                     })
                     break
             }
         },
         // ***************************修改考勤组名称*******************************
-        changeName: function() {
-            this.editName(this.groupname).then(res=> {
-                this.groupname = this.name
+        openChangeName() {
+            this.$prompt('请输入名称', '修改考勤组名称', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                inputErrorMessage: '格式不正确'
+            }).then(({ value }) => {
+                this.changeName(value)
+            }).catch(() => {
+                      
+            })
+        },
+        changeName: function(groupname) {
+            if(!groupname && !utils.isStringEmpty(groupname)) {
+                this.$message.error('考勤组名称不能为空！')
+                return
+            }
+            this.editName(groupname).then(res=> {
+                // this.groupname = this.name
                 this.$message.success(res)
-                this.isShowEditName = false
+                // this.isShowEditName = false
             }).catch(err=> {
                 this.$message.error(err)
             })
@@ -326,27 +341,24 @@ export default {
         },
         // ***********************考勤班次设置***********************
             //保存考勤班次设置
-        setSchedual: function() {
+        async setSchedual() {
             let clockOrder = this.clockOrder
             let clockGroupId = this.id
             let workDaySet = {}
             let {applyFestival,clockTimes,clockStartTime} = clockOrder
             let scheduleItem = utils.dealTimeData(this.countData,clockTimes)
             workDaySet = utils.transformWorkday(clockOrder.workDaySet)
-            this.$axios({
-                url: `/es/regularSchedules/save`,
-                method: 'post',
-                data: {clockGroupId,scheduleItem,workDaySet,applyFestival,clockTimes,clockStartTime}
-            }).then(res=> {
+            try {
+                let res = await this.$axios({url: `/es/regularSchedules/save`,method: 'post',data: {clockGroupId,scheduleItem,workDaySet,applyFestival,clockTimes,clockStartTime}})
                 if(res) {
                     this.$message.success(res)
                     this.setClockOrder({clockTimes: 2})
                     this.clearCountData()
                     if(this.status !== 'edit') this.active++
                 }
-            }).catch(err=> {
+            }catch(err) {
                 console.log(err)
-            })
+            }
         },
         //修每天开始打卡时间
         changeTime: function(val) {
@@ -426,22 +438,19 @@ export default {
             this.setClockType({val,t,i})
         },
         //获取考勤地点列表
-        getUsefulSite: function(name='',city='',page=1,size=20) {
+        async getUsefulSite(name='',city=[],page=1,size=20) {
             this.loadingSite = true
-            this.$axios({
-                url: `/es/groupOffices/_search?page=${page}&size=${size}`,
-                method: 'post',
-                data: {name,city}
-            }).then(res=> {
+            try {
+                let res = await this.$axios({url: `/es/groupOffices/_search?page=${page}&size=${size}`,method: 'post',data: {name,city}})
                 console.log('成功获取考勤组下可选考勤地点',res)
                 if(res) {
                     this.siteTableData = res.content
                     this.recordCount = res.recordCount
                 }
                 this.loadingSite = false
-            }).catch(err=> {
-                console.log(err);
-            })
+            }catch(err) {
+                console.log(err)
+            }
         },
         //搜索考勤地点
         searchSite: function() {
@@ -456,6 +465,8 @@ export default {
         //查看考勤地点信息
         editTable: function(scope) {
             //根据对应地点跳转至查看考勤地点页面*
+            scope.row.id = scope.row.officeId
+            scope.row.name = scope.row.officeName
             this.setSiteInfo(scope.row)
             this.isShowSite = true 
         },
@@ -495,7 +506,7 @@ export default {
         },
         //设置考勤组对应考勤地点（final）包含编辑及新增
             /* eslint-disable */
-        setGroupSite: function() {
+        async setGroupSite() {
             let clockGroupId  = this.id
             let obj = utils.addDelArr(this.initialClockSite,this.clockSite,'officeId')
             const addOffices = []
@@ -513,19 +524,15 @@ export default {
                 addOffices.push(editItem)
             })
             const delOffices = obj.delArr.map(item => item.groupOfficeId)
-            this.$axios({
-                url: '/es/groupOffices/set',
-                method: 'post',
-                data: {clockGroupId,addOffices,delOffices}
-            }).then(res=> {
+            try {
+                let res = await this.$axios({url: '/es/groupOffices/set',method: 'post',data: {clockGroupId,addOffices,delOffices}})
                 if(res) {
                     this.$message.success(res)
                     if(this.status !== 'edit') this.active++
                 } 
-            }).catch(err=> {
+            }catch(err) {
                 console.log(err)
-            })
-
+            }
         },
         formatter: function(cellvalue,property) {
             if(property == 'clockType') { 
@@ -597,20 +604,22 @@ export default {
             this.queryUser(this.userName)
         },
         //搜索接口
-        queryUser: function(q,page=1,size=20,gid=[],oid=[],rid=[]) {
+        async queryUser(q,page=1,size=20,gid=[],oid=[],rid=[]) {
             this.searchLoading = true
-            this.$axios({
-                url: `/sys/users/_search?page=${page}&size=${size}`,
-                method: 'post',
-                data: {gid,oid,q,rid}
-            }).then(res=> {
+            try {
+                let res = await this.$axios({url: `/sys/users/_search?page=${page}&size=${size}`,method: 'post',data: {gid,oid,q,rid}})
                 if(res) {
                     console.log('成功搜索到用户',res)
-                    res.content.forEach(item=> item.leaf = true)
+                    res.content.forEach(item=> {
+                        item.leaf = true
+                        item.username ? item.name = `${item.name}(${item.username})` : ''
+                    })
                     this.rootNode = res.content
                     this.searchLoading = false
                 }
-            })
+            }catch(err) {
+                console.log(err)
+            }
         },
         //清除搜索框内容后重新获取机构树
         clearUserName: function() {
@@ -625,28 +634,24 @@ export default {
             this.$refs.tree.setCheckedNodes(user)
         },
         //编辑时保存考勤组成员设置
-        saveGroupUser: function() {
+        async saveGroupUser() {
             let clockGroupId = this.id
             let obj = utils.addDelArr(this.initialClockUser,this.clockUser,'id')
             let addUserId = obj.addArr ? obj.addArr.map(item=> item.id ) : []
             let deleteUserId = obj.delArr ? obj.delArr.map(item=> item.id) : []
-            this.$axios({
-                url: '/es/groupUsers/set',
-                method: 'post',
-                data: {clockGroupId,addUserId,deleteUserId}
-            }).then(res=> {
-                if(res) {
-                    this.$confirm(`${res}，是否继续设置特殊日期？`, '', {
-                        confirmButtonText: '是',
-                        cancelButtonText: '否',
-                        type: 'success'
-                    }).then(() => {
-                        this.active++
-                    }).catch(() => {
-                        this.$router.push('clock_group_manage')
-                    })
-                }
-            })
+            let res = await this.$axios({url: '/es/groupUsers/set',method: 'post',data: {clockGroupId,addUserId,deleteUserId}})
+            if(res) {
+                if(this.status === 'edit') return this.$message.success(res)
+                this.$confirm(`${res}，是否继续设置特殊日期？`, '', {
+                    confirmButtonText: '是',
+                    cancelButtonText: '否',
+                    type: 'success'
+                }).then(() => {
+                    this.active++
+                }).catch(() => {
+                    this.$router.push({name: 'clock_group_manage'})
+                })
+            }
         },
         //格式化考勤组成员数据
         formatUser: function(val,property) {

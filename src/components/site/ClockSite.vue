@@ -2,8 +2,8 @@
     <div class="clocksite-container">
         <section>
             <table-data :head="sitehead" :tableData="siteInfo.content" :isSelected="false" :option="option" :totalNumber="siteInfo.recordCount" @delTable="delTable" @editTable="editTable" 
-            @chooseTable="chooseTable" @currentChange="nextPage" :format="format" :data="searchInfo" :formData="formItem" @btnClick="searchSite" :mutiItem="mutiItem" @createSite="createSite"
-            @changeMutiSelect="changeMutiSelect">
+                @chooseTable="chooseTable" @currentChange="nextPage" :format="format" :data="searchInfo" :formData="formItem" @btnClick="searchSite" :mutiItem="mutiItem" @createSite="createSite"
+                @changeMutiSelect="changeMutiSelect">
                 <template #special="{scope: scope}">
                     <slot name="clockstyle" :scope="scope"></slot>
                 </template>

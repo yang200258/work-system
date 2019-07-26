@@ -27,7 +27,7 @@
                         </slot>
                     </template>
                 </el-table-column>
-                <el-table-column label="操作" align="left" v-if="isOption" :class-name="'option'" width="232px">
+                <el-table-column label="操作" align="left" v-if="isOption" :class-name="'option'" :width="optionWidth">
                     <template slot-scope="scope">
                         <slot name="option" :scope="scope">
                             <span style="margin-right:22px;" v-show="!((!scope.row.state && names.includes(item.name)) || (scope.row.state && unNames.includes(item.name)))" v-for="(item,index) in option" 
@@ -80,7 +80,7 @@ export default {
         // 操作区
         isOption: {type:Boolean,default: true},
         option: {type:Array,default:()=> {return [{name: '编辑',event: 'editTable',type:1},{name: '删除',event: 'delTable',type:2}]}},
-        optionWidth:{type:String},
+        optionWidth:{type:String,default:'232px'},
         //分页区
         page: {type:Object,default: ()=> {return {isPagination:true,currentPage:1,pageSize:1} }},
         totalNumber:  { type: Number,default: 0 },

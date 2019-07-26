@@ -77,33 +77,31 @@ export default {
             this.isShowInfo = true
         },
         //启用、停用设备
-        delDevice: function(scope) {
+        async delDevice(scope) {
             let deviceId = scope.row.id
             if(scope.row.tenant && scope.row.tenant.name) {
-                this.$axios({
-                    url: `/sys/devices/changeState?deviceId=${deviceId}`,
-                    method: 'post',
-                }).then(res=> {
+                try {
+                    let res = await this.$axios({url: `/sys/devices/changeState?deviceId=${deviceId}`,method: 'post'})
                     if(res) {
                         this.$message.success(res)
                         this.getDevice(this.deviceInfo)
                     }
-                }).catch(err=> {
+                } catch(err) {
                     console.log(err)
-                })
+                }
             } else {
                 this.$confirm('该设备未添加租户，是否添加?', '提示', {
-                        confirmButtonText: '确定',
-                        cancelButtonText: '取消',
-                        type: 'warning'
-                    }).then(() => {
-                        this.editDevice(scope)
-                    }).catch(() => {
-                        this.$message({
-                            type: 'info',
-                            message: '已取消'
-                        })        
-                    })
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    this.editDevice(scope)
+                }).catch(() => {
+                    this.$message({
+                        type: 'info',
+                        message: '已取消'
+                    })        
+                })
             }
         },
         //查看设备
@@ -122,7 +120,7 @@ export default {
         async confirm() {
             if(!this.infoSet.isCancel) return this.isShowInfo = false
             try {
-                let res = this.$axios({url: '/sys/devices/saveBluetooth',method: 'post',data: this.form})
+                let res = await this.$axios({url: '/sys/devices/saveBluetooth',method: 'post',data: this.form})
                 if(res) {
                     this.$message.success(res)
                     this.isShowInfo = false

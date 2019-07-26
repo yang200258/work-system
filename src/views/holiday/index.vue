@@ -197,22 +197,19 @@ export default {
             this.isShowDelete = true
         },
         //单个删除节假日
-        deleteHoliday: function() {
+        async deleteHolidayn() {
             let id = this.delId
-            this.$axios({
-                url: '/sys/festival/deleteFestival',
-                method: 'post',
-                data: {id}
-            }).then(res=> {
+            try {
+                let res = await this.$axios({url: '/sys/festival/deleteFestival',method: 'post',data: {id}})
                 if(res) {
                     this.$message.success(res)
                     this.delId = []
                 }
                 this.isShowDelete = false
                 this.getHoliday()
-            }).catch(err=> {
-                console.log('删除节假日时出错',err)
-            })
+            }catch(err) {
+                console.log(err)
+            }
         },
         closeDelete: function() {
             this.isShowDelete = false

@@ -38,7 +38,7 @@ export default {
             setInialDeviceId: 'site/setInialDeviceId',
         }),
         //获取考勤地点
-        async querySite(page=0,size=20,city='',name='') {
+        async querySite(page=0,size=20,city=[],name='') {
             try {
                 let res = await this.$axios({url: `/es/offices/_search?page=${page}&size=${size}`,method: 'post',data: {city,name}})
                 console.log('获取考勤地点数据',res);

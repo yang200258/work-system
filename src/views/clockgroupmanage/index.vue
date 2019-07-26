@@ -154,38 +154,40 @@ export default {
             getInitialDate: 'group/getInitialDate',
         }),
         //获取考勤组数据
-        getGroup(page=1,size=20,name='',officeName='',clockType=[],creator='',city=[]) {
+        async getGroup(page=1,size=20,name='',officeName='',clockType=[],creator='',city=[]) {
             this.clockGroupLoading = true
-            this.$axios({
-                url: `/es/clockGroups/_search?page=${page}&size=${size}`,
-                method: 'post',
-                data: {name,officeName,clockType,creator,city}
-            }).then(res=> {
+            try {
+                let res = await this.$axios({
+                    url: `/es/clockGroups/_search?page=${page}&size=${size}`,
+                    method: 'post',
+                    data: {name,officeName,clockType,creator,city}
+                })
                 if(res) {
                     console.log('获取考勤组数据',res)
                     this.clockGroupData = res.content
                     this.groupNumber = res.recordCount
                     this.clockGroupLoading = false
                 }
-            }).catch(err=> {
+            } catch(err) {
                 console.log(err)
-            })
+            }
         },
         //获取城市信息
         getCity: function() {
-            this.$axios({
-                url: '/es/clockGroups/getCity',
-                method: 'post'
-            }).then(res=> {
+            try {
+                let res = await this.$axios({url: '/es/clockGroups/getCity',method: 'post'})
                 console.log('成功获取城市列表',res)
                 if(res) {
                     let list = []
                     res.forEach(item=> {
                         list.push({id: item,name: item})
                     })
-                    this.formItem[4].options = list
+                    let index = this._.findIndex(this.formItem,item => item.label === 'city')
+                    this.formItem[index].options = list
                 } 
-            })
+            }catch(err) {
+                console.log(err)
+            }
         },
         //翻页
         nextGroup: function(val) {
@@ -266,16 +268,16 @@ export default {
             })
         },
         //删除考勤组---------------------------------------
-        delClockGroup: function(scope) {
-            this.$axios({
-                url: `/es/clockGroups/delete?id=${scope.row.clockGroupId}`,
-                method: 'post',
-            }).then(res => {
-                this.$message.success(res)
-                this.getGroup()
-            }).catch(err=> {
+        async delClockGroup(scope) {
+            try {
+                let res = await this.$axios({url: `/es/clockGroups/delete?id=${scope.row.clockGroupId}`,method: 'post',})
+                if(res) {
+                    this.$message.success(res)
+                    this.getGroup()
+                }
+            }catch(err) {
                 console.log(err)
-            })
+            }
         },
         //调整考勤组数据展示**************
         showWorkDayType: function(val) {
@@ -305,21 +307,20 @@ export default {
             this.isShowMutiTime = false
         },
             //提交修改时间
-        submintMutiTime: function() {
+        async submintMutiTime() {
             let clockGroupId = this.selectedGroup.map(item=> item.clockGroupId)
             let {clockTimes} = this.clockOrder
             let scheduleItem = utils.dealTimeData(this.countData,this.clockOrder.clockTimes)
-            this.$axios({
-                url: '/es/regularSchedules/editWorkTime',
-                method: 'post',
-                data: {clockGroupId,clockTimes,scheduleItem}
-            }).then(res=> {
+            try {
+                let res = await this.$axios({url: '/es/regularSchedules/editWorkTime',method: 'post',data: {clockGroupId,clockTimes,scheduleItem}})
                 if(res) {
                     this.$message.success(res)
                     this.getGroup()
                     this.isShowMutiTime = false
                 }
-            })
+            }catch(err) {
+                console.log(err)
+            }
         },
             //显示修改特殊日期界面
         showSpecialDate: function() {

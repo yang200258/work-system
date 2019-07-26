@@ -22,7 +22,26 @@ export default {
             ],
         }
     },
+    mounted() {
+        //获取设备管理中对应考勤地点选项
+        this.getOffice()
+    },
     components: {BluetoothAndWifi},
+    methods: {
+        async getOffice() {
+            try {
+                let res = await this.$axios({url:'/es/devices/getOffice',method:'get'})
+                console.log('成功获取考勤地点列表',res)
+                if(res) {
+                    let index = this._.findIndex(this.formItem,item => item.prop === 'officeId')
+                    this.formItem[index].options = res 
+                }
+            }catch(err) {
+                console.log(err)
+            }
+        }
+    }
+
 }
 </script>
 

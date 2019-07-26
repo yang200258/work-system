@@ -173,7 +173,7 @@ export default {
             }
         },
         //获取城市信息
-        getCity: function() {
+        async getCity() {
             try {
                 let res = await this.$axios({url: '/es/clockGroups/getCity',method: 'post'})
                 console.log('成功获取城市列表',res)

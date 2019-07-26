@@ -44,7 +44,6 @@ export default {
         }
     },
     mounted() {
-        // TODO: 抽离蓝牙和WIFI接口
         this.getDevice('',false,this.type)
     },
     components: {Device,TableData,MyDialog},

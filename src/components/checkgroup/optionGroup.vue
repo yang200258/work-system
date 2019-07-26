@@ -599,9 +599,11 @@ export default {
             this.setCheckedUser(data)
         },
         //搜索考勤组成员
-        searchUser: function() {
+        async searchUser() {
             if(utils.isStringEmpty(this.userName)) return this.$message.warning('请输入姓名再进行搜索！')
-            this.queryUser(this.userName)
+            await this.queryUser(this.userName)
+            //搜索成功后设置已选择样式
+            this.setCheckedUser(this.clockUser)
         },
         //搜索接口
         async queryUser(q,page=1,size=20,gid=[],oid=[],rid=[]) {
@@ -655,7 +657,16 @@ export default {
         },
         //格式化考勤组成员数据
         formatUser: function(val,property) {
-            return val ? val : '无'
+            if(property === 'name') {
+                if(val.split('(') && val.split('(').length) {
+                    return val.split('(')[0]
+                } else {
+                    return val ? val : '无'
+                }
+            } else {
+                return val ? val : '无'
+            }
+            
         },
         selectedUser: function({row, rowIndex}) {
             if(this.initialClockUser.map(item=>item.id).includes(row.id)) return 'success-row'

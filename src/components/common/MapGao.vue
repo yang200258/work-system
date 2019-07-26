@@ -47,6 +47,11 @@ export default {
             districtinfo:'',
             loading: false,
             marker: null,
+            mapConfig: {
+                resizeEnable: true,
+                cityName: MapCityName,
+                zoom: 12
+            },
         }
     },
    async mounted() {
@@ -67,11 +72,17 @@ export default {
             } else {
                 this.initMap()
             }
+        },
+        isShowReset(val) {
+            if(val) {
+                this.destroyMap()
+            } else {
+                this.initMap() 
+            }
         }
     },
     beforeDestroy() {
-        this.map.destroy()
-        this.searchKey = ''
+        this.destroyMap()
     },
     computed:  {
         ...mapState({
@@ -87,36 +98,48 @@ export default {
         initMap() {
             let AMapUI = this.AMapUI = window.AMapUI
             let AMap = this.AMap = window.AMap
-            let mapConfig = {
-                resizeEnable: true,
-                cityName: MapCityName,
-                zoom: 12
-            }
-            let map = this.map = new AMap.Map('map-container',mapConfig)
+            let map = this.map = new AMap.Map('map-container',this.mapConfig)
             // 启用工具条
             AMap.plugin(['AMap.ToolBar'], ()=> {
                 map.addControl(new AMap.ToolBar({
                     position: {top:'10px',left:'10px'}
                 }))
             })
-            let siteInfo = this.siteInfo
+            //根据坐标定位地图
+            let siteInfo = Object.assign({},this.siteInfo)
+            console.log('*************122525',siteInfo)
+            this.poistionMap(siteInfo)
+            //若为查看地图状态，则不需加载插件直接返回
+            if(!this.isShowReset) return
+            //绑定地图点击事件
+            map.on('click', this.clickMap)
+            // 加载地图搜索插件
+            this.loadPlaceSearch()
+            //加载PoiPicker，loadUI的路径参数为模块名中 'ui/' 之后的部分
+            this.loadPoiPicker()
+        },
+        //根据坐标定位地图
+        poistionMap(siteInfo) {
             if(siteInfo.latitude && siteInfo.longitude) {
+                console.log('*************',siteInfo)
                 let {latitude,longitude} = siteInfo
-                mapConfig.center = [longitude, latitude]
+                this.mapConfig.center = [longitude, latitude]
                 let marker = this.marker = new AMap.Marker({
                     position: [longitude, latitude],
                     draggable: true,
                     title: siteInfo.name,
                 })
-                map.add(marker)
+                this.map.add(marker)
                 //编辑状态时重新定位点标记
                 // maker.on('draggend',res=> {
                 //     console.log(res)
                 // })
                 this.map.setFitView()
             }
-            // 加载地图搜索插件
-            AMap.service('AMap.PlaceSearch', () => {
+        },
+        // 加载地图搜索插件
+        loadPlaceSearch() {
+            this.AMap.service('AMap.PlaceSearch', () => {
                 this.placeSearch = new AMap.PlaceSearch({
                     pageSize: 5,
                     pageIndex: 1,
@@ -126,8 +149,10 @@ export default {
                     panel: 'search-result'
                 })
             })
-            //加载PoiPicker，loadUI的路径参数为模块名中 'ui/' 之后的部分
-            AMapUI.loadUI(['misc/PoiPicker'], PoiPicker=> {
+        },
+        //加载PoiPicker，loadUI的路径参数为模块名中 'ui/' 之后的部分
+        loadPoiPicker() {
+            this.AMapUI.loadUI(['misc/PoiPicker'], PoiPicker=> {
                 if(PoiPicker) {
                     let poiPicker = new PoiPicker({
                         input: 'output', //输入框id
@@ -136,6 +161,10 @@ export default {
                     this.poiPickerReady(poiPicker)
                 }
             })
+        },
+        //点击地图事件
+        clickMap(ev) {
+            this.getAddress(ev.lnglat.getLng(),ev.lnglat.getLat())
         },
         poiPickerReady: function(poiPicker) {
             this.poiPicker = poiPicker
@@ -153,7 +182,7 @@ export default {
                 //搜索好后移动点标记重新定位***********
                 marker.on('dragend',res => {
                     let {lat,lng} = res.lnglat
-                    this.getAddress(poiResult.item.name,lng,lat)
+                    this.getAddress(lng,lat,poiResult.item.name)
                     return 
                 })
                 marker.setPosition(poiResult.item.location)
@@ -188,15 +217,16 @@ export default {
             }
         },
         //移动点标记时根据经纬度解析详细地址
-        getAddress(name,lng,lat) {
+        getAddress(lng,lat,name='') {
             AMap.plugin('AMap.Geocoder', () => {
                 let geocoder = new AMap.Geocoder({})
                 const lnglat = [lng,lat]
                 geocoder.getAddress(lnglat, (status, result) => {
                     if (status === 'complete' && result.info === 'OK') {
-                        console.log(result)
+                        console.log('解析*****',result)
                         let res = result.regeocode.addressComponent
                         let [address,city,longitude,latitude] = [result.regeocode.formattedAddress,res.city,lng,lat]
+                        name = name ? name : address
                         this.setSiteInfo({name,address,city,latitude,longitude})
                     }
                 })
@@ -205,6 +235,11 @@ export default {
         //修改地址名称
         changeName(val) {
             this.setInfoName(val)
+        },
+        destroyMap() {
+            this.map.destroy()
+            this.map.off('click',this.clickMap)
+            this.searchKey = ''
         }
     }
 }

@@ -4,7 +4,7 @@
         <my-dialog :title="'考勤地点信息'" :show="show" :width="'1200px'" @close="close" :isCancel="true" :cancelText="'关闭'" :isConfirm="true" :confirmText="'编辑'" @cancel="cancel" @confirm="confirm">
             <template slot="dialog-content">
                 <div class="site">
-                    <site-info :isShowReset="!show" :isDestroy="isDestroy" :mapHeight="300"></site-info>
+                    <site-info :isShowReset="!show" :isDestroy="isDestroy" :mapHeight="300" ></site-info>
                 </div>
                 <el-divider></el-divider>
                 <div class="device">
@@ -47,9 +47,6 @@ export default {
     props: {
         show: {type:Boolean,default:false},
         isShowReset: {type:Boolean},
-        // device: {type: Array},
-        // clockGroup: {type: Array},
-        // isDestroy: {type:Boolean}
     },
     data() {
         return {
@@ -101,8 +98,6 @@ export default {
 
 <style lang="scss" scoped>
     .looksite-container {
-        .site {
-        }
         .device {
             margin-top: 40px;
             .device-content {

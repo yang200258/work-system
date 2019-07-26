@@ -8,7 +8,6 @@ const state = {
 
 const mutations = {
     setSiteInfo: (state, data) => {
-        console.log('***********',data)
         state.siteInfo = data
     },
     setInfoName: (state, data) => {

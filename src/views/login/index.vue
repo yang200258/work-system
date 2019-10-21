@@ -15,7 +15,7 @@
                 </el-form-item>
                 <el-checkbox v-model="checked" class="remember">记住密码</el-checkbox>
                 <el-form-item style="width:100%;">
-                    <el-button type="primary" style="width:100%;" @click.native.prevent="loginRequest" :loading="logining">登录</el-button>
+                    <el-button type="primary" style="width:100%;" @click.native.prevent="loginRequest" :loading="logining">登录2222222222</el-button>
                 </el-form-item>
             </el-form>
         </article>

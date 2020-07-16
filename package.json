@@ -13,7 +13,7 @@
         "compression-webpack-plugin": "^2.0.0",
         "css-loader": "^2.1.1",
         "element-ui": "^2.8.2",
-        "lodash": "^4.17.11",
+        "lodash": "^4.17.19",
         "mockjs": "^1.0.1-beta3",
         "vue": "^2.6.6",
         "vue-router": "^3.0.1",
